@@ -1,1 +1,1 @@
-web rocket
+worker: rocket
