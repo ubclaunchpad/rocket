@@ -2,3 +2,5 @@ package: github.com/ubclaunchpad/rocket
 import:
 - package: github.com/nlopes/slack
   version: ^0.1.0
+- package: gopkg.in/pg.v4
+  version: ^6.2.0
