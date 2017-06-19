@@ -1,12 +1,26 @@
-hash: 48f1540518ed63085e484f7947cd8ac128b5a4b70584b22de2d40fe8a9c8e329
-updated: 2017-06-09T17:46:52.25263581-07:00
+hash: 660b04f40e5897e8fca1d1da8e2d8079b53ce0aa2653cd76b36362d2ea8e25ab
+updated: 2017-06-18T20:35:34.97642136-07:00
 imports:
+- name: github.com/go-pg/pg
+  version: dd8aa2f78d5ef7314d65064b7c03d42500ab6ad4
+  subpackages:
+  - internal
+  - internal/pool
+  - orm
+  - types
+  - internal/parser
+- name: github.com/jinzhu/inflection
+  version: 1c35d901db3da928c72a72d8458480cc9ade058f
 - name: github.com/nlopes/slack
   version: c86337c0ef2486a15edd804355d9c73d2f2caed1
+- name: github.com/sirupsen/logrus
+  version: 85b1699d505667d13f8ac4478c1debbf85d6c5de
 - name: golang.org/x/net
-  version: 1a68b1313cf4ad7778376e82641197b60c02f65c
+  version: 973f3f3bbd50e92b13faa6c53ec16f49b45e851c
   subpackages:
   - websocket
-- name: gopkg.in/pg.v4
-  version: c6a064c4f1ad6dcc118229c530a76b73a8816611
+- name: golang.org/x/sys
+  version: fb4cac33e3196ff7f507ab9b2d2a44b0142f5b5a
+  subpackages:
+  - unix
 testImports: []
