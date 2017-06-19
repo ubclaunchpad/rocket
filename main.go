@@ -1,8 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"os"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/nlopes/slack"
 )
@@ -19,15 +20,28 @@ func main() {
 
 	go rtm.ManageConnection()
 
+	channels, err := api.GetChannels(true)
+	if err != nil {
+		log.WithError(err).Error("Could not view channels")
+	} else {
+		for _, c := range channels {
+			log.WithFields(log.Fields{
+				"ID":      c.ID,
+				"Name":    c.Name,
+				"Members": c.Members,
+			}).Info()
+		}
+	}
+
 	for evt := range rtm.IncomingEvents {
 		switch evt.Data.(type) {
 		case *slack.MessageEvent:
 			msg := evt.Data.(*slack.MessageEvent).Msg
-			fmt.Println("===")
-			fmt.Println("Contents: ", msg.Text)
-			fmt.Println("User / Username: ", msg.User, msg.Username)
-			fmt.Println("Name / Members: ", msg.Name, msg.Members)
-			rtm.SendMessage(rtm.NewOutgoingMessage("Hello "+msg.Username+". I'm Rocket, your friendly neighbourhood Slack app.\n"+
+			log.WithFields(log.Fields{
+				"Text": msg.Text,
+				"User": msg.User,
+			}).Info("Message")
+			rtm.SendMessage(rtm.NewOutgoingMessage("Hi, I'm Rocket, your friendly neighbourhood Slack app. "+
 				"I don't do much yet, but hopefully that will change soon :robot_face:", msg.Channel))
 		}
 	}
