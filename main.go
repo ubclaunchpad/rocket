@@ -27,8 +27,8 @@ func main() {
 			fmt.Println("Contents: ", msg.Text)
 			fmt.Println("User / Username: ", msg.User, msg.Username)
 			fmt.Println("Name / Members: ", msg.Name, msg.Members)
-			rtm.SendMessage(rtm.NewOutgoingMessage("Hello "+msg.Username+". I'm Rocket, your friendly neighbourhood Slack app. "+
-				"I don't do much yet, but hopefully that will change soon :robot:", msg.Channel))
+			rtm.SendMessage(rtm.NewOutgoingMessage("Hello "+msg.Username+". I'm Rocket, your friendly neighbourhood Slack app.\n"+
+				"I don't do much yet, but hopefully that will change soon :robot_face:", msg.Channel))
 		}
 	}
 }
