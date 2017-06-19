@@ -6,11 +6,12 @@ import (
 
 // Config represents configuration option state for the app.
 type Config struct {
-	Token        string
-	PostgresHost string
-	PostgresPort string
-	PostgresUser string
-	PostgresPass string
+	Token            string
+	PostgresHost     string
+	PostgresPort     string
+	PostgresUser     string
+	PostgresPass     string
+	PostgresDatabase string
 }
 
 // FromEnv creates a configuration from the environment.
