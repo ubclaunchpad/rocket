@@ -1,14 +1,13 @@
 package model
 
 import (
-	"strconv"
 	"sync"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/ubclaunchpad/rocket/config"
 
-	"gopkg.in/pg.v4"
+	"github.com/go-pg/pg"
 )
 
 // DAL represents the data abstraction layer and provides an interface
@@ -26,10 +25,10 @@ var (
 func Init(c *config.Config) {
 	once.Do(func() {
 		db := pg.Connect(&pg.Options{
-			Addr:     conf.PostgresHost + ":" + strconv.FormatUint(uint64(conf.PostgreSQLPort), 10),
-			User:     conf.PostgresUsername,
-			Password: conf.PostgresPassword,
-			Database: conf.PostgresDatabase,
+			Addr:     c.PostgresHost + ":" + c.PostgresPort,
+			User:     c.PostgresUser,
+			Password: c.PostgresPass,
+			Database: c.PostgresDatabase,
 		})
 		instance = DAL{db}
 		err := instance.Ping()
