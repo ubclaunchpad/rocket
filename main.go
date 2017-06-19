@@ -22,7 +22,7 @@ func main() {
 	for evt := range rtm.IncomingEvents {
 		switch evt.Data.(type) {
 		case *slack.MessageEvent:
-			msg := msg.Data.(*slack.MessageEvent).Msg
+			msg := evt.Data.(*slack.MessageEvent).Msg
 			fmt.Println("===")
 			fmt.Println("Contents: ", msg.Text)
 			fmt.Println("User / Username: ", msg.User, msg.Username)

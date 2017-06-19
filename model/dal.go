@@ -13,7 +13,7 @@ import (
 // DAL represents the data abstraction layer and provides an interface
 // to the database.
 type DAL struct {
-	db pg.DB
+	db *pg.DB
 }
 
 var (
@@ -41,7 +41,7 @@ func Init(c *config.Config) {
 // Ping checks that we can reach the database.
 func (dal *DAL) Ping() error {
 	i := 0
-	_, err = dp.db.QueryOne(pg.Scan(&i), "SELECT 1")
+	_, err := dal.db.QueryOne(pg.Scan(&i), "SELECT 1")
 	return err
 }
 
