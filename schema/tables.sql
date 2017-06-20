@@ -6,6 +6,7 @@ CREATE TABLE members (
     email VARCHAR(128) PRIMARY KEY,
     first_name VARCHAR(128),
     last_name VARCHAR(128),
+    github_username VARCHAR(128),
     program VARCHAR(64),
     image_url VARCHAR(256),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (now() at time zone 'utc')

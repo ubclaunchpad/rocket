@@ -12,6 +12,8 @@ type Config struct {
 	PostgresUser     string
 	PostgresPass     string
 	PostgresDatabase string
+	Host             string
+	Port             string
 }
 
 // FromEnv creates a configuration from the environment.

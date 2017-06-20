@@ -15,6 +15,9 @@ func main() {
 	// pgUsername := os.Getenv("ROCKET_POSTGRESUSERNAME")
 	// pgPassword := os.Getenv("ROCKET_POSTGRESPASSWORD")
 
+	// host = os.Getenv("ROCKET_HOST")
+	// port = os.Getenv("ROCKET_PORT")
+
 	api := slack.New(token)
 	rtm := api.NewRTM()
 
@@ -26,9 +29,8 @@ func main() {
 	} else {
 		for _, c := range channels {
 			log.WithFields(log.Fields{
-				"ID":      c.ID,
-				"Name":    c.Name,
-				"Members": c.Members,
+				"ID":   c.ID,
+				"Name": c.Name,
 			}).Info()
 		}
 	}

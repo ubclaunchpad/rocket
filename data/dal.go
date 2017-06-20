@@ -1,4 +1,4 @@
-package model
+package data
 
 import (
 	"sync"
@@ -36,6 +36,10 @@ func Init(c *config.Config) {
 			log.Fatal("Error initializing the database: ", err.Error())
 		}
 	})
+}
+
+func Get() *DAL {
+	return &instance
 }
 
 // Ping checks that we can reach the database.

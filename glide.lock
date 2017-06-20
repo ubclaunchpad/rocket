@@ -1,5 +1,5 @@
-hash: 660b04f40e5897e8fca1d1da8e2d8079b53ce0aa2653cd76b36362d2ea8e25ab
-updated: 2017-06-18T20:35:34.97642136-07:00
+hash: f030a4ec7b96b2ccf653ae35cccf4f7e43564c9d8a8b49dc7f659b8583c2a0b5
+updated: 2017-06-19T22:37:32.086622111-07:00
 imports:
 - name: github.com/go-pg/pg
   version: dd8aa2f78d5ef7314d65064b7c03d42500ab6ad4
@@ -9,6 +9,8 @@ imports:
   - orm
   - types
   - internal/parser
+- name: github.com/gorilla/mux
+  version: bcd8bc72b08df0f70df986b97f95590779502d31
 - name: github.com/jinzhu/inflection
   version: 1c35d901db3da928c72a72d8458480cc9ade058f
 - name: github.com/nlopes/slack
