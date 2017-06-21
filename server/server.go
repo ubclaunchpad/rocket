@@ -18,7 +18,8 @@ type Server struct {
 	dal    *data.DAL
 }
 
-func New(c *config.Config) *Server {
+// New returns a new instance of the HTTP server based on a config.
+func New(c *config.Config, dal *data.DAL) *Server {
 	router := mux.NewRouter()
 	s := &Server{
 		router: router,
@@ -26,15 +27,40 @@ func New(c *config.Config) *Server {
 	}
 
 	api := router.PathPrefix("/api").Subrouter()
-	api.HandleFunc(RouteMembers, s.MemberHandler).Methods("GET")
+	api.HandleFunc("/members", s.MemberHandler).Methods("GET")
+	api.HandleFunc("/teams", s.TeamHandler).Methods("GET")
 
 	return s
+}
+
+func (s *Server) Start() error {
+	return http.ListenAndServe(s.addr, s.router)
 }
 
 func (s *Server) MemberHandler(res http.ResponseWriter, req *http.Request) {
 	var members model.Members
 	if err := s.dal.GetMembers(&members); err != nil {
-		res.WriteHeader(http.StatusOK)
-		json.NewEncoder(res).Encode(&members)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
 	}
+
+	if err := json.NewEncoder(res).Encode(&members); err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	res.WriteHeader(http.StatusOK)
+}
+
+func (s *Server) TeamHandler(res http.ResponseWriter, req *http.Request) {
+	var teams model.Teams
+	if err := s.dal.GetTeams(&teams); err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if err := json.NewEncoder(res).Encode(&teams); err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	res.WriteHeader(http.StatusOK)
 }

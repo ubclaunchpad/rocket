@@ -1,24 +1,24 @@
 package main
 
 import (
-	"os"
-
 	log "github.com/sirupsen/logrus"
+	"github.com/ubclaunchpad/rocket/config"
+	"github.com/ubclaunchpad/rocket/server"
 
 	"github.com/nlopes/slack"
+	"github.com/ubclaunchpad/rocket/data"
 )
 
 func main() {
-	token := os.Getenv("ROCKET_TOKEN")
-	// pgHost := os.Getenv("ROCKET_POSTGRESHOST")
-	// pgPort := os.Getenv("ROCKET_POSTGRESPORT")
-	// pgUsername := os.Getenv("ROCKET_POSTGRESUSERNAME")
-	// pgPassword := os.Getenv("ROCKET_POSTGRESPASSWORD")
+	cfg := config.FromEnv()
 
-	// host = os.Getenv("ROCKET_HOST")
-	// port = os.Getenv("ROCKET_PORT")
+	data.Init(cfg)
+	dal := data.Get()
 
-	api := slack.New(token)
+	srv := server.New(cfg, dal)
+	go srv.Start()
+
+	api := slack.New(cfg.SlackToken)
 	rtm := api.NewRTM()
 
 	go rtm.ManageConnection()
