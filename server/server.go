@@ -24,6 +24,7 @@ func New(c *config.Config, dal *data.DAL) *Server {
 	s := &Server{
 		router: router,
 		addr:   c.Host + ":" + c.Port,
+		dal:    dal,
 	}
 
 	api := router.PathPrefix("/api").Subrouter()
