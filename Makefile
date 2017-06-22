@@ -2,7 +2,7 @@
 
 all: rocket
 
-run: clean rocket
+run: rocket
 	./rocket
 
 rocket:
@@ -11,5 +11,5 @@ rocket:
 deps:
 	glide install
 
-clean: rocket
+clean:
 	rm rocket
