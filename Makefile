@@ -3,10 +3,10 @@
 all: rocket
 
 run: rocket
-	./rocket
+	nohup rocket > /var/log/rocket.log &
 
 rocket:
-	go build
+	go install
 
 deps:
 	glide install
