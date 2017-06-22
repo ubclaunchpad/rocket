@@ -1,8 +1,6 @@
 package data
 
 import (
-	"sync"
-
 	log "github.com/sirupsen/logrus"
 
 	"github.com/ubclaunchpad/rocket/config"
@@ -16,30 +14,22 @@ type DAL struct {
 	db *pg.DB
 }
 
-var (
-	instance DAL
-	once     sync.Once
-)
-
-// Init initializes the DAL with a configuration. Init can only be called once.
-func Init(c *config.Config) {
-	once.Do(func() {
-		db := pg.Connect(&pg.Options{
-			Addr:     c.PostgresHost + ":" + c.PostgresPort,
-			User:     c.PostgresUser,
-			Password: c.PostgresPass,
-			Database: c.PostgresDatabase,
-		})
-		instance = DAL{db}
-		err := instance.Ping()
-		if err != nil {
-			log.Fatal("Error initializing the database: ", err.Error())
-		}
+// New returns a new DAL instance based on the config.
+func New(c *config.Config) *DAL {
+	db := pg.Connect(&pg.Options{
+		Addr:     c.PostgresHost + ":" + c.PostgresPort,
+		User:     c.PostgresUser,
+		Password: c.PostgresPass,
+		Database: c.PostgresDatabase,
 	})
-}
+	dal := &DAL{db}
 
-func Get() *DAL {
-	return &instance
+	err := dal.Ping()
+	if err != nil {
+		log.Fatal("Error initializing the database: ", err.Error())
+	}
+
+	return dal
 }
 
 // Ping checks that we can reach the database.
