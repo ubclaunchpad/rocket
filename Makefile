@@ -11,5 +11,5 @@ rocket:
 deps:
 	glide install
 
-clean:
+clean: rocket
 	rm rocket
