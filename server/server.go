@@ -37,6 +37,7 @@ func New(c *config.Config, dal *data.DAL) *Server {
 }
 
 func (s *Server) Start() error {
+	log.Info("Starting API server on ", s.addr)
 	return http.ListenAndServe(s.addr, s.router)
 }
 
