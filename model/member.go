@@ -3,8 +3,9 @@ package model
 import "time"
 
 type Member struct {
-	ID             string    `sql:",pk" json:"-"`
-	Email          string    `json:"email"`
+	TableName struct{} `sql:"members" json:"-"`
+
+	Email          string    `sql:",pk" json:"email"`
 	FirstName      string    `json:"firstName"`
 	LastName       string    `json:"lastName"`
 	GithubUsername string    `json:"githubUsername"`

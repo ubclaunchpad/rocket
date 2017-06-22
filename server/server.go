@@ -41,11 +41,13 @@ func (s *Server) Start() error {
 func (s *Server) MemberHandler(res http.ResponseWriter, req *http.Request) {
 	var members model.Members
 	if err := s.dal.GetMembers(&members); err != nil {
+		log.WithError(err).Error("Failed to get members")
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	if err := json.NewEncoder(res).Encode(&members); err != nil {
+		log.WithError(err).Error("Failed to encode JSON")
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -55,11 +57,13 @@ func (s *Server) MemberHandler(res http.ResponseWriter, req *http.Request) {
 func (s *Server) TeamHandler(res http.ResponseWriter, req *http.Request) {
 	var teams model.Teams
 	if err := s.dal.GetTeams(&teams); err != nil {
+		log.WithError(err).Error("Failed to get teams")
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	if err := json.NewEncoder(res).Encode(&teams); err != nil {
+		log.WithError(err).Error("Failed to encode JSON")
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
