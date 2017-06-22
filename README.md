@@ -1,3 +1,3 @@
 # Rocket
 
-Slack bot for UBC Launch Pad
+Slack bot for UBC Launch Pad.
