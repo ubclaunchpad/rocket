@@ -19,5 +19,5 @@ DROP TABLE IF EXISTS team_members;
 CREATE TABLE team_members (
     team_name TEXT REFERENCES teams(name),
     member_email TEXT REFERENCES members(email),
-    PRIMARY KEY (team_id, member_id)
+    PRIMARY KEY (team_name, member_email)
 );
