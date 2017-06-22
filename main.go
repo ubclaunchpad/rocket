@@ -14,8 +14,7 @@ import (
 func main() {
 	cfg := config.FromEnv()
 
-	data.Init(cfg)
-	dal := data.Get()
+	dal := data.New(cfg)
 
 	srv := server.New(cfg, dal)
 	go srv.Start()
