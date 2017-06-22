@@ -1,4 +1,4 @@
-.PHONY: deps clean
+.PHONY: deps clean rocket
 
 all: rocket
 
