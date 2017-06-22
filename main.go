@@ -40,8 +40,10 @@ func main() {
 		case *slack.MessageEvent:
 			msg := evt.Data.(*slack.MessageEvent).Msg
 			log.WithFields(log.Fields{
-				"Text": msg.Text,
-				"User": msg.User,
+				"Text":    msg.Text,
+				"User":    msg.User,
+				"Channel": msg.Channel,
+				"Type":    msg.Type,
 			}).Info("Message")
 			rtm.SendMessage(rtm.NewOutgoingMessage("Hi, I'm Rocket, your friendly neighbourhood Slack app. "+
 				"I don't do much yet, but hopefully that will change soon :robot_face:", msg.Channel))
