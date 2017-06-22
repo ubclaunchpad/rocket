@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/ubclaunchpad/rocket/config"
 	"github.com/ubclaunchpad/rocket/server"
@@ -45,8 +47,11 @@ func main() {
 				"Channel": msg.Channel,
 				"Type":    msg.Type,
 			}).Info("Message")
-			rtm.SendMessage(rtm.NewOutgoingMessage("Hi, I'm Rocket, your friendly neighbourhood Slack app. "+
-				"I don't do much yet, but hopefully that will change soon :robot_face:", msg.Channel))
+			if strings.Index(msg.Text, "rocket") >= 0 {
+				rtm.SendMessage(rtm.NewOutgoingMessage("Hi, I'm Rocket, your friendly neighbourhood Slack app. "+
+					"I don't do much yet, but hopefully that will change soon :robot_face:", msg.Channel))
+				api.PostMessage(msg.Channel, "Hello _there_, *what* is happening, `code`\n```\nlots of\ncode\n```", slack.PostMessageParameters{})
+			}
 		}
 	}
 }
