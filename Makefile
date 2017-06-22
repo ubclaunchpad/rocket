@@ -2,7 +2,7 @@
 
 all: rocket
 
-run: clean deps rocket
+run: clean rocket
 	./rocket
 
 rocket:
