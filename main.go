@@ -36,6 +36,18 @@ func main() {
 		}
 	}
 
+	ims, err := api.GetIMChannels()
+	if err != nil {
+		log.WithError(err).Error("Could not view IM channels")
+	} else {
+		for _, im := range ims {
+			log.WithFields(log.Fields{
+				"ID":   im.ID,
+				"User": im.User,
+			})
+		}
+	}
+
 	for evt := range rtm.IncomingEvents {
 		switch evt.Data.(type) {
 		case *slack.MessageEvent:

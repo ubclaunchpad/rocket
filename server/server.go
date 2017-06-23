@@ -41,6 +41,12 @@ func (s *Server) Start() error {
 	return http.ListenAndServe(s.addr, s.router)
 }
 
+func (s *Server) RootHandler(res http.ResponseWriter, req *http.Request) {
+	res.Header().Set("Content-Type", "text/html")
+	res.WriteHeader(http.StatusOK)
+	res.Write([]byte("<html><head></head><body>&#x1F680;</body></html>"))
+}
+
 func (s *Server) MemberHandler(res http.ResponseWriter, req *http.Request) {
 	var members model.Members
 	if err := s.dal.GetMembers(&members); err != nil {
