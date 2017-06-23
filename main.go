@@ -11,6 +11,10 @@ import (
 	"github.com/ubclaunchpad/rocket/data"
 )
 
+const (
+	botUsername = "U5RU9TB38"
+)
+
 func main() {
 	cfg := config.FromEnv()
 

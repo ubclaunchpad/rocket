@@ -1,9 +1,8 @@
 DROP TABLE IF EXISTS members;
 CREATE TABLE members (
     slack_id TEXT PRIMARY KEY,
+    name TEXT,
     email TEXT UNIQUE,
-    first_name TEXT,
-    last_name TEXT,
     github_username TEXT,
     program TEXT,
     image_url TEXT,
