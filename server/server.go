@@ -46,7 +46,15 @@ func (s *Server) Start() error {
 func (s *Server) RootHandler(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "text/html")
 	res.WriteHeader(http.StatusOK)
-	res.Write([]byte("<html><head></head><body>&#x1F680;</body></html>"))
+	res.Write([]byte(`
+	<html>
+		<head>
+		</head>
+		<body style="display: flex; align-items: center; justify-content: center; font-size: 64px;">
+			&#x1F680;
+		</body>
+	</html>
+	`))
 }
 
 func (s *Server) MemberHandler(res http.ResponseWriter, req *http.Request) {
