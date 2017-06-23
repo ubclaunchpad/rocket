@@ -29,6 +29,8 @@ func New(c *config.Config, dal *data.DAL) *Server {
 		dal:    dal,
 	}
 
+	router.HandleFunc("/", s.RootHandler).Methods("GET")
+
 	api := router.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/members", s.MemberHandler).Methods("GET")
 	api.HandleFunc("/teams", s.TeamHandler).Methods("GET")
