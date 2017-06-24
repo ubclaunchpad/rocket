@@ -9,11 +9,16 @@ import (
 
 	"github.com/nlopes/slack"
 	"github.com/ubclaunchpad/rocket/data"
+	"github.com/ubclaunchpad/rocket/model"
 )
 
 const (
 	botUsername = "U5RU9TB38"
 )
+
+func mention(username string) string {
+	return "<@" + username + ">"
+}
 
 func main() {
 	cfg := config.FromEnv()
@@ -62,10 +67,67 @@ func main() {
 				"Channel": msg.Channel,
 				"Type":    msg.Type,
 			}).Info("Message")
-			if strings.Index(msg.Text, "rocket") >= 0 {
-				rtm.SendMessage(rtm.NewOutgoingMessage("Hi, I'm Rocket, _your_ friendly neighbourhood Slack app. "+
-					"I don't do much yet, but hopefully that will change soon :robot_face:", msg.Channel))
-				api.PostMessage(msg.Channel, "Hello _there_, *what* is happening, `code`\n```\nlots of\ncode\n```", slack.PostMessageParameters{})
+
+			tokens := strings.Split(msg.Text, " ")
+			if tokens[0] == mention(botUsername) {
+				member := model.Member{
+					SlackID: msg.User,
+				}
+				if tokens[1] == "me" {
+					if err := dal.GetMemberBySlackID(&member); err != nil {
+						log.WithError(err).Error("Error retrieving member by Slack ID")
+					} else {
+						params := slack.PostMessageParameters{
+							Attachments: member.SlackAttachments(),
+						}
+						api.PostMessage(msg.Channel, "Your UBC Launch Pad profile", params)
+					}
+				}
+				if tokens[1] == "init" {
+					member := model.Member{
+						SlackID: msg.User,
+					}
+					dal.CreateMember(&member)
+					api.PostMessage(msg.Channel, "I've set up your profile! Please use these commands to add information:\n"+
+						"`@rocket set name`\n`@rocket set email`\n`@rocket set github`\n`@rocket set program`", slack.PostMessageParameters{})
+				}
+				if tokens[1] == "set" {
+					if len(tokens) < 3 {
+						break
+					}
+					if tokens[2] == "name" {
+						member.Name = strings.Join(tokens[3:], " ")
+						if err := dal.SetMemberName(&member); err != nil {
+							api.PostMessage(msg.Channel, "An error occurred :cry:", slack.PostMessageParameters{})
+						} else {
+							api.PostMessage(msg.Channel, "Your name has been updated! :simple_smile:", slack.PostMessageParameters{})
+						}
+					}
+					if tokens[2] == "email" {
+						member.Email = tokens[3]
+						if err := dal.SetMemberEmail(&member); err != nil {
+							api.PostMessage(msg.Channel, "An error occurred :cry:", slack.PostMessageParameters{})
+						} else {
+							api.PostMessage(msg.Channel, "Your email has been updated! :simple_smile:", slack.PostMessageParameters{})
+						}
+					}
+					if tokens[2] == "github" {
+						member.GithubUsername = tokens[3]
+						if err := dal.SetMemberGitHubUsername(&member); err != nil {
+							api.PostMessage(msg.Channel, "An error occurred :cry:", slack.PostMessageParameters{})
+						} else {
+							api.PostMessage(msg.Channel, "Your GitHub username has been updated! :simple_smile:", slack.PostMessageParameters{})
+						}
+					}
+					if tokens[2] == "program" {
+						member.Program = tokens[3]
+						if err := dal.SetMemberProgram(&member); err != nil {
+							api.PostMessage(msg.Channel, "An error occurred :cry:", slack.PostMessageParameters{})
+						} else {
+							api.PostMessage(msg.Channel, "Your program has been updated! :simple_smile:", slack.PostMessageParameters{})
+						}
+					}
+				}
 			}
 		}
 	}

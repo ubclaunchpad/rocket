@@ -2,9 +2,9 @@ package data
 
 import "github.com/ubclaunchpad/rocket/model"
 
-func (dal *DAL) GetTeamById(team *model.Team) error {
+func (dal *DAL) GetTeamByName(team *model.Team) error {
 	return dal.db.Model(team).
-		Where("id = ?id").
+		Where("name = ?name").
 		Column("Members").
 		Select()
 }

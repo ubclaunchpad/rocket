@@ -2,12 +2,56 @@ package data
 
 import "github.com/ubclaunchpad/rocket/model"
 
-func (dal *DAL) GetMemberByID(member *model.Member) error {
+func (dal *DAL) GetMemberBySlackID(member *model.Member) error {
 	return dal.db.Model(member).
-		Where("id = ?id").
+		Where("slack_id = ?slack_id").
 		Select()
 }
 
 func (dal *DAL) GetMembers(members *model.Members) error {
 	return dal.db.Model(members).Select()
+}
+
+func (dal *DAL) CreateMember(member *model.Member) error {
+	return dal.db.Insert(member)
+}
+
+func (dal *DAL) SetMemberName(member *model.Member) error {
+	_, err := dal.db.Model(member).
+		Set("name = ?name").
+		Update()
+
+	return err
+}
+
+func (dal *DAL) SetMemberEmail(member *model.Member) error {
+	_, err := dal.db.Model(member).
+		Set("email = ?email").
+		Update()
+
+	return err
+}
+
+func (dal *DAL) SetMemberGitHubUsername(member *model.Member) error {
+	_, err := dal.db.Model(member).
+		Set("github_username = ?github_username").
+		Update()
+
+	return err
+}
+
+func (dal *DAL) SetMemberProgram(member *model.Member) error {
+	_, err := dal.db.Model(member).
+		Set("program = ?program").
+		Update()
+
+	return err
+}
+
+func (dal *DAL) SetMemberImageURL(member *model.Member) error {
+	_, err := dal.db.Model(member).
+		Set("image_url = ?image_url").
+		Update()
+
+	return err
 }
