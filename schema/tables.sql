@@ -17,7 +17,7 @@ CREATE TABLE teams (
 
 DROP TABLE IF EXISTS team_members;
 CREATE TABLE team_members (
-    team_name TEXT REFERENCES teams(name),
-    member_email TEXT REFERENCES members(email),
+    team_name TEXT REFERENCES teams(name) ON DELETE CASCADE,
+    member_email TEXT REFERENCES members(email) ON DELETE CASCADE,
     PRIMARY KEY (team_name, member_email)
 );
