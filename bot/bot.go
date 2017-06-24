@@ -94,11 +94,65 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 				}
 				b.api.PostMessage(msg.Channel, "I've set up your profile! Please use these commands to add information:\n"+
 					"`@rocket set name`\n`@rocket set email`\n`@rocket set github`\n`@rocket set program`", noParams)
+				return
 			}
 			if err := b.dal.GetMemberBySlackID(&member); err != nil {
 				b.log.WithError(err).Errorf("Error getting member by Slack ID %s", member.SlackID)
 				b.api.PostMessage(msg.Channel, errorMessage, noParams)
 				return
+			}
+
+			params := slack.PostMessageParameters{}
+
+			if tokens[1] == "me" {
+				params.Attachments = member.SlackAttachments()
+				b.api.PostMessage(msg.Channel, "Your Launch Pad profile :rocket:", params)
+				return
+			}
+
+			if len(tokens) > 3 {
+				if tokens[1] == "set" {
+					if tokens[2] == "name" {
+						member.Name = strings.Join(tokens[3:], " ")
+						if err := b.dal.SetMemberName(&member); err != nil {
+							b.api.PostMessage(msg.Channel, errorMessage, noParams)
+							return
+						}
+						params.Attachments = member.SlackAttachments()
+						b.api.PostMessage(msg.Channel, "Your name has been updated! :simple_smile:", params)
+						return
+					}
+					if tokens[2] == "email" {
+						member.Email = tokens[3]
+						if err := b.dal.SetMemberEmail(&member); err != nil {
+							b.api.PostMessage(msg.Channel, errorMessage, noParams)
+							return
+						}
+						params.Attachments = member.SlackAttachments()
+						b.api.PostMessage(msg.Channel, "Your email has been updated! :simple_smile:", params)
+						return
+					}
+					if tokens[2] == "github" {
+						member.GithubUsername = tokens[3]
+						if err := b.dal.SetMemberGitHubUsername(&member); err != nil {
+							b.api.PostMessage(msg.Channel, errorMessage, noParams)
+							return
+						}
+						params.Attachments = member.SlackAttachments()
+						b.api.PostMessage(msg.Channel, "Your GitHub username has been updated! :simple_smile:", params)
+						return
+					}
+					if tokens[2] == "program" {
+						member.Program = tokens[3]
+						if err := b.dal.SetMemberProgram(&member); err != nil {
+							b.api.PostMessage(msg.Channel, errorMessage, noParams)
+							return
+						}
+						params.Attachments = member.SlackAttachments()
+						b.api.PostMessage(msg.Channel, "Your program has been updated! :simple_smile:", params)
+						return
+					}
+				}
 			}
 		}
 	}
