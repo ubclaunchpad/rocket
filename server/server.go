@@ -18,15 +18,17 @@ type Server struct {
 	router *mux.Router
 	addr   string
 	dal    *data.DAL
+	log    *log.Entry
 }
 
 // New returns a new instance of the HTTP server based on a config.
-func New(c *config.Config, dal *data.DAL) *Server {
+func New(c *config.Config, dal *data.DAL, entry *log.Entry) *Server {
 	router := mux.NewRouter()
 	s := &Server{
 		router: router,
 		addr:   c.Host + ":" + c.Port,
 		dal:    dal,
+		log:    entry,
 	}
 
 	router.HandleFunc("/", s.RootHandler).Methods("GET")
@@ -39,7 +41,7 @@ func New(c *config.Config, dal *data.DAL) *Server {
 }
 
 func (s *Server) Start() error {
-	log.Info("Starting API server on ", s.addr)
+	s.log.Info("Starting API server on ", s.addr)
 	return http.ListenAndServe(s.addr, s.router)
 }
 
@@ -60,13 +62,13 @@ func (s *Server) RootHandler(res http.ResponseWriter, req *http.Request) {
 func (s *Server) MemberHandler(res http.ResponseWriter, req *http.Request) {
 	var members model.Members
 	if err := s.dal.GetMembers(&members); err != nil {
-		log.WithError(err).Error("Failed to get members")
+		s.log.WithError(err).Error("Failed to get members")
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	if err := json.NewEncoder(res).Encode(&members); err != nil {
-		log.WithError(err).Error("Failed to encode JSON")
+		s.log.WithError(err).Error("Failed to encode JSON")
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -76,13 +78,13 @@ func (s *Server) MemberHandler(res http.ResponseWriter, req *http.Request) {
 func (s *Server) TeamHandler(res http.ResponseWriter, req *http.Request) {
 	var teams model.Teams
 	if err := s.dal.GetTeams(&teams); err != nil {
-		log.WithError(err).Error("Failed to get teams")
+		s.log.WithError(err).Error("Failed to get teams")
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	if err := json.NewEncoder(res).Encode(&teams); err != nil {
-		log.WithError(err).Error("Failed to encode JSON")
+		s.log.WithError(err).Error("Failed to encode JSON")
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
