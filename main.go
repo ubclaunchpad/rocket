@@ -18,7 +18,7 @@ func main() {
 	go srv.Start()
 
 	slack := bot.New(cfg, dal, log.WithField("service", "slack"))
-	go slack.Start()
+	slack.Start()
 
 	// channels, err := api.GetChannels(true)
 	// if err != nil {
