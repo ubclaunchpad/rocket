@@ -42,6 +42,7 @@ func New(cfg *config.Config, dal *data.DAL, log *log.Entry) *Bot {
 		token: cfg.SlackToken,
 		api:   api,
 		rtm:   api.NewRTM(),
+		dal:   dal,
 		log:   log,
 	}
 }
@@ -98,10 +99,6 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 				b.log.WithError(err).Errorf("Error getting member by Slack ID %s", member.SlackID)
 				b.api.PostMessage(msg.Channel, errorMessage, noParams)
 				return
-			}
-
-			if tokens[1] == "init" {
-
 			}
 		}
 	}
