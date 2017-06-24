@@ -92,7 +92,7 @@ func main() {
 						"`@rocket set name`\n`@rocket set email`\n`@rocket set github`\n`@rocket set program`", slack.PostMessageParameters{})
 				}
 				if tokens[1] == "set" {
-					if len(tokens) < 3 {
+					if len(tokens) < 4 {
 						break
 					}
 					if tokens[2] == "name" {
