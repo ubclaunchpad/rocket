@@ -50,7 +50,7 @@ func (m *Member) SlackAttachments() []slack.Attachment {
 		attachments[1].Color = "danger"
 	}
 	if len(m.Position) == 0 {
-		attachments[1].Color = "danger"
+		attachments[2].Color = "danger"
 	}
 	if len(m.GithubUsername) == 0 {
 		attachments[3].Color = "danger"
