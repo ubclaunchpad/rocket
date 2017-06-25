@@ -60,10 +60,6 @@ func (b *Bot) Start() {
 	}
 }
 
-func mention(username string) string {
-	return "<@" + username + ">"
-}
-
 func (b *Bot) handleMessageEvent(msg slack.Msg) {
 	b.log.WithFields(log.Fields{
 		"Text":    msg.Text,
@@ -76,7 +72,7 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 		return
 	}
 
-	if tokens[0] == mention(username) {
+	if tokens[0] == toMention(username) {
 		// Print help message
 		if len(tokens) == 1 || tokens[1] == "help" {
 			b.api.PostMessage(msg.Channel, helpMessage, noParams)
@@ -122,7 +118,7 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 						return
 					}
 					if tokens[2] == "email" {
-						member.Email = tokens[3]
+						member.Email = parseEmail(tokens[3])
 						if err := b.dal.SetMemberEmail(&member); err != nil {
 							b.api.PostMessage(msg.Channel, errorMessage, noParams)
 							return
