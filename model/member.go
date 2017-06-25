@@ -10,8 +10,10 @@ type Member struct {
 	Name           string    `json:"name"`
 	Email          string    `json:"-"`
 	GithubUsername string    `json:"githubUsername"`
-	Program        string    `json:"program"`
+	Major          string    `sql:"program" json:"major"`
+	Position       string    `json:"position"`
 	ImageURL       string    `json:"imageUrl"`
+	IsAdmin        bool      `json:"-"`
 	CreatedAt      time.Time `json:"-"`
 }
 
@@ -28,11 +30,15 @@ func (m *Member) SlackAttachments() []slack.Attachment {
 			Color: "good",
 		},
 		slack.Attachment{
+			Text:  "Position: " + m.Position,
+			Color: "good",
+		},
+		slack.Attachment{
 			Text:  "GitHub Username: " + m.GithubUsername,
 			Color: "good",
 		},
 		slack.Attachment{
-			Text:  "Program: " + m.Program,
+			Text:  "Major: " + m.Major,
 			Color: "good",
 		},
 	}
@@ -43,11 +49,14 @@ func (m *Member) SlackAttachments() []slack.Attachment {
 	if len(m.Email) == 0 {
 		attachments[1].Color = "danger"
 	}
-	if len(m.GithubUsername) == 0 {
-		attachments[2].Color = "danger"
+	if len(m.Position) == 0 {
+		attachments[1].Color = "danger"
 	}
-	if len(m.Program) == 0 {
+	if len(m.GithubUsername) == 0 {
 		attachments[3].Color = "danger"
+	}
+	if len(m.Major) == 0 {
+		attachments[4].Color = "danger"
 	}
 
 	return attachments

@@ -13,7 +13,10 @@ func (dal *DAL) GetMembers(members *model.Members) error {
 }
 
 func (dal *DAL) CreateMember(member *model.Member) error {
-	return dal.db.Insert(member)
+	_, err := dal.db.Model(member).
+		OnConflict("DO NOTHING").
+		Insert()
+	return err
 }
 
 func (dal *DAL) SetMemberName(member *model.Member) error {
@@ -40,9 +43,17 @@ func (dal *DAL) SetMemberGitHubUsername(member *model.Member) error {
 	return err
 }
 
-func (dal *DAL) SetMemberProgram(member *model.Member) error {
+func (dal *DAL) SetMemberMajor(member *model.Member) error {
 	_, err := dal.db.Model(member).
 		Set("program = ?program").
+		Update()
+
+	return err
+}
+
+func (dal *DAL) SetMemberPosition(member *model.Member) error {
+	_, err := dal.db.Model(member).
+		Set("position = ?position").
 		Update()
 
 	return err

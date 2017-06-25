@@ -5,9 +5,7 @@ CREATE TABLE members (
     email TEXT UNIQUE,
     github_username TEXT,
     program TEXT,
-    position TEXT,
     image_url TEXT,
-    is_admin BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (now() at time zone 'utc')
 );
 

@@ -14,11 +14,13 @@ const (
 	// Our Slack Bot's username
 	username = "U5RU9TB38"
 
-	// Message explaining commands
+	commandsMessage = "```\n@rocket set name <name>\n@rocket set email <email>\n" +
+		"@rocket set github <username>\n@rocket set major <major>\n@rocket set position <position>```"
+
 	helpMessage = "Hi there, I'm Rocket, Launch Pad's friendly neighbourhood Slack bot! :rocket:\n" +
-		"You can create your profile with `@rocket init` and view your profile with `@rocket me`.\n" +
+		"You view your profile with `@rocket me`.\n" +
 		"You can update your profile too!\n" +
-		"```\n@rocket set name <name>\n@rocket set email\n@rocket set github\n@rocket set program\n```"
+		commandsMessage
 
 	// Message for when errors occur
 	errorMessage = "Oops, an error occurred :robot_face:. Bruno must have coded a bug... Sorry about that!"
@@ -86,16 +88,13 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 				SlackID: msg.User,
 			}
 
-			if tokens[1] == "init" {
-				if err := b.dal.CreateMember(&member); err != nil {
-					b.log.WithError(err).Errorf("Error creating a new member with Slack ID %s", member.SlackID)
-					b.api.PostMessage(msg.Channel, errorMessage, noParams)
-					return
-				}
-				b.api.PostMessage(msg.Channel, "I've set up your profile! Please use these commands to add information:\n"+
-					"`@rocket set name`\n`@rocket set email`\n`@rocket set github`\n`@rocket set program`", noParams)
+			// Create member if doesn't already exist
+			if err := b.dal.CreateMember(&member); err != nil {
+				b.log.WithError(err).Errorf("Error creating member with Slack ID %s", member.SlackID)
+				b.api.PostMessage(msg.Channel, errorMessage, noParams)
 				return
 			}
+
 			if err := b.dal.GetMemberBySlackID(&member); err != nil {
 				b.log.WithError(err).Errorf("Error getting member by Slack ID %s", member.SlackID)
 				b.api.PostMessage(msg.Channel, errorMessage, noParams)
@@ -142,15 +141,24 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 						b.api.PostMessage(msg.Channel, "Your GitHub username has been updated! :simple_smile:", params)
 						return
 					}
-					if tokens[2] == "program" {
-						member.Program = tokens[3]
-						if err := b.dal.SetMemberProgram(&member); err != nil {
+					if tokens[2] == "major" {
+						member.Major = tokens[3]
+						if err := b.dal.SetMemberMajor(&member); err != nil {
 							b.api.PostMessage(msg.Channel, errorMessage, noParams)
 							return
 						}
 						params.Attachments = member.SlackAttachments()
-						b.api.PostMessage(msg.Channel, "Your program has been updated! :simple_smile:", params)
+						b.api.PostMessage(msg.Channel, "Your major has been updated! :simple_smile:", params)
 						return
+					}
+					if tokens[2] == "position" {
+						member.Position = strings.Join(tokens[3:], " ")
+						if err := b.dal.SetMemberPosition(&member); err != nil {
+							b.api.PostMessage(msg.Channel, errorMessage, noParams)
+							return
+						}
+						params.Attachments = member.SlackAttachments()
+						b.api.PostMessage(msg.Channel, "You position has been updated! :simple_smile:", params)
 					}
 				}
 			}
