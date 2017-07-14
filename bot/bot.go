@@ -67,7 +67,7 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 		"User":    msg.User,
 	})
 
-	tokens := strings.Split(msg.Text, " ")
+	tokens := strings.Fields(msg.Text)
 	if len(tokens) == 0 {
 		return
 	}
