@@ -66,3 +66,11 @@ func (dal *DAL) SetMemberImageURL(member *model.Member) error {
 
 	return err
 }
+
+func (dal *DAL) SetMemberIsAdmin(member *model.Member) error {
+	_, err := dal.db.Model(member).
+		Set("is_admin = ?is_admin").
+		Update()
+
+	return err
+}

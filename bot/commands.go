@@ -88,6 +88,16 @@ func (b *Bot) add(c *CommandContext) {
 			return
 		}
 		b.api.PostMessage(c.msg.Channel, "`"+team.Name+"` team has been created :tada:", noParams)
+	case "admin":
+		user := model.Member{
+			SlackID: parseMention(c.args[3]),
+			IsAdmin: true,
+		}
+		if err := b.dal.SetMemberIsAdmin(&user); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to make user admin")
+			return
+		}
+		b.api.PostMessage(c.msg.Channel, toMention(user.SlackID)+" has been made an admin :tada:", noParams)
 	default:
 		if len(c.args) < 5 {
 			b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
