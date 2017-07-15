@@ -60,6 +60,7 @@ func (s *Server) RootHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Server) MemberHandler(res http.ResponseWriter, req *http.Request) {
+	res.Header().Set("Content-Type", "application/json")
 	var members model.Members
 	if err := s.dal.GetMembers(&members); err != nil {
 		s.log.WithError(err).Error("Failed to get members")
@@ -76,6 +77,7 @@ func (s *Server) MemberHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Server) TeamHandler(res http.ResponseWriter, req *http.Request) {
+	res.Header().Set("Content-Type", "application/json")
 	var teams model.Teams
 	if err := s.dal.GetTeams(&teams); err != nil {
 		s.log.WithError(err).Error("Failed to get teams")

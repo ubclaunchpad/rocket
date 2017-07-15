@@ -123,6 +123,7 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 		return
 	}
 
+	// Set member image to their slack profile image
 	if err := b.dal.SetMemberImageURL(&member); err != nil {
 		b.log.WithError(err).Errorf("Error setting member image URL")
 		b.api.PostMessage(msg.Channel, errorMessage, noParams)
