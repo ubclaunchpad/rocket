@@ -79,7 +79,11 @@ func (b *Bot) Start() {
 }
 
 func (b *Bot) SendErrorMessage(channel string, err error, msg string) {
-	b.api.PostMessage(channel, errorMessage, noParams)
+	errorMsg := errorMessage
+	if len(msg) > 0 {
+		errorMsg = msg
+	}
+	b.api.PostMessage(channel, errorMsg, noParams)
 	b.log.WithError(err).Error(msg)
 }
 

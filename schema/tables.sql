@@ -20,6 +20,6 @@ CREATE TABLE teams (
 DROP TABLE IF EXISTS team_members;
 CREATE TABLE team_members (
     team_name TEXT REFERENCES teams(name) ON DELETE CASCADE,
-    member_email TEXT REFERENCES members(email) ON DELETE CASCADE,
+    member_slack_id TEXT REFERENCES members(slack_id) ON DELETE CASCADE,
     PRIMARY KEY (team_name, member_email)
 );

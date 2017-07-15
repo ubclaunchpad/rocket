@@ -14,3 +14,17 @@ func (dal *DAL) GetTeams(teams *model.Teams) error {
 		Column("Members").
 		Select()
 }
+
+func (dal *DAL) CreateTeam(team *model.Team) error {
+	_, err := dal.db.Model(team).
+		OnConflict("DO NOTHING").
+		Insert()
+	return err
+}
+
+func (dal *DAL) DeleteTeam(team *model.Team) error {
+	_, err := dal.db.Model(team).
+		Where("name = ?name").
+		Delete()
+	return err
+}
