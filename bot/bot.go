@@ -45,16 +45,19 @@ type Bot struct {
 	dal      *data.DAL
 	log      *log.Entry
 	commands map[string]CommandHandler
+	users    map[string]slack.User
 }
 
 func New(cfg *config.Config, dal *data.DAL, log *log.Entry) *Bot {
 	api := slack.New(cfg.SlackToken)
+
 	b := &Bot{
 		token: cfg.SlackToken,
 		api:   api,
 		rtm:   api.NewRTM(),
 		dal:   dal,
 		log:   log,
+		users: users,
 	}
 
 	commands := map[string]CommandHandler{
@@ -63,8 +66,17 @@ func New(cfg *config.Config, dal *data.DAL, log *log.Entry) *Bot {
 		"set":  b.set,
 		"add":  b.add,
 	}
-
 	b.commands = commands
+
+	users, err := b.api.GetUsers()
+	if err != nil {
+		b.log.WithError(err).Error("Failed to populate users")
+	}
+	b.users = make(map[string]slack.User)
+	for _, u := range users {
+		b.users[u.ID] = u
+	}
+
 	return b
 }
 
@@ -101,7 +113,8 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 	}
 
 	member := model.Member{
-		SlackID: msg.User,
+		SlackID:  msg.User,
+		ImageURL: b.users[msg.User].Profile.ImageOriginal,
 	}
 
 	// Create member if doesn't already exist
