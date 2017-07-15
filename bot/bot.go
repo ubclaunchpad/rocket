@@ -90,6 +90,11 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 		"User":    msg.User,
 	})
 
+	// Ignore messages from bots
+	if len(msg.User) == 0 {
+		return
+	}
+
 	member := model.Member{
 		SlackID: msg.User,
 	}
