@@ -113,7 +113,7 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 
 	member := model.Member{
 		SlackID:  msg.User,
-		ImageURL: b.users[msg.User].Profile.ImageOriginal,
+		ImageURL: b.users[msg.User].Profile.Image192,
 	}
 
 	// Create member if doesn't already exist
