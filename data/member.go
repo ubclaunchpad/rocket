@@ -15,7 +15,6 @@ func (dal *DAL) GetMembers(members *model.Members) error {
 func (dal *DAL) CreateMember(member *model.Member) error {
 	_, err := dal.db.Model(member).
 		OnConflict("DO NOTHING").
-		Returning("member.*").
 		Insert()
 	return err
 }
