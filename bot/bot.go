@@ -57,7 +57,6 @@ func New(cfg *config.Config, dal *data.DAL, log *log.Entry) *Bot {
 		rtm:   api.NewRTM(),
 		dal:   dal,
 		log:   log,
-		users: users,
 	}
 
 	commands := map[string]CommandHandler{
