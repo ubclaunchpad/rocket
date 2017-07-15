@@ -8,7 +8,7 @@ type Team struct {
 	Name      string    `sql:",pk" json:"name"`
 	CreatedAt time.Time `json:"-"`
 
-	Members []*Member `sql:"-" pg:",many2many:team_members,joinFK:Member"`
+	Members []*Member `sql:"-" json:"members" pg:",many2many:team_members,joinFK:Member"`
 }
 
 type Teams []*Team

@@ -73,6 +73,11 @@ func (b *Bot) add(c *CommandContext) {
 		return
 	}
 
+	if !c.user.IsAdmin {
+		b.SendErrorMessage(c.msg.Channel, nil, "You must be an admin to use this command")
+		return
+	}
+
 	switch c.args[2] {
 	case "team":
 		team := model.Team{
