@@ -82,6 +82,21 @@ func (b *Bot) add(c *CommandContext) {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to create team")
 			return
 		}
-		b.api.PostMessage(c.msg.Channel, "`"+team.Name+"` has bee created :tada:", noParams)
+		b.api.PostMessage(c.msg.Channel, "`"+team.Name+"` team has been created :tada:", noParams)
+	default:
+		if len(c.args) < 5 {
+			b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
+			return
+		}
+
+		member := model.TeamMember{
+			MemberSlackID: parseMention(c.args[2]),
+			TeamName:      c.args[4],
+		}
+		if err := b.dal.CreateTeamMember(&member); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to add member to team")
+			return
+		}
+		b.api.PostMessage(c.msg.Channel, toMention(member.MemberSlackID)+" was added to `"+member.TeamName+"` team :tada:", noParams)
 	}
 }
