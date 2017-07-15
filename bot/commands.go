@@ -82,5 +82,6 @@ func (b *Bot) add(c *CommandContext) {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to create team")
 			return
 		}
+		b.api.PostMessage(c.msg.Channel, "`"+team.Name+"` has bee created :tada:", noParams)
 	}
 }

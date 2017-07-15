@@ -61,6 +61,7 @@ func New(cfg *config.Config, dal *data.DAL, log *log.Entry) *Bot {
 		"help": b.help,
 		"me":   b.me,
 		"set":  b.set,
+		"add":  b.add,
 	}
 
 	b.commands = commands
