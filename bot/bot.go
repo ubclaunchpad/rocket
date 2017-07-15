@@ -123,11 +123,11 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 		return
 	}
 
-	if err := b.dal.GetMemberBySlackID(&member); err != nil {
-		b.log.WithError(err).Errorf("Error getting member by Slack ID %s", member.SlackID)
-		b.api.PostMessage(msg.Channel, errorMessage, noParams)
-		return
-	}
+	// if err := b.dal.GetMemberBySlackID(&member); err != nil {
+	// 	b.log.WithError(err).Errorf("Error getting member by Slack ID %s", member.SlackID)
+	// 	b.api.PostMessage(msg.Channel, errorMessage, noParams)
+	// 	return
+	// }
 
 	args := strings.Fields(msg.Text)
 	if len(args) == 0 {
