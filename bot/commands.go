@@ -115,3 +115,52 @@ func (b *Bot) add(c *CommandContext) {
 		b.api.PostMessage(c.msg.Channel, toMention(member.MemberSlackID)+" was added to `"+member.TeamName+"` team :tada:", noParams)
 	}
 }
+
+func (b *Bot) remove(c *CommandContext) {
+	if len(c.args) < 4 {
+		b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
+		return
+	}
+
+	if !c.user.IsAdmin {
+		b.SendErrorMessage(c.msg.Channel, nil, "You must be an admin to use this command")
+		return
+	}
+
+	switch c.args[2] {
+	case "team":
+		team := model.Team{
+			Name: strings.Join(c.args[3:], " "),
+		}
+		if err := b.dal.DeleteTeam(&team); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to delete team")
+			return
+		}
+		b.api.PostMessage(c.msg.Channel, "`"+team.Name+"` team has been deleted :tada:", noParams)
+	case "admin":
+		user := model.Member{
+			SlackID: parseMention(c.args[3]),
+			IsAdmin: false,
+		}
+		if err := b.dal.SetMemberIsAdmin(&user); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to remove user's admin priveleges")
+			return
+		}
+		b.api.PostMessage(c.msg.Channel, toMention(user.SlackID)+" has been removed as admin :tada:", noParams)
+	default:
+		if len(c.args) < 5 {
+			b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
+			return
+		}
+
+		member := model.TeamMember{
+			MemberSlackID: parseMention(c.args[2]),
+			TeamName:      c.args[4],
+		}
+		if err := b.dal.DeleteTeamMember(&member); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to remove member from team")
+			return
+		}
+		b.api.PostMessage(c.msg.Channel, toMention(member.MemberSlackID)+" was removed from `"+member.TeamName+"` team :tada:", noParams)
+	}
+}
