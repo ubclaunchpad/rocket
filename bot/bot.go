@@ -60,10 +60,11 @@ func New(cfg *config.Config, dal *data.DAL, log *log.Entry) *Bot {
 	}
 
 	commands := map[string]CommandHandler{
-		"help": b.help,
-		"me":   b.me,
-		"set":  b.set,
-		"add":  b.add,
+		"help":   b.help,
+		"me":     b.me,
+		"set":    b.set,
+		"add":    b.add,
+		"remove": b.remove,
 	}
 	b.commands = commands
 
