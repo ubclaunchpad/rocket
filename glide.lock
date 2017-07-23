@@ -1,8 +1,8 @@
-hash: b4de977b0a44d8b89f2f3e8c5809d82f5532e9645db8925152a6246601e9f4d4
-updated: 2017-06-21T22:49:09.746574592-07:00
+hash: c592800c6ace98afb69f89595c439115eabf88e368ee807bf8f0db36f27a6c89
+updated: 2017-07-22T23:47:08.223062761-07:00
 imports:
 - name: github.com/go-pg/pg
-  version: ad342352fe2e1ebc6cf28a51456352133afd91ee
+  version: f3d37ec99b9624bee70f6219357af2a1cf521a87
   subpackages:
   - internal
   - internal/pool
@@ -19,6 +19,11 @@ imports:
   version: c86337c0ef2486a15edd804355d9c73d2f2caed1
 - name: github.com/sirupsen/logrus
   version: 85b1699d505667d13f8ac4478c1debbf85d6c5de
+- name: golang.org/x/crypto
+  version: 6914964337150723782436d56b3f21610a74ce7b
+  subpackages:
+  - acme/autocert
+  - acme
 - name: golang.org/x/net
   version: 973f3f3bbd50e92b13faa6c53ec16f49b45e851c
   subpackages:
