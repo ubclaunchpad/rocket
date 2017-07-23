@@ -1,8 +1,11 @@
 package server
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"net/http"
+
+	"golang.org/x/crypto/acme/autocert"
 
 	log "github.com/sirupsen/logrus"
 
@@ -16,6 +19,7 @@ import (
 // interface to Rocket's database.
 type Server struct {
 	router *mux.Router
+	server *http.Server
 	addr   string
 	dal    *data.DAL
 	log    *log.Entry
@@ -24,8 +28,21 @@ type Server struct {
 // New returns a new instance of the HTTP server based on a config.
 func New(c *config.Config, dal *data.DAL, entry *log.Entry) *Server {
 	router := mux.NewRouter()
+	certManager := &autocert.Manager{
+		Prompt:     autocert.AcceptTOS,
+		HostPolicy: autocert.HostWhitelist(c.Domain),
+		Cache:      autocert.DirCache(c.CertificateDir),
+	}
+	server := &http.Server{
+		Addr: ":443",
+		TLSConfig: &tls.Config{
+			GetCertificate: certManager.GetCertificate,
+		},
+	}
+
 	s := &Server{
 		router: router,
+		server: server,
 		addr:   c.Host + ":" + c.Port,
 		dal:    dal,
 		log:    entry,
@@ -42,7 +59,7 @@ func New(c *config.Config, dal *data.DAL, entry *log.Entry) *Server {
 
 func (s *Server) Start() error {
 	s.log.Info("Starting API server on ", s.addr)
-	return http.ListenAndServe(s.addr, s.router)
+	return s.server.ListenAndServeTLS("", "")
 }
 
 func (s *Server) RootHandler(res http.ResponseWriter, req *http.Request) {

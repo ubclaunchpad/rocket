@@ -1,3 +1,3 @@
 # Rocket
 
-Slack bot for UBC Launch Pad.
+Management and onboarding system for UBC Launch Pad.
