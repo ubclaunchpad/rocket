@@ -63,6 +63,7 @@ func (s *Server) Start() error {
 	if err != nil {
 		s.log.WithError(err).Error("Error serving HTTP")
 	}
+	return err
 }
 
 func (s *Server) RootHandler(res http.ResponseWriter, req *http.Request) {
