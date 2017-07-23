@@ -59,7 +59,10 @@ func New(c *config.Config, dal *data.DAL, entry *log.Entry) *Server {
 
 func (s *Server) Start() error {
 	s.log.Info("Starting API server on ", s.addr)
-	return s.server.ListenAndServeTLS("", "")
+	err := s.server.ListenAndServeTLS("", "")
+	if err != nil {
+		s.log.WithError(err).Error("Error serving HTTP")
+	}
 }
 
 func (s *Server) RootHandler(res http.ResponseWriter, req *http.Request) {
