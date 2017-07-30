@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Starts rocket by populating the environment and running
 
 source /go/src/github.com/ubclaunchpad/rocket/.env
