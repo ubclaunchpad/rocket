@@ -1,11 +1,8 @@
 package server
 
 import (
-	"crypto/tls"
 	"encoding/json"
 	"net/http"
-
-	"golang.org/x/crypto/acme/autocert"
 
 	log "github.com/sirupsen/logrus"
 
@@ -28,22 +25,15 @@ type Server struct {
 // New returns a new instance of the HTTP server based on a config.
 func New(c *config.Config, dal *data.DAL, entry *log.Entry) *Server {
 	router := mux.NewRouter()
-	certManager := &autocert.Manager{
-		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist(c.Domain),
-		Cache:      autocert.DirCache(c.CertificateDir),
-	}
+	addr := c.Host + ":" + c.Port
 	server := &http.Server{
-		Addr: ":443",
-		TLSConfig: &tls.Config{
-			GetCertificate: certManager.GetCertificate,
-		},
+		Addr: addr,
 	}
 
 	s := &Server{
 		router: router,
 		server: server,
-		addr:   c.Host + ":" + c.Port,
+		addr:   addr,
 		dal:    dal,
 		log:    entry,
 	}
@@ -59,10 +49,7 @@ func New(c *config.Config, dal *data.DAL, entry *log.Entry) *Server {
 
 func (s *Server) Start() error {
 	s.log.Info("Starting API server on ", s.addr)
-	err := s.server.ListenAndServeTLS("", "")
-	if err != nil {
-		s.log.WithError(err).Error("Error serving HTTP")
-	}
+	err := s.server.ListenAndServe()
 	return err
 }
 
