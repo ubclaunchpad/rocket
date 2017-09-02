@@ -167,4 +167,5 @@ func (b *Bot) remove(c *CommandContext) {
 
 func (b *Bot) refresh(c *CommandContext) {
 	b.PopulateUsers()
+	b.api.PostMessage(c.msg.Channel, "I feel so refreshed! :tropical_drink:", noParams)
 }
