@@ -60,22 +60,16 @@ func New(cfg *config.Config, dal *data.DAL, log *log.Entry) *Bot {
 	}
 
 	commands := map[string]CommandHandler{
-		"help":   b.help,
-		"me":     b.me,
-		"set":    b.set,
-		"add":    b.add,
-		"remove": b.remove,
+		"help":    b.help,
+		"me":      b.me,
+		"set":     b.set,
+		"add":     b.add,
+		"remove":  b.remove,
+		"refresh": b.refresh,
 	}
 	b.commands = commands
 
-	users, err := b.api.GetUsers()
-	if err != nil {
-		b.log.WithError(err).Error("Failed to populate users")
-	}
-	b.users = make(map[string]slack.User)
-	for _, u := range users {
-		b.users[u.ID] = u
-	}
+	b.PopulateUsers()
 
 	return b
 }
@@ -85,9 +79,27 @@ func (b *Bot) Start() {
 
 	for evt := range b.rtm.IncomingEvents {
 		switch evt.Data.(type) {
+		// Check for and respond to commands
 		case *slack.MessageEvent:
 			b.handleMessageEvent(evt.Data.(*slack.MessageEvent).Msg)
+		// Update our user cache when new member joins or user data changes
+		case *slack.TeamJoinEvent:
+			b.handleUserChange(evt.Data.(*slack.TeamJoinEvent).User)
+		case *slack.UserChangeEvent:
+			b.handleUserChange(evt.Data.(*slack.UserChangeEvent).User)
 		}
+	}
+}
+
+// PopulateUsers retrieves list of users from API and populates in-memory cache
+func (b *Bot) PopulateUsers() {
+	users, err := b.api.GetUsers()
+	if err != nil {
+		b.log.WithError(err).Error("Failed to populate users")
+	}
+	b.users = make(map[string]slack.User)
+	for _, u := range users {
+		b.users[u.ID] = u
 	}
 }
 
@@ -158,4 +170,8 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 			handler(context)
 		}
 	}
+}
+
+func (b *Bot) handleUserChange(user slack.User) {
+	b.users[user.ID] = user
 }

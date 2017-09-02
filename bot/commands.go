@@ -164,3 +164,7 @@ func (b *Bot) remove(c *CommandContext) {
 		b.api.PostMessage(c.msg.Channel, toMention(member.MemberSlackID)+" was removed from `"+member.TeamName+"` team :tada:", noParams)
 	}
 }
+
+func (b *Bot) refresh(c *CommandContext) {
+	b.PopulateUsers()
+}
