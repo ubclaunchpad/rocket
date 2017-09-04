@@ -156,18 +156,21 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 
 	// Command message
 	if args[0] == toMention(username) {
+		context := &CommandContext{
+			msg:  &msg,
+			args: args[1:],
+			user: member,
+		}
+
 		if len(args) > 1 {
 			command := args[1]
-			context := &CommandContext{
-				msg:  &msg,
-				args: args,
-				user: member,
-			}
 			handler, ok := b.commands[command]
 			if !ok {
 				handler = b.help
 			}
 			handler(context)
+		} else {
+			b.help(context)
 		}
 	}
 }
