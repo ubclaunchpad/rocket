@@ -126,7 +126,7 @@ func (b *Bot) add(c *CommandContext) {
 		b.api.PostMessage(c.msg.Channel, "`"+team.Name+"` has been added :tada:", noParams)
 	case "admin":
 		user := model.Member{
-			SlackID: parseMention(c.args[3]),
+			SlackID: parseMention(c.args[2]),
 			IsAdmin: true,
 		}
 		if err := b.dal.SetMemberIsAdmin(&user); err != nil {
