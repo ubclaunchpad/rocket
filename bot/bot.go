@@ -61,6 +61,7 @@ func New(cfg *config.Config, dal *data.DAL, gh *github.API, log *log.Entry) *Bot
 		api:   api,
 		rtm:   api.NewRTM(),
 		dal:   dal,
+		gh:    gh,
 		log:   log,
 	}
 
