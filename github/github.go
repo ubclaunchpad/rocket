@@ -74,7 +74,7 @@ func (api *API) CreateTeam(name string) (*gh.Team, error) {
 	// Otherwise, create it
 	team := &gh.Team{
 		Name:    &name,
-		Privacy: gh.String("public"),
+		Privacy: gh.String("closed"),
 	}
 	t, _, err := api.Organizations.CreateTeam(context.Background(), "ubclaunchpad", team)
 	return t, err
