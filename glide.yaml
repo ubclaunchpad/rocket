@@ -16,3 +16,6 @@ import:
   subpackages:
   - github
 - package: golang.org/x/oauth2
+- package: github.com/jordanschalm/go-github
+  subpackages:
+  - github

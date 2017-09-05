@@ -1,5 +1,5 @@
-hash: aabb0f4382b2806bc854862229813fcef209d19b0688f24c0b3db521b9ec5786
-updated: 2017-09-04T20:50:06.291568654-07:00
+hash: ffd1df8ad7daa122c2a1d5956e2d3d4c3088937378aacf6c85013ce0978ded72
+updated: 2017-09-05T13:32:21.934506155-07:00
 imports:
 - name: github.com/go-pg/pg
   version: 6b379280e4b806f329f36da1710cabe134991509
@@ -9,6 +9,10 @@ imports:
   - internal/pool
   - orm
   - types
+- name: github.com/golang/protobuf
+  version: 17ce1425424ab154092bbb43af630bd647f3bb0d
+  subpackages:
+  - proto
 - name: github.com/google/go-github
   version: 24139d56e97a44988087d461125ed6fab91c07ac
   subpackages:
@@ -23,6 +27,10 @@ imports:
   version: bcd8bc72b08df0f70df986b97f95590779502d31
 - name: github.com/jinzhu/inflection
   version: 1c35d901db3da928c72a72d8458480cc9ade058f
+- name: github.com/jordanschalm/go-github
+  version: 94aeb80147d6f9b84e1d883d495cf5c65e86635d
+  subpackages:
+  - github
 - name: github.com/nlopes/slack
   version: c86337c0ef2486a15edd804355d9c73d2f2caed1
 - name: github.com/sirupsen/logrus
@@ -35,12 +43,26 @@ imports:
 - name: golang.org/x/net
   version: 66aacef3dd8a676686c7ae3716979581e8b03c47
   subpackages:
+  - context
+  - context/ctxhttp
   - websocket
 - name: golang.org/x/oauth2
   version: d89af98d7c6bba047c5a2622f36bc14b8766df85
+  subpackages:
+  - internal
 - name: golang.org/x/sys
   version: 7ddbeae9ae08c6a06a59597f0c9edbc5ff2444ce
   subpackages:
   - unix
   - windows
+- name: google.golang.org/appengine
+  version: d9a072cfa7b9736e44311ef77b3e09d804bfa599
+  subpackages:
+  - internal
+  - internal/base
+  - internal/datastore
+  - internal/log
+  - internal/remote_api
+  - internal/urlfetch
+  - urlfetch
 testImports: []
