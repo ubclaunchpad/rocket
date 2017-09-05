@@ -47,16 +47,12 @@ func (b *Bot) set(c *CommandContext) {
 	case "github":
 		c.user.GithubUsername = c.args[2]
 		// Check that the user exists
-		_, _, err := b.gh.Users.Get(context.Background(), c.args[2])
-		if err != nil {
-			b.SendErrorMessage(c.msg.Channel, err, "GitHub user does not exist")
-			return
-		}
+
 		if err := b.dal.SetMemberGitHubUsername(&c.user); err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to set github username")
 			return
 		}
-		_, _, err = b.gh.Organizations.AddTeamMembership(
+		_, _, err := b.gh.Organizations.AddTeamMembership(
 			context.Background(), githubAllTeamID, c.user.GithubUsername, nil,
 		)
 		if err != nil {
@@ -96,15 +92,31 @@ func (b *Bot) add(c *CommandContext) {
 	}
 
 	switch c.args[1] {
+	// @rocket add team <github team name> <team name>
 	case "team":
+		if len(c.args) < 4 {
+			b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
+			return
+		}
+		ghTeamName := c.args[2]
+		teamName := strings.Join(c.args[3:], " ")
+
+		ghTeam, err := b.gh.CreateTeam(ghTeamName)
+		if err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to create team")
+			return
+		}
+
 		team := model.Team{
-			Name: strings.Join(c.args[2:], " "),
+			Name:           teamName,
+			GithubTeamName: *ghTeam.Name,
+			GithubTeamID:   *ghTeam.ID,
 		}
 		if err := b.dal.CreateTeam(&team); err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to create team")
 			return
 		}
-		b.api.PostMessage(c.msg.Channel, "`"+team.Name+"` team has been created :tada:", noParams)
+		b.api.PostMessage(c.msg.Channel, "`"+team.Name+"` team has been created. :tada:\nDon't forget to add the GitHub team name! (`@rocket set team github <github name>`", noParams)
 	case "admin":
 		user := model.Member{
 			SlackID: parseMention(c.args[3]),
@@ -185,11 +197,6 @@ func (b *Bot) remove(c *CommandContext) {
 func (b *Bot) view(c *CommandContext) {
 	if len(c.args) < 3 {
 		b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
-		return
-	}
-
-	if !c.user.IsAdmin {
-		b.SendErrorMessage(c.msg.Channel, nil, "You must be an admin to use this command")
 		return
 	}
 

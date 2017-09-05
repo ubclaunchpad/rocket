@@ -22,6 +22,20 @@ func (dal *DAL) CreateTeam(team *model.Team) error {
 	return err
 }
 
+func (dal *DAL) SetTeamGithubTeamName(team *model.Team) error {
+	_, err := dal.db.Model(team).
+		Set("github_team_name = ?github_team_name").
+		Update()
+	return err
+}
+
+func (dal *DAL) SetTeamGithubTeamID(team *model.Team) error {
+	_, err := dal.db.Model(team).
+		Set("github_team_id = ?github_team_id").
+		Update()
+	return err
+}
+
 func (dal *DAL) DeleteTeam(team *model.Team) error {
 	_, err := dal.db.Model(team).
 		Where("name = ?name").
