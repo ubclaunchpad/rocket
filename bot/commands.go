@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"context"
 	"strings"
 
 	"github.com/nlopes/slack"
@@ -45,6 +46,12 @@ func (b *Bot) set(c *CommandContext) {
 		b.api.PostMessage(c.msg.Channel, "You email has been updated :simple_smile:", params)
 	case "github":
 		c.user.GithubUsername = c.args[2]
+		// Check that the user exists
+		user, _, err := b.gh.Users.Get(context.Background(), c.args[2])
+		if err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "GitHub user does not exist")
+			return
+		}
 		if err := b.dal.SetMemberGitHubUsername(&c.user); err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to set github username")
 			return

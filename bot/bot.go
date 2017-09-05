@@ -7,6 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/ubclaunchpad/rocket/config"
 	"github.com/ubclaunchpad/rocket/data"
+	"github.com/ubclaunchpad/rocket/github"
 	"github.com/ubclaunchpad/rocket/model"
 )
 
@@ -43,12 +44,13 @@ type Bot struct {
 	api      *slack.Client
 	rtm      *slack.RTM
 	dal      *data.DAL
+	gh       *github.API
 	log      *log.Entry
 	commands map[string]CommandHandler
 	users    map[string]slack.User
 }
 
-func New(cfg *config.Config, dal *data.DAL, log *log.Entry) *Bot {
+func New(cfg *config.Config, dal *data.DAL, gh *github.API, log *log.Entry) *Bot {
 	api := slack.New(cfg.SlackToken)
 
 	b := &Bot{

@@ -1,14 +1,22 @@
-hash: c592800c6ace98afb69f89595c439115eabf88e368ee807bf8f0db36f27a6c89
-updated: 2017-07-22T23:47:08.223062761-07:00
+hash: aabb0f4382b2806bc854862229813fcef209d19b0688f24c0b3db521b9ec5786
+updated: 2017-09-04T20:50:06.291568654-07:00
 imports:
 - name: github.com/go-pg/pg
-  version: f3d37ec99b9624bee70f6219357af2a1cf521a87
+  version: 6b379280e4b806f329f36da1710cabe134991509
   subpackages:
   - internal
+  - internal/parser
   - internal/pool
   - orm
   - types
-  - internal/parser
+- name: github.com/google/go-github
+  version: 24139d56e97a44988087d461125ed6fab91c07ac
+  subpackages:
+  - github
+- name: github.com/google/go-querystring
+  version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
+  subpackages:
+  - query
 - name: github.com/gorilla/context
   version: 1ea25387ff6f684839d82767c1733ff4d4d15d0a
 - name: github.com/gorilla/mux
@@ -18,18 +26,21 @@ imports:
 - name: github.com/nlopes/slack
   version: c86337c0ef2486a15edd804355d9c73d2f2caed1
 - name: github.com/sirupsen/logrus
-  version: 85b1699d505667d13f8ac4478c1debbf85d6c5de
+  version: 89742aefa4b206dcf400792f3bd35b542998eb3b
 - name: golang.org/x/crypto
-  version: 6914964337150723782436d56b3f21610a74ce7b
+  version: 81e90905daefcd6fd217b62423c0908922eadb30
   subpackages:
   - acme/autocert
-  - acme
+  - ssh/terminal
 - name: golang.org/x/net
-  version: 973f3f3bbd50e92b13faa6c53ec16f49b45e851c
+  version: 66aacef3dd8a676686c7ae3716979581e8b03c47
   subpackages:
   - websocket
+- name: golang.org/x/oauth2
+  version: d89af98d7c6bba047c5a2622f36bc14b8766df85
 - name: golang.org/x/sys
-  version: fb4cac33e3196ff7f507ab9b2d2a44b0142f5b5a
+  version: 7ddbeae9ae08c6a06a59597f0c9edbc5ff2444ce
   subpackages:
   - unix
+  - windows
 testImports: []

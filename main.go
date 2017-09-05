@@ -4,6 +4,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/ubclaunchpad/rocket/bot"
 	"github.com/ubclaunchpad/rocket/config"
+	"github.com/ubclaunchpad/rocket/github"
 	"github.com/ubclaunchpad/rocket/server"
 
 	"github.com/ubclaunchpad/rocket/data"
@@ -14,9 +15,11 @@ func main() {
 
 	dal := data.New(cfg)
 
+	gh := github.New(cfg)
+
 	srv := server.New(cfg, dal, log.WithField("service", "server"))
 	go srv.Start()
 
-	slack := bot.New(cfg, dal, log.WithField("service", "slack"))
+	slack := bot.New(cfg, dal, gh, log.WithField("service", "slack"))
 	slack.Start()
 }

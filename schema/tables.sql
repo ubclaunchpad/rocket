@@ -14,7 +14,8 @@ CREATE TABLE members (
 DROP TABLE IF EXISTS teams;
 CREATE TABLE teams (
     name TEXT PRIMARY KEY,
-    github_teamname TEXT,
+    github_team_name TEXT,
+    github_team_id TEXT,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (now() at time zone 'utc')
 );
 

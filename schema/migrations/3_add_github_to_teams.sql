@@ -1,2 +1,5 @@
 ALTER TABLE teams
-ADD COLUMN github_teamname TEXT;
+ADD COLUMN github_team_name TEXT;
+
+ALTER TABLE teams
+ADD COLUMN github_team_id TEXT;

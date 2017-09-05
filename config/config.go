@@ -10,6 +10,7 @@ type Config struct {
 	Port             string
 	Domain           string
 	SlackToken       string
+	GithubToken      string
 	PostgresHost     string
 	PostgresPort     string
 	PostgresUser     string
@@ -24,6 +25,7 @@ func FromEnv() *Config {
 		Port:         os.Getenv("ROCKET_PORT"),
 		Domain:       os.Getenv("ROCKET_DOMAIN"),
 		SlackToken:   os.Getenv("ROCKET_SLACKTOKEN"),
+		GithubToken:  os.Getenv("ROCKET_GITHUBTOKEN"),
 		PostgresHost: os.Getenv("ROCKET_POSTGRESHOST"),
 		PostgresPort: os.Getenv("ROCKET_POSTGRESPORT"),
 		PostgresUser: os.Getenv("ROCKET_POSTGRESUSER"),
