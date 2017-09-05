@@ -70,6 +70,7 @@ func New(cfg *config.Config, dal *data.DAL, gh *github.API, log *log.Entry) *Bot
 		"set":     b.set,
 		"add":     b.add,
 		"remove":  b.remove,
+		"view":    b.view,
 		"refresh": b.refresh,
 	}
 	b.commands = commands
