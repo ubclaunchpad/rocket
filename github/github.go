@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/ubclaunchpad/rocket/config"
 	"golang.org/x/oauth2"
 
@@ -54,11 +56,13 @@ func (api *API) RemoveUserFromTeam(username string, teamID int) error {
 }
 
 func (api *API) CreateTeam(name string) (*gh.Team, error) {
+	log.Info("Getting teams")
 	teams, _, err := api.Organizations.ListTeams(context.Background(), "ubclaunchpad", nil)
 	if err != nil {
 		return nil, err
 	}
 
+	log.Info("Checking if team exists")
 	// Check if the team already exists
 	for _, team := range teams {
 		if *team.Name == name {
@@ -66,6 +70,7 @@ func (api *API) CreateTeam(name string) (*gh.Team, error) {
 		}
 	}
 
+	log.Info("Creating team")
 	// Otherwise, create it
 	team := &gh.Team{
 		Name:    &name,
