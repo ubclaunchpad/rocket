@@ -3,9 +3,9 @@ DROP TABLE IF EXISTS team_members;
 DROP TABLE IF EXISTS teams;
 
 CREATE TABLE team_members (
-    team_github_id INTEGER REFERENCES teams(github_team_id) ON DELETE CASCADE,
+    team_github_team_id INTEGER REFERENCES teams(github_team_id) ON DELETE CASCADE,
     member_slack_id TEXT REFERENCES members(slack_id) ON DELETE CASCADE,
-    PRIMARY KEY (team_github_id, member_slack_id)
+    PRIMARY KEY (team_github_team_id, member_slack_id)
 );
 
 CREATE TABLE teams (
