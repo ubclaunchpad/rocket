@@ -100,10 +100,10 @@ func (b *Bot) add(c *CommandContext) {
 		}
 		ghTeamName := c.args[2]
 		teamName := strings.Join(c.args[3:], " ")
-		b.log.Debug("got team ", ghTeamName, teamName)
+		b.log.Info("got team ", ghTeamName, teamName)
 
 		ghTeam, err := b.gh.CreateTeam(ghTeamName)
-		b.log.Debug("create team, ", ghTeam, err)
+		b.log.Info("create team, ", ghTeam, err)
 		if err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to create team")
 			return
