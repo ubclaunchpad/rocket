@@ -101,6 +101,9 @@ func (b *Bot) add(c *CommandContext) {
 			b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
 			return
 		}
+		b.log.Info("args", c.args)
+		b.log.Info("args[2]", c.args[2])
+		b.log.Info("args[3:]", c.args[3:])
 		ghTeamName := c.args[2]
 		teamName := strings.Join(c.args[3:], " ")
 		b.log.Info("got team ", ghTeamName, teamName)
