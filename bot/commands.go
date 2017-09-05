@@ -102,10 +102,6 @@ func (b *Bot) add(c *CommandContext) {
 
 	switch c.args[1] {
 	case "team":
-		if len(c.args) < 4 {
-			b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
-			return
-		}
 		teamName := strings.Join(c.args[2:], " ")
 		// teamName = "Great Team", ghTeamName = "great-team"
 		ghTeamName := strings.ToLower(strings.Join(c.args[2:], "-"))
