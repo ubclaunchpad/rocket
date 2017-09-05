@@ -148,22 +148,30 @@ func (b *Bot) add(c *CommandContext) {
 			return
 		}
 
+		member := model.Member{
+			SlackID: parseMention(c.args[1]),
+		}
+		if err := b.dal.GetMemberBySlackID(&member); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to find member")
+			return
+		}
+
 		// Add user to corresponding GitHub team
-		if err := b.gh.AddUserToTeam(c.user.GithubUsername, team.GithubTeamID); err != nil {
+		if err := b.gh.AddUserToTeam(member.GithubUsername, team.GithubTeamID); err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to add user to GitHub team")
 			return
 		}
 
-		member := model.TeamMember{
+		teamMember := model.TeamMember{
 			MemberSlackID: parseMention(c.args[1]),
 			GithubTeamID:  team.GithubTeamID,
 		}
 		// Finally, add relation to DB
-		if err := b.dal.CreateTeamMember(&member); err != nil {
+		if err := b.dal.CreateTeamMember(&teamMember); err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to add member to team")
 			return
 		}
-		b.api.PostMessage(c.msg.Channel, toMention(member.MemberSlackID)+" was added to `"+team.Name+"` team :tada:", noParams)
+		b.api.PostMessage(c.msg.Channel, toMention(member.SlackID)+" was added to `"+team.Name+"` team :tada:", noParams)
 	}
 }
 
@@ -232,7 +240,7 @@ func (b *Bot) remove(c *CommandContext) {
 			return
 		}
 
-		// Remove user to GitHub team
+		// Remove user from GitHub team
 		if err := b.gh.RemoveUserFromTeam(member.GithubUsername, team.GithubTeamID); err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to add member to GitHub team")
 			return
