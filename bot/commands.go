@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"context"
 	"strings"
 
 	"github.com/nlopes/slack"
@@ -47,18 +46,28 @@ func (b *Bot) set(c *CommandContext) {
 	case "github":
 		c.user.GithubUsername = c.args[2]
 		// Check that the user exists
+		exists, err := b.gh.UserExists(c.user.GithubUsername)
+		if err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Error checking whether user exists")
+			return
+		}
+		if !exists {
+			b.SendErrorMessage(c.msg.Channel, nil, "No GitHub user with that name exists")
+			return
+		}
 
+		// Add the user to our GitHub org by adding to `all` team
+		if err := b.gh.AddUserToTeam(c.user.GithubUsername, githubAllTeamID); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to add you to Launch Pad's GitHub organization")
+			return
+		}
+
+		// Finally, set their username in the DB
 		if err := b.dal.SetMemberGitHubUsername(&c.user); err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to set github username")
 			return
 		}
-		_, _, err := b.gh.Organizations.AddTeamMembership(
-			context.Background(), githubAllTeamID, c.user.GithubUsername, nil,
-		)
-		if err != nil {
-			b.SendErrorMessage(c.msg.Channel, err, "Failed to add you to Launch Pad's GitHub organization")
-			return
-		}
+
 		params.Attachments = c.user.SlackAttachments()
 		b.api.PostMessage(c.msg.Channel, "Your GitHub username has been updated :simple_smile:", params)
 	case "major":
@@ -92,33 +101,33 @@ func (b *Bot) add(c *CommandContext) {
 	}
 
 	switch c.args[1] {
-	// @rocket add team <github team name> <team name>
 	case "team":
 		if len(c.args) < 4 {
 			b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
 			return
 		}
-		ghTeamName := c.args[2]
-		teamName := strings.Join(c.args[3:], " ")
+		teamName := strings.Join(c.args[2:], " ")
+		// teamName = "Great Team", ghTeamName = "great-team"
+		ghTeamName := strings.ToLower(strings.Join(c.args[2:], "-"))
 
+		// Create the team on GitHub
 		ghTeam, err := b.gh.CreateTeam(ghTeamName)
 		b.log.Info("create team, ", ghTeam, err)
 		if err != nil {
-			b.SendErrorMessage(c.msg.Channel, err, "Failed to create team")
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to create team on GitHub")
 			return
 		}
-		b.log.Info(ghTeam)
 
 		team := model.Team{
-			Name:           teamName,
-			GithubTeamName: *ghTeam.Name,
-			GithubTeamID:   *ghTeam.ID,
+			Name:         teamName,
+			GithubTeamID: *ghTeam.ID,
 		}
+		// Finally, add team to DB
 		if err := b.dal.CreateTeam(&team); err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to create team")
 			return
 		}
-		b.api.PostMessage(c.msg.Channel, "`"+team.Name+"` team has been created. :tada:\nDon't forget to add the GitHub team name! (`@rocket set team github <github name>`", noParams)
+		b.api.PostMessage(c.msg.Channel, "`"+team.Name+"` has been added :tada:", noParams)
 	case "admin":
 		user := model.Member{
 			SlackID: parseMention(c.args[3]),
@@ -135,15 +144,30 @@ func (b *Bot) add(c *CommandContext) {
 			return
 		}
 
+		team := model.Team{
+			Name: c.args[3],
+		}
+		if err := b.dal.GetTeamByName(&team); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to find team")
+			return
+		}
+
+		// Add user to corresponding GitHub team
+		if err := b.gh.AddUserToTeam(c.user.GithubUsername, team.GithubTeamID); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to add user to GitHub team")
+			return
+		}
+
 		member := model.TeamMember{
 			MemberSlackID: parseMention(c.args[1]),
-			TeamName:      c.args[3],
+			GithubTeamID:  team.GithubTeamID,
 		}
+		// Finally, add relation to DB
 		if err := b.dal.CreateTeamMember(&member); err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to add member to team")
 			return
 		}
-		b.api.PostMessage(c.msg.Channel, toMention(member.MemberSlackID)+" was added to `"+member.TeamName+"` team :tada:", noParams)
+		b.api.PostMessage(c.msg.Channel, toMention(member.MemberSlackID)+" was added to `"+team.Name+"` team :tada:", noParams)
 	}
 }
 
@@ -163,7 +187,19 @@ func (b *Bot) remove(c *CommandContext) {
 		team := model.Team{
 			Name: strings.Join(c.args[2:], " "),
 		}
-		if err := b.dal.DeleteTeam(&team); err != nil {
+		if err := b.dal.GetTeamByName(&team); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to find team")
+			return
+		}
+
+		// Remove team from GitHub
+		if err := b.gh.RemoveTeam(team.GithubTeamID); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to remove GitHub team")
+			return
+		}
+
+		// Finally remove team from database
+		if err := b.dal.DeleteTeamByName(&team); err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to delete team")
 			return
 		}
@@ -184,15 +220,38 @@ func (b *Bot) remove(c *CommandContext) {
 			return
 		}
 
-		member := model.TeamMember{
-			MemberSlackID: parseMention(c.args[1]),
-			TeamName:      c.args[3],
+		team := model.Team{
+			Name: c.args[3],
 		}
-		if err := b.dal.DeleteTeamMember(&member); err != nil {
+		if err := b.dal.GetTeamByName(&team); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to get team")
+			return
+		}
+
+		member := model.Member{
+			SlackID: parseMention(c.args[1]),
+		}
+		if err := b.dal.GetMemberBySlackID(&member); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to get member")
+			return
+		}
+
+		// Remove user to GitHub team
+		if err := b.gh.RemoveUserFromTeam(member.GithubUsername, team.GithubTeamID); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to add member to GitHub team")
+			return
+		}
+
+		teamMember := model.TeamMember{
+			MemberSlackID: parseMention(c.args[1]),
+			GithubTeamID:  team.GithubTeamID,
+		}
+		// Remove user team relation from DB
+		if err := b.dal.DeleteTeamMember(&teamMember); err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to remove member from team")
 			return
 		}
-		b.api.PostMessage(c.msg.Channel, toMention(member.MemberSlackID)+" was removed from `"+member.TeamName+"` team :tada:", noParams)
+		b.api.PostMessage(c.msg.Channel, toMention(member.SlackID)+" was removed from `"+team.Name+"` team :tada:", noParams)
 	}
 }
 

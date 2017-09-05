@@ -1,7 +1,7 @@
 package model
 
 type TeamMember struct {
-	TeamName      string `sql:",pk"`
+	GithubTeamID  int    `sql:",pk" pg:"github_team_id"`
 	MemberSlackID string `sql:",pk"`
 
 	Team   *Team   `sql:"-"`

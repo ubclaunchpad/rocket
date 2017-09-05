@@ -4,8 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/ubclaunchpad/rocket/config"
 	"golang.org/x/oauth2"
 
@@ -41,9 +39,22 @@ func (api *API) UserExists(username string) (bool, error) {
 	return true, nil
 }
 
+func (api *API) AddUserToTeam(username string, teamID int) error {
+	_, _, err := api.Organizations.AddTeamMembership(
+		context.Background(), teamID, username, nil,
+	)
+	return err
+}
+
+func (api *API) RemoveUserFromTeam(username string, teamID int) error {
+	_, err := api.Organizations.RemoveTeamMembership(
+		context.Background(), teamID, username,
+	)
+	return err
+}
+
 func (api *API) CreateTeam(name string) (*gh.Team, error) {
 	teams, _, err := api.Organizations.ListTeams(context.Background(), "ubclaunchpad", nil)
-	log.Info("listteams ", teams, err)
 	if err != nil {
 		return nil, err
 	}
@@ -57,9 +68,14 @@ func (api *API) CreateTeam(name string) (*gh.Team, error) {
 
 	// Otherwise, create it
 	team := &gh.Team{
-		Name: &name,
+		Name:    &name,
+		Privacy: gh.String("public"),
 	}
 	t, _, err := api.Organizations.CreateTeam(context.Background(), "ubclaunchpad", team)
-	log.Info("crateteam ", t, err)
 	return t, err
+}
+
+func (api *API) RemoveTeam(id int) error {
+	_, err := api.Organizations.DeleteTeam(context.Background(), id)
+	return err
 }

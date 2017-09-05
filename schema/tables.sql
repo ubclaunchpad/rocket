@@ -13,15 +13,14 @@ CREATE TABLE members (
 
 DROP TABLE IF EXISTS teams;
 CREATE TABLE teams (
-    name TEXT PRIMARY KEY,
-    github_team_name TEXT,
-    github_team_id INTEGER,
+    name TEXT UNIQUE,
+    github_team_id INTEGER PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (now() at time zone 'utc')
 );
 
 DROP TABLE IF EXISTS team_members;
 CREATE TABLE team_members (
-    team_name TEXT REFERENCES teams(name) ON DELETE CASCADE,
+    team_github_id INTEGER REFERENCES teams(github_team_id) ON DELETE CASCADE,
     member_slack_id TEXT REFERENCES members(slack_id) ON DELETE CASCADE,
     PRIMARY KEY (team_name, member_slack_id)
 );

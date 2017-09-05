@@ -10,10 +10,9 @@ import (
 type Team struct {
 	TableName struct{} `sql:"teams" json:"-"`
 
-	Name           string    `sql:",pk" json:"name"`
-	GithubTeamName string    `pg:"github_team_name" json:"-"`
-	GithubTeamID   int       `pg:"github_team_id" json:"-"`
-	CreatedAt      time.Time `json:"-"`
+	Name         string    `json:"name"`
+	GithubTeamID int       `sql:",pk" json:"-" pg:"github_team_id"`
+	CreatedAt    time.Time `json:"-"`
 
 	Members []*Member `sql:"-" json:"members" pg:",many2many:team_members,joinFK:Member"`
 }
@@ -33,17 +32,9 @@ func (t *Team) SlackAttachments() []slack.Attachment {
 			Color: "good",
 		},
 		slack.Attachment{
-			Text:  "GitHub Name: " + t.GithubTeamName,
-			Color: "good",
-		},
-		slack.Attachment{
 			Text:  "Members: " + membersString,
 			Color: "good",
 		},
-	}
-
-	if len(t.GithubTeamName) == 0 {
-		attachments[1].Color = "danger"
 	}
 
 	return attachments
