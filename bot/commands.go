@@ -43,17 +43,24 @@ func (b *Bot) set(c *CommandContext) {
 			return
 		}
 		params.Attachments = c.user.SlackAttachments()
-		b.api.PostMessage(c.msg.Channel, "You email has been updated :simple_smile:", params)
+		b.api.PostMessage(c.msg.Channel, "Your email has been updated :simple_smile:", params)
 	case "github":
 		c.user.GithubUsername = c.args[2]
 		// Check that the user exists
-		user, _, err := b.gh.Users.Get(context.Background(), c.args[2])
+		_, _, err := b.gh.Users.Get(context.Background(), c.args[2])
 		if err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "GitHub user does not exist")
 			return
 		}
 		if err := b.dal.SetMemberGitHubUsername(&c.user); err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to set github username")
+			return
+		}
+		_, _, err = b.gh.Organizations.AddTeamMembership(
+			context.Background(), githubAllTeamID, c.user.GithubUsername, nil,
+		)
+		if err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to add you to Launch Pad's GitHub organization")
 			return
 		}
 		params.Attachments = c.user.SlackAttachments()
@@ -172,6 +179,43 @@ func (b *Bot) remove(c *CommandContext) {
 			return
 		}
 		b.api.PostMessage(c.msg.Channel, toMention(member.MemberSlackID)+" was removed from `"+member.TeamName+"` team :tada:", noParams)
+	}
+}
+
+func (b *Bot) view(c *CommandContext) {
+	if len(c.args) < 3 {
+		b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
+		return
+	}
+
+	if !c.user.IsAdmin {
+		b.SendErrorMessage(c.msg.Channel, nil, "You must be an admin to use this command")
+		return
+	}
+
+	switch c.args[1] {
+	case "user":
+		user := model.Member{
+			SlackID: parseMention(c.args[2]),
+		}
+		if err := b.dal.GetMemberBySlackID(&user); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to get member")
+			return
+		}
+		params := slack.PostMessageParameters{}
+		params.Attachments = user.SlackAttachments()
+		b.api.PostMessage(c.msg.Channel, c.args[2]+"'s profile", params)
+	case "team":
+		team := model.Team{
+			Name: c.args[2],
+		}
+		if err := b.dal.GetTeamByName(&team); err != nil {
+			b.SendErrorMessage(c.msg.Channel, err, "Failed to get team")
+			return
+		}
+		params := slack.PostMessageParameters{}
+		params.Attachments = team.SlackAttachments()
+		b.api.PostMessage(c.msg.Channel, c.args[2]+" team", params)
 	}
 }
 

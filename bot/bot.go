@@ -25,6 +25,9 @@ const (
 
 	// Message for when errors occur
 	errorMessage = "Oops, an error occurred :robot_face:. Bruno must have coded a bug... Sorry about that!"
+
+	// ID for the `all` team that everyone should be on
+	githubAllTeamID = 2467607
 )
 
 var (
