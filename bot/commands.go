@@ -81,6 +81,7 @@ func (b *Bot) set(c *CommandContext) {
 }
 
 func (b *Bot) add(c *CommandContext) {
+	b.log.Info("add")
 	if len(c.args) < 3 {
 		b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
 		return
@@ -90,6 +91,8 @@ func (b *Bot) add(c *CommandContext) {
 		b.SendErrorMessage(c.msg.Channel, nil, "You must be an admin to use this command")
 		return
 	}
+
+	b.log.Info("past checks")
 
 	switch c.args[1] {
 	// @rocket add team <github team name> <team name>
