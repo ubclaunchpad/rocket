@@ -11,7 +11,7 @@ func (dal *DAL) CreateTeamMember(member *model.TeamMember) error {
 
 func (dal *DAL) DeleteTeamMember(member *model.TeamMember) error {
 	_, err := dal.db.Model(member).
-		Where("team_name = ?team_name").
+		Where("github_team_id = ?github_team_id").
 		Where("member_slack_id = ?member_slack_id").
 		Delete()
 	return err
