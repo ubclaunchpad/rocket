@@ -81,7 +81,6 @@ func (b *Bot) set(c *CommandContext) {
 }
 
 func (b *Bot) add(c *CommandContext) {
-	b.log.Info("add")
 	if len(c.args) < 3 {
 		b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
 		return
@@ -92,8 +91,6 @@ func (b *Bot) add(c *CommandContext) {
 		return
 	}
 
-	b.log.Info("past checks")
-
 	switch c.args[1] {
 	// @rocket add team <github team name> <team name>
 	case "team":
@@ -101,10 +98,8 @@ func (b *Bot) add(c *CommandContext) {
 			b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
 			return
 		}
-		b.log.Info("args", c.args)
 		ghTeamName := c.args[2]
 		teamName := strings.Join(c.args[3:], " ")
-		b.log.Info("got team ", ghTeamName, teamName)
 
 		ghTeam, err := b.gh.CreateTeam(ghTeamName)
 		b.log.Info("create team, ", ghTeam, err)
