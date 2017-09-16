@@ -141,7 +141,7 @@ func (b *Bot) add(c *CommandContext) {
 		}
 
 		team := model.Team{
-			Name: c.args[3],
+			Name: strings.Join(c.args[3:], " "),
 		}
 		if err := b.dal.GetTeamByName(&team); err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to find team")
@@ -279,7 +279,7 @@ func (b *Bot) view(c *CommandContext) {
 		b.api.PostMessage(c.msg.Channel, c.args[2]+"'s profile", params)
 	case "team":
 		team := model.Team{
-			Name: c.args[2],
+			Name: strings.Join(c.args[2:], " "),
 		}
 		if err := b.dal.GetTeamByName(&team); err != nil {
 			b.SendErrorMessage(c.msg.Channel, err, "Failed to get team")
