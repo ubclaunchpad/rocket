@@ -1,6 +1,7 @@
 package data
 
 import "github.com/ubclaunchpad/rocket/model"
+import "github.com/go-pg/pg/orm"
 
 func (dal *DAL) GetTeamByName(team *model.Team) error {
 	return dal.db.Model(team).
@@ -19,6 +20,10 @@ func (dal *DAL) GetTeamByGithubID(team *model.Team) error {
 func (dal *DAL) GetTeams(teams *model.Teams) error {
 	return dal.db.Model(teams).
 		Column("Members").
+		Relation("Members", func(q *orm.Query) (*orm.Query, error) {
+			return q.Order("name ASC"), nil
+		}).
+		Order("name ASC").
 		Select()
 }
 

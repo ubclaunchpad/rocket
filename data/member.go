@@ -9,7 +9,9 @@ func (dal *DAL) GetMemberBySlackID(member *model.Member) error {
 }
 
 func (dal *DAL) GetMembers(members *model.Members) error {
-	return dal.db.Model(members).Select()
+	return dal.db.Model(members).
+		Order("name ASC").
+		Select()
 }
 
 func (dal *DAL) CreateMember(member *model.Member) error {
