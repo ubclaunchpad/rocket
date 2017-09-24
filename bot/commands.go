@@ -293,6 +293,7 @@ func (b *Bot) view(c *CommandContext) {
 }
 
 func (b *Bot) refresh(c *CommandContext) {
+	// Pull in all users from Slack
 	b.PopulateUsers()
 
 	errCount := 0
@@ -303,10 +304,13 @@ func (b *Bot) refresh(c *CommandContext) {
 			ImageURL: user.Profile.Image192,
 		}
 
-		// Create member if doesn't already exist
 		if err := b.dal.CreateMember(&member); err != nil {
 			b.log.WithError(err).Errorf("Error creating member with Slack ID %s", member.SlackID)
-			errCount++
+		}
+
+		// Set Slack image URL
+		if err := b.dal.SetMemberImageURL(&member); err != nil {
+			b.log.WithError(err).Errorf("Error setting image for Slack ID %s", member.SlackID)
 		}
 	}
 

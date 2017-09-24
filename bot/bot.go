@@ -182,6 +182,22 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 	}
 }
 
+// Handles new users being added or existing users changing
 func (b *Bot) handleUserChange(user slack.User) {
 	b.users[user.ID] = user
+
+	member := model.Member{
+		SlackID:  user.ID,
+		ImageURL: user.Profile.Image192,
+	}
+
+	// Create user if doesn't exist
+	if err := b.dal.CreateMember(&member); err != nil {
+		b.log.WithError(err).Errorf("Error creating user with Slack ID %s", member.SlackID)
+	}
+
+	// Update image URL
+	if err := b.dal.SetMemberImageURL(&member); err != nil {
+		b.log.WithError(err).Errorf("Error setting image URL for Slack ID %s", member.SlackID)
+	}
 }
