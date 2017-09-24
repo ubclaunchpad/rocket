@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/nlopes/slack"
@@ -293,5 +294,25 @@ func (b *Bot) view(c *CommandContext) {
 
 func (b *Bot) refresh(c *CommandContext) {
 	b.PopulateUsers()
+
+	errCount := 0
+	var member model.Member
+	for _, user := range b.users {
+		member = model.Member{
+			SlackID:  user.ID,
+			ImageURL: user.Profile.Image192,
+		}
+
+		// Create member if doesn't already exist
+		if err := b.dal.CreateMember(&member); err != nil {
+			b.log.WithError(err).Errorf("Error creating member with Slack ID %s", member.SlackID)
+			errCount++
+		}
+	}
+
+	if errCount > 0 {
+		b.api.PostMessage(c.msg.Channel, strconv.Itoa(errCount)+" errors occurred while refreshing", noParams)
+	}
+
 	b.api.PostMessage(c.msg.Channel, "I feel so refreshed! :tropical_drink:", noParams)
 }
