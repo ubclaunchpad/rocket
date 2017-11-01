@@ -9,7 +9,7 @@ import (
 	"github.com/ubclaunchpad/rocket/config"
 	"golang.org/x/oauth2"
 
-	gh "github.com/jordanschalm/go-github/github"
+	gh "github.com/google/go-github/github"
 )
 
 type API struct {
