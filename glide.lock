@@ -1,8 +1,8 @@
-hash: ffd1df8ad7daa122c2a1d5956e2d3d4c3088937378aacf6c85013ce0978ded72
-updated: 2017-09-05T13:32:21.934506155-07:00
+hash: aabb0f4382b2806bc854862229813fcef209d19b0688f24c0b3db521b9ec5786
+updated: 2017-11-25T16:20:53.261439229-08:00
 imports:
 - name: github.com/go-pg/pg
-  version: 6b379280e4b806f329f36da1710cabe134991509
+  version: 91c6bdd887406878e9bde15f3c4a12c1197da739
   subpackages:
   - internal
   - internal/parser
@@ -24,13 +24,9 @@ imports:
 - name: github.com/gorilla/context
   version: 1ea25387ff6f684839d82767c1733ff4d4d15d0a
 - name: github.com/gorilla/mux
-  version: bcd8bc72b08df0f70df986b97f95590779502d31
+  version: 7f08801859139f86dfafd1c296e2cba9a80d292e
 - name: github.com/jinzhu/inflection
   version: 1c35d901db3da928c72a72d8458480cc9ade058f
-- name: github.com/jordanschalm/go-github
-  version: 94aeb80147d6f9b84e1d883d495cf5c65e86635d
-  subpackages:
-  - github
 - name: github.com/nlopes/slack
   version: c86337c0ef2486a15edd804355d9c73d2f2caed1
 - name: github.com/sirupsen/logrus
