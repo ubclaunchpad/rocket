@@ -48,12 +48,17 @@ func New(c *config.Config, dal *data.DAL, entry *log.Entry) *Server {
 }
 
 func (s *Server) Start() error {
-	s.log.Info("Starting API server on ", s.addr)
+	s.log.Info("Starting API server on: ", s.addr)
 	err := http.ListenAndServe(s.addr, s.router)
 	return err
 }
 
 func (s *Server) RootHandler(res http.ResponseWriter, req *http.Request) {
+	s.log.WithFields(log.Fields{
+		"method": req.Method,
+		"route":  "/",
+	}).Info("Received request")
+
 	res.Header().Set("Content-Type", "text/html")
 	res.WriteHeader(http.StatusOK)
 	res.Write([]byte(`
@@ -68,6 +73,11 @@ func (s *Server) RootHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Server) MemberHandler(res http.ResponseWriter, req *http.Request) {
+	s.log.WithFields(log.Fields{
+		"method": req.Method,
+		"route":  "/api/members",
+	}).Info("Received request")
+
 	res.Header().Set("Content-Type", "application/json")
 	res.Header().Set("Access-Control-Allow-Origin", "*")
 	var members model.Members
@@ -86,6 +96,11 @@ func (s *Server) MemberHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Server) TeamHandler(res http.ResponseWriter, req *http.Request) {
+	s.log.WithFields(log.Fields{
+		"method": req.Method,
+		"route":  "/api/teams",
+	}).Info("Received request")
+
 	res.Header().Set("Content-Type", "application/json")
 	res.Header().Set("Access-Control-Allow-Origin", "*")
 	var teams model.Teams

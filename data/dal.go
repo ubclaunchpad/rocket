@@ -16,12 +16,14 @@ type DAL struct {
 
 // New returns a new DAL instance based on the config.
 func New(c *config.Config) *DAL {
-	db := pg.Connect(&pg.Options{
+	opts := &pg.Options{
 		Addr:     c.PostgresHost + ":" + c.PostgresPort,
 		User:     c.PostgresUser,
 		Password: c.PostgresPass,
 		Database: c.PostgresDatabase,
-	})
+	}
+
+	db := pg.Connect(opts)
 	dal := &DAL{db}
 
 	err := dal.Ping()
