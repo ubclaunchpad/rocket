@@ -50,6 +50,9 @@ func New(c *config.Config, dal *data.DAL, entry *log.Entry) *Server {
 func (s *Server) Start() error {
 	s.log.Info("Starting API server on: ", s.addr)
 	err := http.ListenAndServe(s.addr, s.router)
+	if err != nil {
+		s.log.WithError(err).Error("Failed to start API server")
+	}
 	return err
 }
 
