@@ -8,19 +8,23 @@ import (
 	"github.com/ubclaunchpad/rocket/model"
 )
 
-// Command handlers accept a string slice of the form
+// Command handlers accept a string slice of the form:
 // <command name> <arg1> <arg2> ... <argN>
 
+// Send a help message
 func (b *Bot) help(c *CommandContext) {
 	b.api.PostMessage(c.msg.Channel, helpMessage, noParams)
 }
 
+// Send the sender's profile. We display each field in the profile as an
+// "attachment" with a colour code (green for set, red for unset).
 func (b *Bot) me(c *CommandContext) {
 	params := slack.PostMessageParameters{}
 	params.Attachments = c.user.SlackAttachments()
 	b.api.PostMessage(c.msg.Channel, "Your Launch Pad profile :rocket:", params)
 }
 
+// Generic command for setting some information about the sender's profile.
 func (b *Bot) set(c *CommandContext) {
 	if len(c.args) < 3 {
 		b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
@@ -90,6 +94,8 @@ func (b *Bot) set(c *CommandContext) {
 	}
 }
 
+// Generic command for adding resources. Either creates a team, gives an
+// existing user admin priveleges, or adds an existing user to a team.
 func (b *Bot) add(c *CommandContext) {
 	if len(c.args) < 3 {
 		b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
@@ -102,6 +108,9 @@ func (b *Bot) add(c *CommandContext) {
 	}
 
 	switch c.args[1] {
+
+	// Create a new team on Rocket and on GitHub
+	// add team <teamname>
 	case "team":
 		teamName := strings.Join(c.args[2:], " ")
 		// teamName = "Great Team", ghTeamName = "great-team"
@@ -125,6 +134,9 @@ func (b *Bot) add(c *CommandContext) {
 			return
 		}
 		b.api.PostMessage(c.msg.Channel, "`"+team.Name+"` has been added :tada:", noParams)
+
+	// Give an existing user admin privileges
+	// add admin <username>
 	case "admin":
 		user := model.Member{
 			SlackID: parseMention(c.args[2]),
@@ -135,6 +147,9 @@ func (b *Bot) add(c *CommandContext) {
 			return
 		}
 		b.api.PostMessage(c.msg.Channel, toMention(user.SlackID)+" has been made an admin :tada:", noParams)
+
+	// Add an existing user to an existing team
+	// add <username> to <teamname>
 	default:
 		if len(c.args) < 4 {
 			b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
@@ -176,6 +191,8 @@ func (b *Bot) add(c *CommandContext) {
 	}
 }
 
+// Generic handler for removing resources. Either removes an existing team,
+// removes admin privileges, or removes a user from an existing team.
 func (b *Bot) remove(c *CommandContext) {
 	if len(c.args) < 3 {
 		b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
@@ -188,6 +205,9 @@ func (b *Bot) remove(c *CommandContext) {
 	}
 
 	switch c.args[1] {
+
+	// Remove an existing team
+	// remove team <teamname>
 	case "team":
 		team := model.Team{
 			Name: strings.Join(c.args[2:], " "),
@@ -209,6 +229,9 @@ func (b *Bot) remove(c *CommandContext) {
 			return
 		}
 		b.api.PostMessage(c.msg.Channel, "`"+team.Name+"` team has been deleted :tada:", noParams)
+
+	// Removes admin privileges from a user
+	// remove admin <username>
 	case "admin":
 		user := model.Member{
 			SlackID: parseMention(c.args[2]),
@@ -219,6 +242,9 @@ func (b *Bot) remove(c *CommandContext) {
 			return
 		}
 		b.api.PostMessage(c.msg.Channel, toMention(user.SlackID)+" has been removed as admin :tada:", noParams)
+
+	// Removes a user from a team
+	// remove <username> from <teamname>
 	default:
 		if len(c.args) < 4 {
 			b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
@@ -260,6 +286,8 @@ func (b *Bot) remove(c *CommandContext) {
 	}
 }
 
+// Generic handler to view a resource. Either view another user's profile,
+// or a team.
 func (b *Bot) view(c *CommandContext) {
 	if len(c.args) < 3 {
 		b.SendErrorMessage(c.msg.Channel, nil, "Not enough arguments")
@@ -267,6 +295,9 @@ func (b *Bot) view(c *CommandContext) {
 	}
 
 	switch c.args[1] {
+
+	// View another user's profile.
+	// view user <username>
 	case "user":
 		user := model.Member{
 			SlackID: parseMention(c.args[2]),
@@ -278,6 +309,9 @@ func (b *Bot) view(c *CommandContext) {
 		params := slack.PostMessageParameters{}
 		params.Attachments = user.SlackAttachments()
 		b.api.PostMessage(c.msg.Channel, c.args[2]+"'s profile", params)
+
+	// View a team's members
+	// view team <teamname>
 	case "team":
 		team := model.Team{
 			Name: strings.Join(c.args[2:], " "),
@@ -292,6 +326,8 @@ func (b *Bot) view(c *CommandContext) {
 	}
 }
 
+// Command for debugging strange behaviour without restarting the whole app.
+// It refreshes the user cache and creates any users that don' already exist.
 func (b *Bot) refresh(c *CommandContext) {
 	// Pull in all users from Slack
 	b.PopulateUsers()

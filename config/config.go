@@ -4,7 +4,7 @@ import (
 	"os"
 )
 
-// Config represents configuration option state for the app.
+// Config represents configuration options for the app.
 type Config struct {
 	Host             string
 	Port             string
@@ -18,7 +18,7 @@ type Config struct {
 	PostgresDatabase string
 }
 
-// FromEnv creates a configuration from the environment.
+// FromEnv creates and returns a configuration object from the environment.
 func FromEnv() *Config {
 	return &Config{
 		Host:         os.Getenv("ROCKET_HOST"),

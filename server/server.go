@@ -1,3 +1,5 @@
+// Package server implements a read-only REST API interface to Rocket's team
+// management data.
 package server
 
 import (
@@ -12,8 +14,8 @@ import (
 	"github.com/ubclaunchpad/rocket/model"
 )
 
-// Server represents the HTTP server that provides a REST API
-// interface to Rocket's database.
+// Server represents the HTTP server that provides a REST API interface to
+// Rocket's database.
 type Server struct {
 	router *mux.Router
 	server *http.Server

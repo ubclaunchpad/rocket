@@ -4,19 +4,19 @@ import (
 	"context"
 	"net/http"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/ubclaunchpad/rocket/config"
 	"golang.org/x/oauth2"
 
 	gh "github.com/google/go-github/github"
 )
 
+// API provides a client to the GitHub API.
 type API struct {
 	httpClient *http.Client
 	*gh.Client
 }
 
+// New creates and returns an API object based on a configuration object.
 func New(c *config.Config) *API {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
@@ -32,7 +32,6 @@ func New(c *config.Config) *API {
 	}
 }
 
-// UserExists returns true if the user
 func (api *API) UserExists(username string) (bool, error) {
 	_, _, err := api.Users.Get(context.Background(), username)
 	if err != nil {
@@ -56,13 +55,11 @@ func (api *API) RemoveUserFromTeam(username string, teamID int) error {
 }
 
 func (api *API) CreateTeam(name string) (*gh.Team, error) {
-	log.Info("Getting teams")
 	teams, _, err := api.Organizations.ListTeams(context.Background(), "ubclaunchpad", nil)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Info("Checking if team exists")
 	// Check if the team already exists
 	for _, team := range teams {
 		if *team.Name == name {
@@ -70,7 +67,6 @@ func (api *API) CreateTeam(name string) (*gh.Team, error) {
 		}
 	}
 
-	log.Info("Creating team")
 	// Otherwise, create it
 	team := &gh.Team{
 		Name:    &name,

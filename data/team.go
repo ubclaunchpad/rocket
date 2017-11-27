@@ -1,7 +1,9 @@
 package data
 
-import "github.com/ubclaunchpad/rocket/model"
-import "github.com/go-pg/pg/orm"
+import (
+	"github.com/go-pg/pg/orm"
+	"github.com/ubclaunchpad/rocket/model"
+)
 
 func (dal *DAL) GetTeamByName(team *model.Team) error {
 	return dal.db.Model(team).

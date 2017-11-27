@@ -7,6 +7,7 @@ import (
 	"github.com/nlopes/slack"
 )
 
+// Team represents the concrete representation of a team in the database.
 type Team struct {
 	TableName struct{} `sql:"teams" json:"-"`
 
@@ -19,6 +20,9 @@ type Team struct {
 
 type Teams []*Team
 
+// SlackAttachments creates and returns a set of Slack attachments (strictly
+// for use in messages sent to Slack clients) that describe the team's name
+// and list of members.
 func (t *Team) SlackAttachments() []slack.Attachment {
 	members := []string{}
 	for _, member := range t.Members {

@@ -8,13 +8,13 @@ import (
 	"github.com/go-pg/pg"
 )
 
-// DAL represents the data abstraction layer and provides an interface
-// to the database.
+// DAL represents the data abstraction layer and provides an interface to the
+// database. This is just a wrapper around the PG database object.
 type DAL struct {
 	db *pg.DB
 }
 
-// New returns a new DAL instance based on the config.
+// New returns a new DAL instance based on a configuration object.
 func New(c *config.Config) *DAL {
 	opts := &pg.Options{
 		Addr:     c.PostgresHost + ":" + c.PostgresPort,

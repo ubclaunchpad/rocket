@@ -1,8 +1,13 @@
 package model
 
-import "time"
-import "github.com/nlopes/slack"
+import (
+	"time"
 
+	"github.com/nlopes/slack"
+)
+
+// Member is the concrete representation of a Launch Pad club member in the
+// database.
 type Member struct {
 	TableName struct{} `sql:"members" json:"-"`
 
@@ -19,6 +24,10 @@ type Member struct {
 
 type Members []*Member
 
+// SlackAttachments creates and returns a set of Slack attachments (strictly
+// for use in messages sent to Slack clients) that describe the member's
+// profile. Each profile field is one attachment, and is colour-coded based
+// on whether it's been filled yet.
 func (m *Member) SlackAttachments() []slack.Attachment {
 	attachments := []slack.Attachment{
 		slack.Attachment{
