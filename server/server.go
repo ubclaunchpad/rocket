@@ -53,7 +53,7 @@ func (s *Server) Start() error {
 	s.log.Info("Starting API server on: ", s.addr)
 	err := http.ListenAndServe(s.addr, s.router)
 	if err != nil {
-		s.log.WithError(err).Error("Failed to start API server")
+		s.log.WithError(err).Fatal("A fatal error occurred in the HTTP server")
 	}
 	return err
 }
