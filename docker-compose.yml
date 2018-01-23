@@ -3,22 +3,24 @@ version: '3'
 services:
 
   postgres:
-    image: postgres
+    build:
+      context: .
+      dockerfile: Dockerfile.db
     ports:
       - "5432:5432"
     volumes:
       - ./pgdata:/var/lib/postgresql/data
     env_file:
-      - .db.env
+      - .db.env.example
 
   rocket:
     build:
       context: .
-      dockerfile: Dockerfile
-    command: bash start.sh
+      dockerfile: Dockerfile.app
+    command: rocket
     ports:
       - "80:80"
     depends_on:
       - postgres
     env_file:
-      - .app.env
+      - .app.env.example

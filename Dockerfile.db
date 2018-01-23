@@ -1,0 +1,5 @@
+# Use Postgres as base image
+FROM postgres
+
+# Copy the SQL script for initializing the DB to the Postgres container
+ADD ./schema/tables.sql /tables.sql

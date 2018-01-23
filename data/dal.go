@@ -1,11 +1,11 @@
 package data
 
 import (
-	log "github.com/sirupsen/logrus"
-
-	"github.com/ubclaunchpad/rocket/config"
+	"time"
 
 	"github.com/go-pg/pg"
+	log "github.com/sirupsen/logrus"
+	"github.com/ubclaunchpad/rocket/config"
 )
 
 // DAL represents the data abstraction layer and provides an interface to the
@@ -17,10 +17,13 @@ type DAL struct {
 // New returns a new DAL instance based on a configuration object.
 func New(c *config.Config) *DAL {
 	opts := &pg.Options{
-		Addr:     c.PostgresHost + ":" + c.PostgresPort,
-		User:     c.PostgresUser,
-		Password: c.PostgresPass,
-		Database: c.PostgresDatabase,
+		Addr:            c.PostgresHost + ":" + c.PostgresPort,
+		User:            c.PostgresUser,
+		Password:        c.PostgresPass,
+		Database:        c.PostgresDatabase,
+		MaxRetries:      10,
+		MinRetryBackoff: time.Second,
+		MaxRetryBackoff: time.Second * 10,
 	}
 
 	db := pg.Connect(opts)
