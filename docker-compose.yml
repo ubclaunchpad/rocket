@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    env_file:
+      - .db.env.example
+
+  rocket:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    command: rocket
+    ports:
+      - "80:80"
+    depends_on:
+      - postgres
+    env_file:
+      - .app.env.example

@@ -8,7 +8,6 @@ import (
 type Config struct {
 	Host             string
 	Port             string
-	Domain           string
 	SlackToken       string
 	GithubToken      string
 	PostgresHost     string
@@ -23,7 +22,6 @@ func FromEnv() *Config {
 	return &Config{
 		Host:         os.Getenv("ROCKET_HOST"),
 		Port:         os.Getenv("ROCKET_PORT"),
-		Domain:       os.Getenv("ROCKET_DOMAIN"),
 		SlackToken:   os.Getenv("ROCKET_SLACKTOKEN"),
 		GithubToken:  os.Getenv("ROCKET_GITHUBTOKEN"),
 		PostgresHost: os.Getenv("ROCKET_POSTGRESHOST"),
