@@ -2,3 +2,4 @@
 vendor
 rocket
 .env
+**/debug.test

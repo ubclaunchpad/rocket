@@ -5,6 +5,7 @@ import (
 
 	"github.com/nlopes/slack"
 	log "github.com/sirupsen/logrus"
+	"github.com/ubclaunchpad/rocket/cmd"
 	"github.com/ubclaunchpad/rocket/config"
 	"github.com/ubclaunchpad/rocket/data"
 	"github.com/ubclaunchpad/rocket/github"
@@ -15,14 +16,6 @@ const (
 	// Our Slack Bot's username on the UBC Launch Pad Slack
 	username = "U5RU9TB38"
 
-	commandsMessage = "```\n@rocket set name <name>\n@rocket set email <email>\n" +
-		"@rocket set github <username>\n@rocket set major <major>\n@rocket set position <position>```"
-
-	helpMessage = "Hi there, I'm Rocket, Launch Pad's friendly neighbourhood Slack bot! :rocket:\n" +
-		"You view your profile with `@rocket me`.\n" +
-		"You can update your profile too!\n" +
-		commandsMessage
-
 	// Default message to send when any error occurs
 	errorMessage = "Oops, an error occurred :robot_face:. Bruno must have coded a bug... Sorry about that!"
 
@@ -31,18 +24,6 @@ const (
 )
 
 var noParams = slack.PostMessageParameters{}
-
-// CommandContext contains the Slack message, command arguments, and sender
-// for commands received through Slack.
-type CommandContext struct {
-	msg  *slack.Msg
-	args []string
-	user model.Member
-}
-
-// CommandHandler defines an interface for functions that respond to commands
-// should take.
-type CommandHandler func(*CommandContext)
 
 // Bot represents an instance of the Rocket Slack bot. Only one should be
 // created under normal circumstances.
@@ -53,7 +34,7 @@ type Bot struct {
 	dal      *data.DAL
 	gh       *github.API
 	log      *log.Entry
-	commands map[string]CommandHandler
+	commands map[string]*cmd.Command
 	users    map[string]slack.User
 }
 
@@ -70,20 +51,32 @@ func New(cfg *config.Config, dal *data.DAL, gh *github.API, log *log.Entry) *Bot
 		dal:   dal,
 		gh:    gh,
 		log:   log,
+		commands: map[string]*cmd.Command{
+			"help":         HelpCmd,
+			"set":          SetCmd,
+			"view-user":    ViewUserCmd,
+			"view-team":    ViewTeamCmd,
+			"add-user":     AddUserCmd,
+			"add-team":     AddTeamCmd,
+			"add-admin":    AddAdminCmd,
+			"remove-user":  RemoveUserCmd,
+			"remove-team":  RemoveTeamCmd,
+			"remove-admin": RemoveAdminCmd,
+		},
 	}
-
-	commands := map[string]CommandHandler{
-		"help":    b.help,
-		"me":      b.me,
-		"set":     b.set,
-		"add":     b.add,
-		"remove":  b.remove,
-		"view":    b.view,
-		"refresh": b.refresh,
-	}
-	b.commands = commands
-
 	b.PopulateUsers()
+
+	// Attach command handlers
+	HelpCmd.HandleFunc = b.help
+	SetCmd.HandleFunc = b.set
+	ViewUserCmd.HandleFunc = b.viewUser
+	ViewTeamCmd.HandleFunc = b.viewTeam
+	AddUserCmd.HandleFunc = b.addUser
+	AddTeamCmd.HandleFunc = b.addTeam
+	AddAdminCmd.HandleFunc = b.addAdmin
+	RemoveAdminCmd.HandleFunc = b.removeAdmin
+	RemoveUserCmd.HandleFunc = b.removeUser
+	RemoveTeamCmd.HandleFunc = b.removeTeam
 
 	return b
 }
@@ -131,10 +124,10 @@ func (b *Bot) SendErrorMessage(channel string, err error, msg string) {
 	b.log.WithError(err).Error(msg)
 }
 
-// Generic handler for any new message we receive. Determines whether the
-// message is meant to be a command (if we need to take action for it),
-// populates the command context object for the message, and calls the
-// appropriate handler.
+// handleMessageEvent is a g eneric handler for any new message we receive.
+// Determines whether the message is meant to be a command (if we need to
+// take action for it), populates the command context object for the message,
+// and calls the appropriate handler.
 func (b *Bot) handleMessageEvent(msg slack.Msg) {
 	b.log.WithFields(log.Fields{
 		"Text":    msg.Text,
@@ -181,22 +174,26 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 	// A command is defined by being prefixed by our username
 	// i.e. "@rocket <command> <arg1> ..."
 	if args[0] == toMention(username) {
-		context := &CommandContext{
-			msg:  &msg,
-			args: args[1:],
-			user: member,
+		context := cmd.Context{
+			Message: &msg,
+			User:    member,
 		}
 
+		var cmd *cmd.Command
 		if len(args) > 1 {
 			command := args[1]
-			handler, ok := b.commands[command]
-			if !ok {
-				handler = b.help
+			cmd = b.commands[command]
+			if cmd == nil {
+				cmd = HelpCmd
 			}
-			handler(context)
 		} else {
-			b.help(context)
+			cmd = HelpCmd
 		}
+		res, params, err := cmd.Execute(context)
+		if err != nil {
+			b.SendErrorMessage(context.Message.Channel, err, err.Error())
+		}
+		b.api.PostMessage(context.Message.Channel, res, params)
 	}
 }
 
