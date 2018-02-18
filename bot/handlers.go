@@ -104,10 +104,10 @@ func (b *Bot) set(c cmd.Context) (string, slack.PostMessageParameters) {
 	}
 
 	params.Attachments = c.User.SlackAttachments()
-	return "Your position has been updated :simple_smile:", params
+	return "Your information has been updated :simple_smile:", params
 }
 
-// addUser adds an existing user to a team
+// addUser adds an existing user to a team.
 func (b *Bot) addUser(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 
@@ -155,7 +155,7 @@ func (b *Bot) addUser(c cmd.Context) (string, slack.PostMessageParameters) {
 		" was added to `" + team.Name + "` team :tada:", noParams
 }
 
-// addTeam creates a new Launch Pad team
+// addTeam creates a new Launch Pad team.
 func (b *Bot) addTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 
@@ -205,7 +205,7 @@ func (b *Bot) addAdmin(c cmd.Context) (string, slack.PostMessageParameters) {
 	return toMention(user.SlackID) + " has been made an admin :tada:", noParams
 }
 
-// removeTeam removes a Launch Pad team
+// removeTeam removes a Launch Pad team.
 func (b *Bot) removeTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 	if !c.User.IsAdmin {
 		return "You must be an admin to use this command", noParams
@@ -234,7 +234,7 @@ func (b *Bot) removeTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 	return "`" + team.Name + "` team has been deleted :tada:", noParams
 }
 
-// removeAdmin removes admin priveledges from an existing user
+// removeAdmin removes admin priveledges from an existing user.
 func (b *Bot) removeAdmin(c cmd.Context) (string, slack.PostMessageParameters) {
 	if !c.User.IsAdmin {
 		return "You must be an admin to use this command", noParams
@@ -251,7 +251,7 @@ func (b *Bot) removeAdmin(c cmd.Context) (string, slack.PostMessageParameters) {
 	return toMention(user.SlackID) + " has been removed as admin :tada:", noParams
 }
 
-// removeUser removes a user from the Launch Pad organization
+// removeUser removes a user from a team.
 func (b *Bot) removeUser(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	if !c.User.IsAdmin {
@@ -296,7 +296,7 @@ func (b *Bot) removeUser(c cmd.Context) (string, slack.PostMessageParameters) {
 		" was removed from `" + team.Name + "` team :tada:", noParams
 }
 
-// viewUser displays a user's information
+// viewUser displays a user's information.
 func (b *Bot) viewUser(c cmd.Context) (string, slack.PostMessageParameters) {
 	params := slack.PostMessageParameters{}
 	user := model.Member{
@@ -310,7 +310,7 @@ func (b *Bot) viewUser(c cmd.Context) (string, slack.PostMessageParameters) {
 	return c.Args[0].Value + "'s profile", params
 }
 
-// viewTeam displays a teams's information
+// viewTeam displays a teams's information.
 func (b *Bot) viewTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 	params := slack.PostMessageParameters{}
 	team := model.Team{

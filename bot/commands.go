@@ -80,7 +80,7 @@ var (
 	// performed by admins)
 	AddAdminCmd = &cmd.Command{
 		Name:     "add-admin",
-		HelpText: "Make an existing user an admin (can only be performed by admins)",
+		HelpText: "Make an existing user an admin (admins only)",
 		Options:  map[string]*cmd.Option{},
 		Args: []cmd.Argument{
 			cmd.Argument{
@@ -128,7 +128,7 @@ var (
 	// performed by admins)
 	RemoveAdminCmd = &cmd.Command{
 		Name:     "remove-admin",
-		HelpText: "Remove admin rights from a user (can only be performed by admins)",
+		HelpText: "Remove admin rights from a user (admins only)",
 		Options:  map[string]*cmd.Option{},
 		Args: []cmd.Argument{
 			cmd.Argument{
