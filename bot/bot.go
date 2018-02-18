@@ -17,7 +17,8 @@ const (
 	username = "U5RU9TB38"
 
 	// Default message to send when any error occurs
-	errorMessage = "Oops, an error occurred :robot_face:. Bruno must have coded a bug... Sorry about that!"
+	errorMessage = "Oops, an error occurred :robot_face:. Bruno must have " +
+		"coded a bug... Sorry about that!"
 
 	// ID for the `all` team that everyone should be on
 	githubAllTeamID = 2467607
