@@ -277,9 +277,9 @@ func (b *Bot) removeUser(c cmd.Context) (string, slack.PostMessageParameters) {
 
 	// Remove user from GitHub team
 	if err := b.gh.RemoveUserFromTeam(member.GithubUsername, team.GithubTeamID); err != nil {
-		log.WithError(err).Errorf("Failed to add member %s to GitHub team %s",
+		log.WithError(err).Errorf("Failed to remove member %s from GitHub team %s",
 			c.Args[0].Value, team.Name)
-		return "Failed to add member to GitHub team", noParams
+		return "Failed to remove member from GitHub team", noParams
 	}
 
 	teamMember := model.TeamMember{
@@ -293,7 +293,7 @@ func (b *Bot) removeUser(c cmd.Context) (string, slack.PostMessageParameters) {
 		return "Failed to remove member from team", noParams
 	}
 	return toMention(member.SlackID) +
-		" was removed from `" + team.Name + "` team :tada:", noParams
+		" was removed from `" + team.Name + "` :tada:", noParams
 }
 
 // viewUser displays a user's information.
@@ -324,10 +324,14 @@ func (b *Bot) viewTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 	return "Team " + c.Args[0].Value, params
 }
 
-// cmd.Command for debugging strange behaviour without restarting the whole app.
-// It refreshes the user cache and creates any users that don't already exist.
+// refresh is a command for debugging strange behaviour without restarting the
+// whole app. It refreshes the user cache and creates any users that don't
+// already exist.
 func (b *Bot) refresh(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
+	if !c.User.IsAdmin {
+		return "You must be an admin to use this command", noParams
+	}
 
 	// Pull in all users from Slack
 	b.PopulateUsers()
@@ -351,4 +355,19 @@ func (b *Bot) refresh(c cmd.Context) (string, slack.PostMessageParameters) {
 		}
 	}
 	return "I feel so refreshed! :tropical_drink:", noParams
+}
+
+// listTeams displays Launch Pad teams
+func (b *Bot) listTeams(c cmd.Context) (string, slack.PostMessageParameters) {
+	noParams := slack.PostMessageParameters{}
+	teams := model.Teams{}
+	if err := b.dal.GetTeamNames(&teams); err != nil {
+		log.WithError(err).Error("Failed to get team names")
+		return "Failed to get team names", noParams
+	}
+	names := ""
+	for _, team := range teams {
+		names += team.Name + "\n"
+	}
+	return names, noParams
 }

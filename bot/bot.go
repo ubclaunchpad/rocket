@@ -45,28 +45,21 @@ func New(cfg *config.Config, dal *data.DAL, gh *github.API, log *log.Entry) *Bot
 	api := slack.New(cfg.SlackToken)
 
 	b := &Bot{
-		token: cfg.SlackToken,
-		api:   api,
-		rtm:   api.NewRTM(),
-		dal:   dal,
-		gh:    gh,
-		log:   log,
-		commands: map[string]*cmd.Command{
-			"help":         HelpCmd,
-			"set":          SetCmd,
-			"view-user":    ViewUserCmd,
-			"view-team":    ViewTeamCmd,
-			"add-user":     AddUserCmd,
-			"add-team":     AddTeamCmd,
-			"add-admin":    AddAdminCmd,
-			"remove-user":  RemoveUserCmd,
-			"remove-team":  RemoveTeamCmd,
-			"remove-admin": RemoveAdminCmd,
-		},
+		token:    cfg.SlackToken,
+		api:      api,
+		rtm:      api.NewRTM(),
+		dal:      dal,
+		gh:       gh,
+		log:      log,
+		commands: map[string]*cmd.Command{},
 	}
 	b.PopulateUsers()
 
 	// Attach command handlers
+	for _, cmd := range Commands {
+		b.commands[cmd.Name] = cmd
+	}
+
 	HelpCmd.HandleFunc = b.help
 	SetCmd.HandleFunc = b.set
 	ViewUserCmd.HandleFunc = b.viewUser
@@ -77,6 +70,8 @@ func New(cfg *config.Config, dal *data.DAL, gh *github.API, log *log.Entry) *Bot
 	RemoveAdminCmd.HandleFunc = b.removeAdmin
 	RemoveUserCmd.HandleFunc = b.removeUser
 	RemoveTeamCmd.HandleFunc = b.removeTeam
+	TeamsCmd.HandleFunc = b.listTeams
+	RefreshCmd.HandleFunc = b.refresh
 
 	return b
 }

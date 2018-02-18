@@ -8,7 +8,7 @@ var (
 	// Commands is a list of all commands Rocket supports
 	Commands = []*cmd.Command{HelpCmd, SetCmd, AddUserCmd,
 		AddTeamCmd, AddAdminCmd, RemoveAdminCmd, RemoveTeamCmd, RemoveUserCmd,
-		ViewTeamCmd, ViewUserCmd}
+		ViewTeamCmd, ViewUserCmd, TeamsCmd, RefreshCmd}
 
 	// HelpCmd presents helpful information about Rocket commands
 	HelpCmd = &cmd.Command{
@@ -180,5 +180,20 @@ var (
 				MultiWord: true,
 			},
 		},
+	}
+	// TeamsCmd displays a list of Launch Pad teams
+	TeamsCmd = &cmd.Command{
+		Name:     "teams",
+		HelpText: "List Launch Pad teams",
+		Options:  map[string]*cmd.Option{},
+		Args:     []cmd.Argument{},
+	}
+	// RefreshCmd refreshes the user cache and creates any users that don't
+	// already exist
+	RefreshCmd = &cmd.Command{
+		Name:     "refresh",
+		HelpText: "for debugging Rocket (admins only)",
+		Options:  map[string]*cmd.Option{},
+		Args:     []cmd.Argument{},
 	}
 )
