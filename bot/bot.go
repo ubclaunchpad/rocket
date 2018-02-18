@@ -191,6 +191,7 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 		}
 		res, params, err := cmd.Execute(context)
 		if err != nil {
+			log.WithError(err).Error("Failed to execute command")
 			b.SendErrorMessage(context.Message.Channel, err, err.Error())
 		}
 		b.api.PostMessage(context.Message.Channel, res, params)

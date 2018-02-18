@@ -12,24 +12,29 @@ import (
 
 // Send a help message
 func (b *Bot) help(c cmd.Context) (string, slack.PostMessageParameters) {
-	noParams := slack.PostMessageParameters{}
+	params := slack.PostMessageParameters{}
 	res := ""
 	opt := c.Options["command"].Value
 	if opt == "" {
 		// General help
+		res = "Usage: @rocket COMMAND\n\nGet help using a specific " +
+			"command with \"@rocket help --command=`COMMAND`\""
 		cmds := ""
 		for _, cmd := range Commands {
-			cmds += fmt.Sprintf("\t%s\t\t%s\n", cmd.Name, cmd.HelpText)
+			cmds += fmt.Sprintf("%s\t\t%s\n", cmd.Name, cmd.HelpText)
 		}
-		res = fmt.Sprintf("Usage: @rocket COMMAND\n\nGet help using a specific "+
-			"command with \"@rocket help --command=`COMMAND`\"\n\nCommands:\n%s",
-			cmds)
-		return res, noParams
+		commands := slack.Attachment{
+			Title: "Commands",
+			Text:  cmds,
+			Color: "#e5e7ea",
+		}
+		params.Attachments = []slack.Attachment{commands}
+		return res, params
 	}
 	// Command-specific help
 	for _, cmd := range Commands {
 		if opt == cmd.Name {
-			return cmd.Help(), noParams
+			return cmd.Help()
 		}
 	}
 	res = fmt.Sprintf("\"%s\" is not a Rocket command.\n"+

@@ -59,13 +59,13 @@ var (
 	// AddUserCmd adds a user
 	AddUserCmd = &cmd.Command{
 		Name:     "add-user",
-		HelpText: "Add a user to the Launch Pad organization",
+		HelpText: "Add a user to a team",
 		Options:  map[string]*cmd.Option{},
 		Args: []cmd.Argument{
 			cmd.Argument{
 				Name:      "member",
 				HelpText:  "the Slack handle of the user to add to a team",
-				Format:    slackHandleRegex,
+				Format:    anyRegex,
 				MultiWord: false,
 			},
 			cmd.Argument{
@@ -86,7 +86,7 @@ var (
 			cmd.Argument{
 				Name:      "username",
 				HelpText:  "the Slack handle of the user to make an admin",
-				Format:    slackHandleRegex,
+				Format:    anyRegex,
 				MultiWord: false,
 			},
 		},
@@ -108,13 +108,13 @@ var (
 	// RemoveUserCmd removes a user
 	RemoveUserCmd = &cmd.Command{
 		Name:     "remove-user",
-		HelpText: "Remove a user to the Launch Pad organization",
+		HelpText: "Remove a user from a team",
 		Options:  map[string]*cmd.Option{},
 		Args: []cmd.Argument{
 			cmd.Argument{
 				Name:     "username",
 				HelpText: "the Slack handle of the user to remove from a team",
-				Format:   slackHandleRegex,
+				Format:   anyRegex,
 			},
 			cmd.Argument{
 				Name:      "team",
@@ -134,15 +134,15 @@ var (
 			cmd.Argument{
 				Name:      "username",
 				HelpText:  "the Slack handle of the user to remove admin rights from",
-				Format:    slackHandleRegex,
+				Format:    anyRegex,
 				MultiWord: false,
 			},
 		},
 	}
 	// RemoveTeamCmd removes a new Launch Pad team
 	RemoveTeamCmd = &cmd.Command{
-		Name:     "Remove-team",
-		HelpText: "delete a new Launch Pad team",
+		Name:     "remove-team",
+		HelpText: "Delete a new Launch Pad team",
 		Options:  map[string]*cmd.Option{},
 		Args: []cmd.Argument{
 			cmd.Argument{
@@ -162,7 +162,7 @@ var (
 			cmd.Argument{
 				Name:      "username",
 				HelpText:  "the slack handle of the user to view",
-				Format:    slackHandleRegex,
+				Format:    anyRegex,
 				MultiWord: false,
 			},
 		},

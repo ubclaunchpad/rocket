@@ -131,16 +131,9 @@ func TestCommandInvalidOptFormat(t *testing.T) {
 
 func TestCommandHelp(t *testing.T) {
 	cmd := getTestCommand(testHandler)
-	assert.Equal(t, cmd.Help(), `*Usage:* @rocket testcommand OPTIONS ARGUMENTS
-
-lets go dude!
-
-*Arguments:*
-	testarg	what a cool arg
-
-*Options:*
-	--myopt	what a sick option
-`)
+	res, _ := cmd.Help()
+	assert.Equal(t, res,
+		"Usage: @rocket testcommand OPTIONS ARGUMENTS\n\nlets go dude!")
 }
 
 func TestCommandMultiWordArg(t *testing.T) {

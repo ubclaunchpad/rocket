@@ -43,25 +43,37 @@ func (c *Command) Execute(ctx Context) (string, slack.PostMessageParameters, err
 }
 
 // Help returns full help text for the given command
-func (c *Command) Help() string {
-	usage := "*Usage:* @rocket " + c.Name
+func (c *Command) Help() (string, slack.PostMessageParameters) {
+	usage := "Usage: @rocket " + c.Name
 	opts := ""
 	args := ""
+	attachments := []slack.Attachment{}
 	if len(c.Options) > 0 {
 		usage += " OPTIONS"
-		opts = "\n*Options:*\n"
+		opts = ""
 		for _, o := range c.Options {
-			opts += fmt.Sprintf("\t--%s\t%s\n", o.Key, o.HelpText)
+			opts += fmt.Sprintf("--%s\t%s\n", o.Key, o.HelpText)
 		}
+		attachments = append(attachments, slack.Attachment{
+			Title: "Options",
+			Text:  opts,
+			Color: "#e5e7ea",
+		})
 	}
 	if len(c.Args) > 0 {
 		usage += " ARGUMENTS"
-		args = "\n*Arguments:*\n"
+		args = ""
 		for _, a := range c.Args {
-			args += fmt.Sprintf("\t%s\t%s\n", a.Name, a.HelpText)
+			args += fmt.Sprintf("%s\t%s\n", a.Name, a.HelpText)
 		}
+		attachments = append(attachments, slack.Attachment{
+			Title: "Arguments",
+			Text:  args,
+			Color: "#e5e7ea",
+		})
 	}
-	return fmt.Sprintf("%s\n\n%s\n%s%s", usage, c.HelpText, args, opts)
+	params := slack.PostMessageParameters{Attachments: attachments}
+	return fmt.Sprintf("%s\n\n%s", usage, c.HelpText), params
 }
 
 // parse checks whether the given command meets the requirements of this

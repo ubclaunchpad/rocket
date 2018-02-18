@@ -13,8 +13,6 @@ var (
 	nameRegex = regexp.MustCompile("^[a-zA-Z'-]+$")
 	// emailRegex matches email addresses
 	emailRegex = regexp.MustCompile("[a-zA-Z0-9._+]+@[a-zA-Z0-9._]+")
-	// slackHandleRegex matches any Slack username
-	slackHandleRegex = regexp.MustCompile(`^@[a-zA-Z0-9\. -]+$`)
 )
 
 // Slack encodes user mentions slightly differently in the message objects
