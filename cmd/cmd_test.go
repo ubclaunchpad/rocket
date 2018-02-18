@@ -27,9 +27,10 @@ func getTestCommand(ch CommandHandler) *Command {
 		},
 		Args: []Argument{
 			Argument{
-				Name:     "testarg",
-				HelpText: "what a cool arg",
-				Format:   anyString,
+				Name:      "testarg",
+				HelpText:  "what a cool arg",
+				Format:    anyString,
+				MultiWord: false,
 			},
 		},
 		HandleFunc: ch,
@@ -130,14 +131,28 @@ func TestCommandInvalidOptFormat(t *testing.T) {
 
 func TestCommandHelp(t *testing.T) {
 	cmd := getTestCommand(testHandler)
-	assert.Equal(t, cmd.Help(), `Usage: @rocket testcommand OPTIONS ARGUMENTS
+	assert.Equal(t, cmd.Help(), `*Usage:* @rocket testcommand OPTIONS ARGUMENTS
 
 lets go dude!
 
-Arguments:
+*Arguments:*
 	testarg	what a cool arg
 
-Options:
+*Options:*
 	--myopt	what a sick option
 `)
+}
+
+func TestCommandMultiWordArg(t *testing.T) {
+	ctx := getTestContext("@rocket testcommand lets goo dude!")
+	ch := func(context Context) (string, slack.PostMessageParameters) {
+		ctx = context
+		return context.Message.Text, slack.PostMessageParameters{}
+	}
+	cmd := getTestCommand(ch)
+	cmd.Args[0].MultiWord = true
+	res, _, err := cmd.Execute(ctx)
+	assert.Nil(t, err)
+	assert.Equal(t, res, "@rocket testcommand lets goo dude!")
+	assert.Equal(t, ctx.Args[0].Value, "lets goo dude!")
 }

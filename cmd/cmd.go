@@ -44,24 +44,24 @@ func (c *Command) Execute(ctx Context) (string, slack.PostMessageParameters, err
 
 // Help returns full help text for the given command
 func (c *Command) Help() string {
-	usage := "Usage: @rocket " + c.Name
+	usage := "*Usage:* @rocket " + c.Name
 	opts := ""
 	args := ""
 	if len(c.Options) > 0 {
 		usage += " OPTIONS"
-		opts = "\nOptions:\n"
+		opts = "\n*Options:*\n"
 		for _, o := range c.Options {
 			opts += fmt.Sprintf("\t--%s\t%s\n", o.Key, o.HelpText)
 		}
 	}
 	if len(c.Args) > 0 {
 		usage += " ARGUMENTS"
-		args = "\nArguments:\n"
+		args = "\n*Arguments:*\n"
 		for _, a := range c.Args {
 			args += fmt.Sprintf("\t%s\t%s\n", a.Name, a.HelpText)
 		}
 	}
-	return fmt.Sprintf("%s\n\n%s\n%s\n%s", usage, c.HelpText, args, opts)
+	return fmt.Sprintf("%s\n\n%s\n%s%s", usage, c.HelpText, args, opts)
 }
 
 // parse checks whether the given command meets the requirements of this
@@ -73,7 +73,7 @@ func (c *Command) parse(cmd string) error {
 	if len(tokens) < 2 {
 		return fmt.Errorf("Received empty command")
 	} else if tokens[1] != c.Name {
-		return fmt.Errorf("Invalid command \"%s\"", tokens[0])
+		return fmt.Errorf("Invalid command \"%s\"", tokens[1])
 	}
 	if len(tokens) == 2 {
 		// No options or args were given
@@ -137,9 +137,20 @@ func (c *Command) parseOptions(opts []string) error {
 
 func (c *Command) parseArgs(args []string) error {
 	argIndex := 0
-	for _, token := range args {
+	for i, token := range args {
 		if argIndex >= len(c.Args) {
 			return errors.New("Too many arguments")
+		} else if argIndex == len(c.Args)-1 {
+			// This is the last arg
+			if c.Args[argIndex].MultiWord {
+				token = strings.Join(args[i:], " ")
+				// Check that this argument fits it's specified format
+				if err := c.Args[argIndex].validate(token); err != nil {
+					return err
+				}
+				c.Args[argIndex].Value = token
+				return nil
+			}
 		}
 
 		// Check that this argument fits it's specified format
@@ -172,18 +183,22 @@ type Option struct {
 func (o *Option) validate(value string) error {
 	// Check that the value meets the required format
 	if !o.Format.MatchString(value) {
-		return fmt.Errorf("Invalid format for option \"%s\"."+
+		return fmt.Errorf("Invalid format for option \"%s\". "+
 			"Format must match regular expression %s.", o.Key, o.Format.String())
 	}
 	return nil
 }
 
 // Argument represents a required parameter that Rocket will check as part of a command.
+// Note that MultiWord==true will cause all trailing words to be assigned to
+// this argument. For this reason, there sould always be a maximum of one
+// multi-word argument in a command, and it should always be the last argument.
 type Argument struct {
-	Name     string
-	HelpText string
-	Format   *regexp.Regexp
-	Value    string
+	Name      string
+	HelpText  string
+	Format    *regexp.Regexp
+	Value     string
+	MultiWord bool
 }
 
 // validate returns nil if the given value meets the format requirements for
@@ -191,7 +206,7 @@ type Argument struct {
 func (a *Argument) validate(value string) error {
 	// Check that the value meets the required format
 	if !a.Format.MatchString(value) {
-		return fmt.Errorf("Invalid format for argument \"%s\"."+
+		return fmt.Errorf("Invalid format for argument \"%s\". "+
 			"Format must match regular expression %s.", a.Name, a.Format.String())
 	}
 	return nil
