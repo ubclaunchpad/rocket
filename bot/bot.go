@@ -60,6 +60,7 @@ func New(cfg *config.Config, dal *data.DAL, gh *github.API, log *log.Entry) *Bot
 	b.commands = map[string]*cmd.Command{
 		"help":         NewHelpCmd(b.help),
 		"set":          NewSetCmd(b.set),
+		"edit":         NewEditUserCmd(b.editUser),
 		"view-user":    NewViewUserCmd(b.viewUser),
 		"view-team":    NewViewTeamCmd(b.viewTeam),
 		"add-user":     NewAddUserCmd(b.addUser),
