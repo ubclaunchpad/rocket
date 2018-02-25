@@ -12,7 +12,7 @@ clean:
 	rm rocket
 
 test:
-	go test ./...
+	go test ./... -cover
 
 docker:
 	docker-compose up -d

@@ -25,22 +25,39 @@ func getTestContext(text string) cmd.Context {
 	}
 }
 
+func getTestBot() *Bot {
+	b := &Bot{}
+	b.commands = map[string]*cmd.Command{
+		"help":        NewHelpCmd(b.help),
+		"set":         NewSetCmd(b.set),
+		"viewuser":    NewViewUserCmd(b.viewUser),
+		"viewteam":    NewViewTeamCmd(b.viewTeam),
+		"adduser":     NewAddUserCmd(b.addUser),
+		"addteam":     NewAddTeamCmd(b.addTeam),
+		"addadmin":    NewAddAdminCmd(b.addAdmin),
+		"removeadmin": NewRemoveAdminCmd(b.removeAdmin),
+		"removeuser":  NewRemoveUserCmd(b.removeUser),
+		"removeteam":  NewRemoveTeamCmd(b.removeTeam),
+		"teams":       NewTeamsCmd(b.listTeams),
+		"refresh":     NewRefreshCmd(b.refresh),
+	}
+	return b
+}
+
 func TestHelp(t *testing.T) {
 	ctx := getTestContext("@rocket help")
-	b := Bot{}
-	HelpCmd.HandleFunc = b.help
-	res, _, err := HelpCmd.Execute(ctx)
+	b := getTestBot()
+	res, _, err := b.commands["help"].Execute(ctx)
 	t.Log(res)
 	assert.Nil(t, err)
 }
 
 func TestHelpWithCommand(t *testing.T) {
-	for _, cmd := range Commands {
+	b := getTestBot()
+	for _, cmd := range b.commands {
 		text := "@rocket help --command=`" + cmd.Name + "`"
 		ctx := getTestContext(text)
-		b := Bot{}
-		HelpCmd.HandleFunc = b.help
-		res, _, err := HelpCmd.Execute(ctx)
+		res, _, err := b.commands["help"].Execute(ctx)
 		t.Log(res)
 		assert.Nil(t, err)
 		assert.True(t, strings.Contains(res, "Usage:"))
@@ -50,9 +67,8 @@ func TestHelpWithCommand(t *testing.T) {
 func TestHelpWithInvalidCommand(t *testing.T) {
 	text := "@rocket help --command=`blabla`"
 	ctx := getTestContext(text)
-	b := Bot{}
-	HelpCmd.HandleFunc = b.help
-	res, _, err := HelpCmd.Execute(ctx)
+	b := getTestBot()
+	res, _, err := b.commands["help"].Execute(ctx)
 	t.Log(res)
 	assert.Nil(t, err)
 	assert.True(t, strings.Contains(res, "is not a Rocket command"))

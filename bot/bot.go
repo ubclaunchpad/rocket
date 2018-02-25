@@ -57,23 +57,20 @@ func New(cfg *config.Config, dal *data.DAL, gh *github.API, log *log.Entry) *Bot
 	b.PopulateUsers()
 
 	// Attach command handlers
-	for _, cmd := range Commands {
-		b.commands[cmd.Name] = cmd
+	b.commands = map[string]*cmd.Command{
+		"help":         NewHelpCmd(b.help),
+		"set":          NewSetCmd(b.set),
+		"view-user":    NewViewUserCmd(b.viewUser),
+		"view-team":    NewViewTeamCmd(b.viewTeam),
+		"add-user":     NewAddUserCmd(b.addUser),
+		"add-team":     NewAddTeamCmd(b.addTeam),
+		"add-admin":    NewAddAdminCmd(b.addAdmin),
+		"remove-admin": NewRemoveAdminCmd(b.removeAdmin),
+		"remove-user":  NewRemoveUserCmd(b.removeUser),
+		"remove-team":  NewRemoveTeamCmd(b.removeTeam),
+		"teams":        NewTeamsCmd(b.listTeams),
+		"refresh":      NewRefreshCmd(b.refresh),
 	}
-
-	HelpCmd.HandleFunc = b.help
-	SetCmd.HandleFunc = b.set
-	ViewUserCmd.HandleFunc = b.viewUser
-	ViewTeamCmd.HandleFunc = b.viewTeam
-	AddUserCmd.HandleFunc = b.addUser
-	AddTeamCmd.HandleFunc = b.addTeam
-	AddAdminCmd.HandleFunc = b.addAdmin
-	RemoveAdminCmd.HandleFunc = b.removeAdmin
-	RemoveUserCmd.HandleFunc = b.removeUser
-	RemoveTeamCmd.HandleFunc = b.removeTeam
-	TeamsCmd.HandleFunc = b.listTeams
-	RefreshCmd.HandleFunc = b.refresh
-
 	return b
 }
 
@@ -180,10 +177,10 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 			command := args[1]
 			cmd = b.commands[command]
 			if cmd == nil {
-				cmd = HelpCmd
+				cmd = b.commands["help"]
 			}
 		} else {
-			cmd = HelpCmd
+			cmd = b.commands["help"]
 		}
 		res, params, err := cmd.Execute(context)
 		if err != nil {
