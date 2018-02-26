@@ -60,7 +60,10 @@ func (b *Bot) editUser(c cmd.Context) (string, slack.PostMessageParameters) {
 
 	c.User = model.Member{
 		SlackID: parseMention(c.Args[0].Value),
-		IsAdmin: false,
 	}
-	return b.set(c)
+	if err := b.dal.GetMemberBySlackID(&c.User); err != nil {
+		return "Failed to find member " + c.Args[0].Value, noParams
+	}
+	_, params := b.set(c)
+	return c.Args[0].Value + "'s information has been updated", params
 }
