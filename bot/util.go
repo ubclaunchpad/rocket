@@ -3,6 +3,15 @@ package bot
 import "regexp"
 
 var (
+	// anyRegex matches any non-empty string
+	anyRegex = regexp.MustCompile(".+")
+	// lowerAlphaRegex matches words containing only lower case letters
+	lowerAlphaRegex = regexp.MustCompile("[a-z]")
+	// alphaRegex matches words containing only letters
+	alphaRegex = regexp.MustCompile("[a-zA-Z]")
+	// nameRegex matches people's names
+	nameRegex = regexp.MustCompile("^[a-zA-Z'-]+$")
+	// emailRegex matches email addresses
 	emailRegex = regexp.MustCompile("[a-zA-Z0-9._+]+@[a-zA-Z0-9._]+")
 )
 
@@ -20,10 +29,4 @@ func parseMention(mention string) string {
 		return ""
 	}
 	return mention[2:11]
-}
-
-// Slack also encodes emails slightly differently. This function parses an
-// actual email from an Slack-formatted email.
-func parseEmail(email string) string {
-	return emailRegex.FindString(email)
 }
