@@ -39,6 +39,11 @@ func NewSetCmd(ch cmd.CommandHandler) *cmd.Command {
 				HelpText: "your major at UBC",
 				Format:   anyRegex,
 			},
+			"biography": &cmd.Option{
+				Key:      "biography",
+				HelpText: "a little bit about yourself",
+				Format:   anyRegex,
+			},
 		},
 		Args:       []cmd.Argument{},
 		HandleFunc: ch,
@@ -103,6 +108,14 @@ func (b *Bot) set(c cmd.Context) (string, slack.PostMessageParameters) {
 		if err := b.dal.SetMemberPosition(&c.User); err != nil {
 			log.WithError(err).Error("Failed to set position")
 			return "Failed to set position", params
+		}
+	}
+
+	if c.Options["biography"].Value != "" {
+		c.User.Biography = c.Options["biography"].Value
+		if err := b.dal.SetMemberBiography(&c.User); err != nil {
+			log.WithError(err).Error("Failed to set biography")
+			return "Failed to set biography", params
 		}
 	}
 
