@@ -94,16 +94,29 @@ func (b *Bot) Start() {
 	}
 }
 
-// PopulateUsers retrieves list of users from API and populates the bot
-// instance's cache.
+// PopulateUsers retrieves list of users from API, populates the bot
+// instance's cache, and updates any member entries in the DB with any relevant
+// info from their Slack profiles.
 func (b *Bot) PopulateUsers() {
 	users, err := b.api.GetUsers()
 	if err != nil {
 		b.log.WithError(err).Error("Failed to populate users")
 	}
+
 	b.users = make(map[string]slack.User)
 	for _, u := range users {
 		b.users[u.ID] = u
+		member := &model.Member{
+			SlackID:  u.ID,
+			Name:     u.Profile.RealName,
+			IsAdmin:  u.IsAdmin,
+			Email:    u.Profile.Email,
+			Position: u.Profile.Title,
+		}
+		if err := b.dal.UpdateMember(member); err != nil {
+			b.log.WithError(err).Error("failed to update member " + member.SlackID)
+		}
+		b.log.Debug("Successfully updated user ", member.SlackID)
 	}
 }
 
@@ -118,7 +131,7 @@ func (b *Bot) SendErrorMessage(channel string, err error, msg string) {
 	b.log.WithError(err).Error(msg)
 }
 
-// handleMessageEvent is a g eneric handler for any new message we receive.
+// handleMessageEvent is a generic handler for any new message we receive.
 // Determines whether the message is meant to be a command (if we need to
 // take action for it), populates the command context object for the message,
 // and calls the appropriate handler.
