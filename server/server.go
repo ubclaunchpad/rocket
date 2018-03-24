@@ -3,10 +3,12 @@
 package server
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/crypto/acme/autocert"
 
 	"github.com/gorilla/mux"
 	"github.com/ubclaunchpad/rocket/config"
@@ -14,30 +16,51 @@ import (
 	"github.com/ubclaunchpad/rocket/model"
 )
 
+const (
+	// The hostname of the server running Rocket
+	hostName = "rocket.ubclaunchpad.com"
+	// The directory to stash SSL certificates in. Note that this should
+	// probably be mounted to the host file system, so it should also appear
+	// under rocket/volumes in the docker-compose.yml.
+	certDir = "/etc/ssl/certs"
+)
+
 // Server represents the HTTP server that provides a REST API interface to
 // Rocket's database.
 type Server struct {
-	router *mux.Router
-	server *http.Server
-	addr   string
-	dal    *data.DAL
-	log    *log.Entry
+	router  *mux.Router
+	server  *http.Server
+	addr    string
+	dal     *data.DAL
+	log     *log.Entry
+	manager *autocert.Manager
 }
 
 // New returns a new instance of the HTTP server based on a config.
 func New(c *config.Config, dal *data.DAL, entry *log.Entry) *Server {
 	router := mux.NewRouter()
-	addr := c.Host + ":" + c.Port
+	addr := ":https"
+	m := &autocert.Manager{
+		Prompt:     autocert.AcceptTOS,
+		Cache:      autocert.DirCache(certDir),
+		HostPolicy: autocert.HostWhitelist(hostName),
+	}
 	server := &http.Server{
 		Addr: addr,
+		TLSConfig: &tls.Config{
+			ServerName:     hostName,
+			GetCertificate: m.GetCertificate,
+		},
+		Handler: router,
 	}
 
 	s := &Server{
-		router: router,
-		server: server,
-		addr:   addr,
-		dal:    dal,
-		log:    entry,
+		router:  router,
+		server:  server,
+		addr:    addr,
+		dal:     dal,
+		log:     entry,
+		manager: m,
 	}
 
 	router.HandleFunc("/", s.RootHandler).Methods("GET")
@@ -51,7 +74,8 @@ func New(c *config.Config, dal *data.DAL, entry *log.Entry) *Server {
 
 func (s *Server) Start() error {
 	s.log.Info("Starting API server on: ", s.addr)
-	err := http.ListenAndServe(s.addr, s.router)
+	go http.ListenAndServe(":http", s.manager.HTTPHandler(nil))
+	err := s.server.ListenAndServeTLS("", "")
 	if err != nil {
 		s.log.WithError(err).Fatal("A fatal error occurred in the HTTP server")
 	}

@@ -40,14 +40,14 @@ func (api *API) UserExists(username string) (bool, error) {
 	return true, nil
 }
 
-func (api *API) AddUserToTeam(username string, teamID int) error {
+func (api *API) AddUserToTeam(username string, teamID int64) error {
 	_, _, err := api.Organizations.AddTeamMembership(
 		context.Background(), teamID, username, nil,
 	)
 	return err
 }
 
-func (api *API) RemoveUserFromTeam(username string, teamID int) error {
+func (api *API) RemoveUserFromTeam(username string, teamID int64) error {
 	_, err := api.Organizations.RemoveTeamMembership(
 		context.Background(), teamID, username,
 	)
@@ -68,15 +68,15 @@ func (api *API) CreateTeam(name string) (*gh.Team, error) {
 	}
 
 	// Otherwise, create it
-	team := &gh.Team{
-		Name:    &name,
+	team := &gh.NewTeam{
+		Name:    name,
 		Privacy: gh.String("closed"),
 	}
 	t, _, err := api.Organizations.CreateTeam(context.Background(), "ubclaunchpad", team)
 	return t, err
 }
 
-func (api *API) RemoveTeam(id int) error {
+func (api *API) RemoveTeam(id int64) error {
 	_, err := api.Organizations.DeleteTeam(context.Background(), id)
 	return err
 }

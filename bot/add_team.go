@@ -49,7 +49,7 @@ func (b *Bot) addTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 
 	team := model.Team{
 		Name:         teamName,
-		GithubTeamID: *ghTeam.ID,
+		GithubTeamID: int(*ghTeam.ID),
 	}
 	// Finally, add team to DB
 	if err := b.dal.CreateTeam(&team); err != nil {
