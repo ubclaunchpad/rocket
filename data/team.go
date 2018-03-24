@@ -29,6 +29,12 @@ func (dal *DAL) GetTeams(teams *model.Teams) error {
 		Select()
 }
 
+func (dal *DAL) GetTeamNames(teams *model.Teams) error {
+	return dal.db.Model(teams).
+		Column("name").
+		Select()
+}
+
 func (dal *DAL) CreateTeam(team *model.Team) error {
 	_, err := dal.db.Model(team).
 		OnConflict("DO NOTHING").

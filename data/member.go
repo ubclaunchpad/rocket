@@ -61,6 +61,14 @@ func (dal *DAL) SetMemberPosition(member *model.Member) error {
 	return err
 }
 
+func (dal *DAL) SetMemberBiography(member *model.Member) error {
+	_, err := dal.db.Model(member).
+		Set("biography = ?biography").
+		Update()
+
+	return err
+}
+
 func (dal *DAL) SetMemberImageURL(member *model.Member) error {
 	_, err := dal.db.Model(member).
 		Set("image_url = ?image_url").

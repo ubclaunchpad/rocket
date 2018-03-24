@@ -17,6 +17,7 @@ type Member struct {
 	GithubUsername string    `json:"githubUsername"`
 	Major          string    `sql:"program" json:"major"`
 	Position       string    `json:"position"`
+	Biography      string    `json:"biography"`
 	ImageURL       string    `json:"imageUrl"`
 	IsAdmin        bool      `json:"-"`
 	CreatedAt      time.Time `json:"-"`
@@ -48,6 +49,10 @@ func (m *Member) SlackAttachments() []slack.Attachment {
 		},
 		slack.Attachment{
 			Text:  "Major: " + m.Major,
+			Color: "good",
+		},
+		slack.Attachment{
+			Text:  "Biography: " + m.Biography,
 			Color: "good",
 		},
 	}

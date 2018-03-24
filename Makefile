@@ -1,4 +1,4 @@
-.PHONY: deps clean rocket
+.PHONY: deps clean rocket test
 
 all: rocket
 
@@ -10,3 +10,9 @@ deps:
 
 clean:
 	rm rocket
+
+test:
+	go test ./... -cover
+
+docker:
+	docker-compose up -d

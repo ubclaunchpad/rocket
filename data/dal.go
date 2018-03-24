@@ -31,7 +31,7 @@ func New(c *config.Config) *DAL {
 
 	err := dal.Ping()
 	if err != nil {
-		log.Fatal("Error initializing the database: ", err.Error())
+		log.WithError(err).Fatal("Error initializing the database")
 	}
 
 	return dal

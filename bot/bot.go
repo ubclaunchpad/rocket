@@ -17,7 +17,8 @@ const (
 	username = "U5RU9TB38"
 
 	// Default message to send when any error occurs
-	errorMessage = "Oops, an error occurred :robot_face:. Bruno must have coded a bug... Sorry about that!"
+	errorMessage = "Oops, an error occurred :robot_face:. Bruno must have " +
+		"coded a bug... Sorry about that!"
 
 	// ID for the `all` team that everyone should be on
 	githubAllTeamID = 2467607
@@ -45,39 +46,32 @@ func New(cfg *config.Config, dal *data.DAL, gh *github.API, log *log.Entry) *Bot
 	api := slack.New(cfg.SlackToken)
 
 	b := &Bot{
-		token: cfg.SlackToken,
-		api:   api,
-		rtm:   api.NewRTM(),
-		dal:   dal,
-		gh:    gh,
-		log:   log,
-		commands: map[string]*cmd.Command{
-			"help":         HelpCmd,
-			"set":          SetCmd,
-			"view-user":    ViewUserCmd,
-			"view-team":    ViewTeamCmd,
-			"add-user":     AddUserCmd,
-			"add-team":     AddTeamCmd,
-			"add-admin":    AddAdminCmd,
-			"remove-user":  RemoveUserCmd,
-			"remove-team":  RemoveTeamCmd,
-			"remove-admin": RemoveAdminCmd,
-		},
+		token:    cfg.SlackToken,
+		api:      api,
+		rtm:      api.NewRTM(),
+		dal:      dal,
+		gh:       gh,
+		log:      log,
+		commands: map[string]*cmd.Command{},
 	}
 	b.PopulateUsers()
 
 	// Attach command handlers
-	HelpCmd.HandleFunc = b.help
-	SetCmd.HandleFunc = b.set
-	ViewUserCmd.HandleFunc = b.viewUser
-	ViewTeamCmd.HandleFunc = b.viewTeam
-	AddUserCmd.HandleFunc = b.addUser
-	AddTeamCmd.HandleFunc = b.addTeam
-	AddAdminCmd.HandleFunc = b.addAdmin
-	RemoveAdminCmd.HandleFunc = b.removeAdmin
-	RemoveUserCmd.HandleFunc = b.removeUser
-	RemoveTeamCmd.HandleFunc = b.removeTeam
-
+	b.commands = map[string]*cmd.Command{
+		"help":         NewHelpCmd(b.help),
+		"set":          NewSetCmd(b.set),
+		"edit":         NewEditUserCmd(b.editUser),
+		"view-user":    NewViewUserCmd(b.viewUser),
+		"view-team":    NewViewTeamCmd(b.viewTeam),
+		"add-user":     NewAddUserCmd(b.addUser),
+		"add-team":     NewAddTeamCmd(b.addTeam),
+		"add-admin":    NewAddAdminCmd(b.addAdmin),
+		"remove-admin": NewRemoveAdminCmd(b.removeAdmin),
+		"remove-user":  NewRemoveUserCmd(b.removeUser),
+		"remove-team":  NewRemoveTeamCmd(b.removeTeam),
+		"teams":        NewTeamsCmd(b.listTeams),
+		"refresh":      NewRefreshCmd(b.refresh),
+	}
 	return b
 }
 
@@ -184,14 +178,15 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 			command := args[1]
 			cmd = b.commands[command]
 			if cmd == nil {
-				cmd = HelpCmd
+				cmd = b.commands["help"]
 			}
 		} else {
-			cmd = HelpCmd
+			cmd = b.commands["help"]
 		}
 		res, params, err := cmd.Execute(context)
 		if err != nil {
-			b.SendErrorMessage(context.Message.Channel, err, "")
+			log.WithError(err).Error("Failed to execute command")
+			b.SendErrorMessage(context.Message.Channel, err, err.Error())
 		}
 		b.api.PostMessage(context.Message.Channel, res, params)
 	}
