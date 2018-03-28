@@ -19,7 +19,7 @@ services:
       dockerfile: Dockerfile.app
     command: rocket
     volumes:
-      - "/etc/rocket/certs:/etc/ssl/certs"
+      - "/etc/ssl/certs:/etc/ssl/certs"
     ports:
       - "80:80"
       - "443:443"

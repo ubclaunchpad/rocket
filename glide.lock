@@ -1,8 +1,8 @@
-hash: 42f32a45097abbcad415a6e46a18dc3f0222d80b2c99b4eb6c69668bc4a0d230
-updated: 2018-03-27T23:02:41.799203-07:00
+hash: c28e4307cd1fbc0f19108c7696706b0148d0d012a8cc8400d4b0ac4597194098
+updated: 2018-03-27T23:34:41.484046-07:00
 imports:
 - name: github.com/go-pg/pg
-  version: 24dfe0572921e42ffe1035f7afbd40f9d97cb8c8
+  version: 81c90201251e3435753431f688d6be110a0806ca
   subpackages:
   - orm
   - internal
