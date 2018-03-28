@@ -59,7 +59,7 @@ func (b *Bot) addUser(c cmd.Context) (string, slack.PostMessageParameters) {
 	}
 
 	// Add user to corresponding GitHub team
-	if err := b.gh.AddUserToTeam(member.GithubUsername, int64(team.GithubTeamID)); err != nil {
+	if err := b.gh.AddUserToTeam(member.GithubUsername, team.GithubTeamID); err != nil {
 		log.WithError(err).Errorf("Failed to add user %s to GitHub team %s",
 			c.Args[0].Value, team.Name)
 		return fmt.Sprintf("Failed to add user %s to GitHub team %s",

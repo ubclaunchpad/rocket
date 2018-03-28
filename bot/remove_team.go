@@ -41,7 +41,7 @@ func (b *Bot) removeTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 	}
 
 	// Remove team from GitHub
-	if err := b.gh.RemoveTeam(int64(team.GithubTeamID)); err != nil {
+	if err := b.gh.RemoveTeam(team.GithubTeamID); err != nil {
 		log.WithError(err).Error("Failed to remove GitHub team " + team.Name)
 		return "Failed to remove GitHub team " + team.Name, noParams
 	}

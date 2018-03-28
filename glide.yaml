@@ -12,7 +12,9 @@ import:
 - package: golang.org/x/crypto
   subpackages:
   - acme/autocert
+  version: 88942b9c40a4c9d203b82b3731787b672d6e809b
 - package: github.com/google/go-github
   subpackages:
   - github
+  version: 14.0.0
 - package: golang.org/x/oauth2

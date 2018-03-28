@@ -1,5 +1,5 @@
-hash: aabb0f4382b2806bc854862229813fcef209d19b0688f24c0b3db521b9ec5786
-updated: 2018-03-24T11:54:34.25011-07:00
+hash: 42f32a45097abbcad415a6e46a18dc3f0222d80b2c99b4eb6c69668bc4a0d230
+updated: 2018-03-27T23:02:41.799203-07:00
 imports:
 - name: github.com/go-pg/pg
   version: 24dfe0572921e42ffe1035f7afbd40f9d97cb8c8
@@ -14,7 +14,7 @@ imports:
   subpackages:
   - proto
 - name: github.com/google/go-github
-  version: 8eefe6bfbb002707f4216cd75783898e1b663f99
+  version: 996760c56486beb81e91bb7bdb816f8c6f29284e
   subpackages:
   - github
 - name: github.com/google/go-querystring
@@ -49,12 +49,12 @@ imports:
   subpackages:
   - internal
 - name: golang.org/x/sys
-  version: 91ee8cde435411ca3f1cd365e8f20131aed4d0a1
+  version: 13d03a9a82fba647c21a0ef8fba44a795d0f0835
   subpackages:
   - unix
   - windows
 - name: google.golang.org/appengine
-  version: 5bee14b453b4c71be47ec1781b0fa61c2ea182db
+  version: 540132eeda33c2b26cca331a6adfd50519cd29f7
   subpackages:
   - urlfetch
   - internal
