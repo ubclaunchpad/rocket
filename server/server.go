@@ -23,6 +23,8 @@ const (
 	// probably be mounted to the host file system, so it should also appear
 	// under rocket/volumes in the docker-compose.yml.
 	certDir = "/etc/ssl/certs"
+	// The location we are allowed to accept cross-origin requests from
+	allowedOrigin = "https://www.ubclaunchpad.com"
 )
 
 // Server represents the HTTP server that provides a REST API interface to
@@ -108,7 +110,7 @@ func (s *Server) MemberHandler(res http.ResponseWriter, req *http.Request) {
 	}).Info("Received request")
 
 	res.Header().Set("Content-Type", "application/json")
-	res.Header().Set("Access-Control-Allow-Origin", "*")
+	res.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 	var members model.Members
 	if err := s.dal.GetMembers(&members); err != nil {
 		s.log.WithError(err).Error("Failed to get members")
@@ -131,7 +133,7 @@ func (s *Server) TeamHandler(res http.ResponseWriter, req *http.Request) {
 	}).Info("Received request")
 
 	res.Header().Set("Content-Type", "application/json")
-	res.Header().Set("Access-Control-Allow-Origin", "*")
+	res.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 	var teams model.Teams
 	if err := s.dal.GetTeams(&teams); err != nil {
 		s.log.WithError(err).Error("Failed to get teams")
