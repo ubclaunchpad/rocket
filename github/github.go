@@ -68,8 +68,8 @@ func (api *API) CreateTeam(name string) (*gh.Team, error) {
 	}
 
 	// Otherwise, create it
-	team := &gh.Team{
-		Name:    &name,
+	team := &gh.NewTeam{
+		Name:    name,
 		Privacy: gh.String("closed"),
 	}
 	t, _, err := api.Organizations.CreateTeam(context.Background(), "ubclaunchpad", team)

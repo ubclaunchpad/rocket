@@ -1,20 +1,20 @@
-hash: aabb0f4382b2806bc854862229813fcef209d19b0688f24c0b3db521b9ec5786
-updated: 2017-11-25T16:20:53.261439229-08:00
+hash: c28e4307cd1fbc0f19108c7696706b0148d0d012a8cc8400d4b0ac4597194098
+updated: 2018-03-27T23:34:41.484046-07:00
 imports:
 - name: github.com/go-pg/pg
-  version: 91c6bdd887406878e9bde15f3c4a12c1197da739
+  version: 81c90201251e3435753431f688d6be110a0806ca
   subpackages:
-  - internal
-  - internal/parser
-  - internal/pool
   - orm
+  - internal
+  - internal/pool
   - types
+  - internal/parser
 - name: github.com/golang/protobuf
-  version: 17ce1425424ab154092bbb43af630bd647f3bb0d
+  version: bbd03ef6da3a115852eaf24c8a1c46aeb39aa175
   subpackages:
   - proto
 - name: github.com/google/go-github
-  version: 24139d56e97a44988087d461125ed6fab91c07ac
+  version: 996760c56486beb81e91bb7bdb816f8c6f29284e
   subpackages:
   - github
 - name: github.com/google/go-querystring
@@ -24,41 +24,55 @@ imports:
 - name: github.com/gorilla/context
   version: 1ea25387ff6f684839d82767c1733ff4d4d15d0a
 - name: github.com/gorilla/mux
-  version: 7f08801859139f86dfafd1c296e2cba9a80d292e
+  version: 53c1911da2b537f792e7cafcb446b05ffe33b996
+- name: github.com/gorilla/websocket
+  version: eb925808374e5ca90c83401a40d711dc08c0c0f6
 - name: github.com/jinzhu/inflection
-  version: 1c35d901db3da928c72a72d8458480cc9ade058f
+  version: 04140366298a54a039076d798123ffa108fff46c
 - name: github.com/nlopes/slack
-  version: c86337c0ef2486a15edd804355d9c73d2f2caed1
+  version: 8ab4d0b364ef1e9af5d102531da20d5ec902b6c4
 - name: github.com/sirupsen/logrus
-  version: 89742aefa4b206dcf400792f3bd35b542998eb3b
+  version: 90150a8ed11b6ce285e77e8af2b0109559ce4777
 - name: golang.org/x/crypto
-  version: 81e90905daefcd6fd217b62423c0908922eadb30
+  version: 88942b9c40a4c9d203b82b3731787b672d6e809b
   subpackages:
   - acme/autocert
   - ssh/terminal
+  - acme
 - name: golang.org/x/net
-  version: 66aacef3dd8a676686c7ae3716979581e8b03c47
+  version: 6078986fec03a1dcc236c34816c71b0e05018fda
   subpackages:
   - context
   - context/ctxhttp
-  - websocket
 - name: golang.org/x/oauth2
-  version: d89af98d7c6bba047c5a2622f36bc14b8766df85
+  version: fdc9e635145ae97e6c2cb777c48305600cf515cb
   subpackages:
   - internal
 - name: golang.org/x/sys
-  version: 7ddbeae9ae08c6a06a59597f0c9edbc5ff2444ce
+  version: 13d03a9a82fba647c21a0ef8fba44a795d0f0835
   subpackages:
   - unix
   - windows
 - name: google.golang.org/appengine
-  version: d9a072cfa7b9736e44311ef77b3e09d804bfa599
+  version: 540132eeda33c2b26cca331a6adfd50519cd29f7
   subpackages:
+  - urlfetch
   - internal
+  - internal/urlfetch
   - internal/base
   - internal/datastore
   - internal/log
   - internal/remote_api
-  - internal/urlfetch
-  - urlfetch
-testImports: []
+testImports:
+- name: github.com/davecgh/go-spew
+  version: 8991bc29aa16c548c550c7ff78260e27b9ab7c73
+  subpackages:
+  - spew
+- name: github.com/pmezard/go-difflib
+  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  subpackages:
+  - difflib
+- name: github.com/stretchr/testify
+  version: c679ae2cc0cb27ec3293fea7e254e47386f05d69
+  subpackages:
+  - assert

@@ -3,7 +3,7 @@ import:
 - package: github.com/nlopes/slack
   version: ^0.1.0
 - package: github.com/go-pg/pg
-  version: ^6.2.0
+  version: 6.4.0
 - package: github.com/sirupsen/logrus
 - package: github.com/gorilla/mux
   version: ^1.4.0
@@ -12,7 +12,9 @@ import:
 - package: golang.org/x/crypto
   subpackages:
   - acme/autocert
+  version: 88942b9c40a4c9d203b82b3731787b672d6e809b
 - package: github.com/google/go-github
   subpackages:
   - github
+  version: 14.0.0
 - package: golang.org/x/oauth2
