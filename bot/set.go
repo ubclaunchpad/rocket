@@ -41,7 +41,7 @@ func NewSetCmd(ch cmd.CommandHandler) *cmd.Command {
 			},
 			"biography": &cmd.Option{
 				Key:      "biography",
-				HelpText: "a little bit about yourself",
+				HelpText: "a little bit about yourself (600 characters max)",
 				Format:   anyRegex,
 			},
 		},
@@ -113,6 +113,10 @@ func (b *Bot) set(c cmd.Context) (string, slack.PostMessageParameters) {
 
 	if c.Options["biography"].Value != "" {
 		c.User.Biography = c.Options["biography"].Value
+		// Max bio length is 600 characters
+		if len(c.User.Biography) > 600 {
+			return "Sorry, your biography must be at most 600 characters in length", params
+		}
 		if err := b.dal.SetMemberBiography(&c.User); err != nil {
 			log.WithError(err).Error("Failed to set biography")
 			return "Failed to set biography", params
