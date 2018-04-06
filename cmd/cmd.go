@@ -73,7 +73,7 @@ func (c *Command) parse(cmd string) error {
 		return fmt.Errorf("Invalid command \"%s\"", tokens[1])
 	}
 	// Check options and store their values
-	optionsRegex := regexp.MustCompile("[a-zA-Z-]+=`[^`]+`")
+	optionsRegex := regexp.MustCompile("[a-zA-Z-]+={[^}]+}")
 	opts := optionsRegex.FindAllString(strings.Join(tokens[2:], " "), -1)
 	return c.parseOptions(opts)
 }
@@ -84,10 +84,10 @@ func (c *Command) parse(cmd string) error {
 // opts should be a slice of strings of the format "key=value".
 func (c *Command) parseOptions(opts []string) error {
 	for _, token := range opts {
-		// Token has format my-key=`my value`. Extract option key and value
+		// Token has format my-key={my value}. Extract option key and value
 		parts := strings.SplitN(token, "=", 2)
 		key := parts[0][:len(parts[0])]
-		value := strings.TrimRight(strings.TrimLeft(parts[1], "`"), "`")
+		value := strings.TrimRight(strings.TrimLeft(parts[1], "{"), "}")
 
 		// Check that it is a valid option
 		option := c.Options[key]

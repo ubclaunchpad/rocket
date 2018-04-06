@@ -33,8 +33,8 @@ func (b *Bot) help(c cmd.Context) (string, slack.PostMessageParameters) {
 	if opt == "" {
 		// General help
 		res = "Usage: @rocket COMMAND\n\nGet help using a specific " +
-			"command with \"@rocket help command=`COMMAND`\"\n" +
-			"Example: @rocket set name=`A Guy` github=`arealguy`"
+			"command with \"@rocket help command={COMMAND}\"\n" +
+			"Example: @rocket set name={A Guy} github={arealguy}"
 		cmds := ""
 		for _, cmd := range b.commands {
 			cmds += fmt.Sprintf("%s\t\t%s\n", cmd.Name, cmd.HelpText)

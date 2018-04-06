@@ -50,7 +50,7 @@ func testHandler(context Context) (string, slack.PostMessageParameters) {
 }
 
 func TestCommand(t *testing.T) {
-	ctx := getTestContext("@rocket test required=`gre at` optional=`awes =ome`")
+	ctx := getTestContext("@rocket test required={gre at} optional={awes =ome}")
 	ch := func(c Context) (string, slack.PostMessageParameters) {
 		ctx = c
 		return "", slack.PostMessageParameters{}
@@ -63,7 +63,7 @@ func TestCommand(t *testing.T) {
 }
 
 func TestInvalidCommand(t *testing.T) {
-	ctx := getTestContext("@rocket ayyy required=`gre at`")
+	ctx := getTestContext("@rocket ayyy required={gre at}")
 	cmd := getTestCommand(testHandler)
 	_, _, err := cmd.Execute(ctx)
 	assert.NotNil(t, err)
@@ -71,7 +71,7 @@ func TestInvalidCommand(t *testing.T) {
 }
 
 func TestCommandMissingRequiredOption(t *testing.T) {
-	ctx := getTestContext("@rocket test optional=`noooo`")
+	ctx := getTestContext("@rocket test optional={noooo}")
 	cmd := getTestCommand(testHandler)
 	_, _, err := cmd.Execute(ctx)
 	assert.NotNil(t, err)
@@ -79,7 +79,7 @@ func TestCommandMissingRequiredOption(t *testing.T) {
 }
 
 func TestCommandDuplicateOption(t *testing.T) {
-	ctx := getTestContext("@rocket test required=`ayy` required=`letsgo`")
+	ctx := getTestContext("@rocket test required={ayy} required={letsgo}")
 	cmd := getTestCommand(testHandler)
 	_, _, err := cmd.Execute(ctx)
 	assert.NotNil(t, err)
@@ -87,7 +87,7 @@ func TestCommandDuplicateOption(t *testing.T) {
 }
 
 func TestCommandUnrecognizedOption(t *testing.T) {
-	ctx := getTestContext("@rocket test plx=`plox`")
+	ctx := getTestContext("@rocket test plx={plox}")
 	cmd := getTestCommand(testHandler)
 	_, _, err := cmd.Execute(ctx)
 	assert.NotNil(t, err)
@@ -95,7 +95,7 @@ func TestCommandUnrecognizedOption(t *testing.T) {
 }
 
 func TestCommandInvalidOptFormat(t *testing.T) {
-	ctx := getTestContext("@rocket test required=`test`")
+	ctx := getTestContext("@rocket test required={test}")
 	cmd := getTestCommand(testHandler)
 	cmd.Options["required"].Format, _ = regexp.Compile("^[0-9]")
 	_, _, err := cmd.Execute(ctx)
