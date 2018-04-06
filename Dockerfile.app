@@ -12,7 +12,7 @@ RUN go get github.com/Masterminds/glide
 RUN go install github.com/Masterminds/glide
 
 # Install dependencies
-RUN glide install
+RUN dep ensure
 
 # Build Rocket
 RUN go install github.com/ubclaunchpad/rocket
