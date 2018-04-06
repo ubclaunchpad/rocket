@@ -55,7 +55,7 @@ func TestHelp(t *testing.T) {
 func TestHelpWithCommand(t *testing.T) {
 	b := getTestBot()
 	for _, cmd := range b.commands {
-		text := "@rocket help --command=`" + cmd.Name + "`"
+		text := "@rocket help command=`" + cmd.Name + "`"
 		ctx := getTestContext(text)
 		res, _, err := b.commands["help"].Execute(ctx)
 		t.Log(res)
@@ -65,7 +65,7 @@ func TestHelpWithCommand(t *testing.T) {
 }
 
 func TestHelpWithInvalidCommand(t *testing.T) {
-	text := "@rocket help --command=`blabla`"
+	text := "@rocket help command=`blabla`"
 	ctx := getTestContext(text)
 	b := getTestBot()
 	res, _, err := b.commands["help"].Execute(ctx)

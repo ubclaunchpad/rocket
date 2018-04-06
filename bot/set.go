@@ -18,34 +18,39 @@ func NewSetCmd(ch cmd.CommandHandler) *cmd.Command {
 				Key:      "name",
 				HelpText: "your full name",
 				Format:   nameRegex,
+				Required: false,
 			},
 			"email": &cmd.Option{
 				Key:      "email",
 				HelpText: "your email address",
 				Format:   emailRegex,
+				Required: false,
 			},
 			"position": &cmd.Option{
 				Key:      "position",
 				HelpText: "your creative Launch Pad title",
 				Format:   anyRegex,
+				Required: false,
 			},
 			"github": &cmd.Option{
 				Key:      "github",
 				HelpText: "your Github username",
 				Format:   anyRegex,
+				Required: false,
 			},
 			"major": &cmd.Option{
 				Key:      "major",
 				HelpText: "your major at UBC",
 				Format:   anyRegex,
+				Required: false,
 			},
 			"biography": &cmd.Option{
 				Key:      "biography",
 				HelpText: "a little bit about yourself (600 characters max)",
 				Format:   anyRegex,
+				Required: false,
 			},
 		},
-		Args:       []cmd.Argument{},
 		HandleFunc: ch,
 	}
 }

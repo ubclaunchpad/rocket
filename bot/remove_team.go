@@ -12,13 +12,12 @@ func NewRemoveTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 	return &cmd.Command{
 		Name:     "remove-team",
 		HelpText: "Delete a new Launch Pad team",
-		Options:  map[string]*cmd.Option{},
-		Args: []cmd.Argument{
-			cmd.Argument{
-				Name:      "team-name",
-				HelpText:  "the name of the team to remove",
-				Format:    anyRegex,
-				MultiWord: true,
+		Options: map[string]*cmd.Option{
+			"team": &cmd.Option{
+				Key:      "team",
+				HelpText: "the name of the team to remove",
+				Format:   anyRegex,
+				Required: true,
 			},
 		},
 		HandleFunc: ch,
@@ -33,7 +32,7 @@ func (b *Bot) removeTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 
 	noParams := slack.PostMessageParameters{}
 	team := model.Team{
-		Name: c.Args[0].Value,
+		Name: c.Options["team"].Value,
 	}
 	if err := b.dal.GetTeamByName(&team); err != nil {
 		log.WithError(err).Error("Failed to find team " + team.Name)

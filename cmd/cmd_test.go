@@ -16,21 +16,20 @@ var (
 
 func getTestCommand(ch CommandHandler) *Command {
 	return &Command{
-		Name:     "testcommand",
-		HelpText: "lets go dude!",
+		Name:     "test",
+		HelpText: "fake command with two options",
 		Options: map[string]*Option{
-			"myopt": &Option{
-				Key:      "myopt",
-				HelpText: "what a sick option",
+			"required": &Option{
+				Key:      "required",
+				HelpText: "this is a required option",
 				Format:   anyString,
+				Required: true,
 			},
-		},
-		Args: []Argument{
-			Argument{
-				Name:      "testarg",
-				HelpText:  "what a cool arg",
-				Format:    anyString,
-				MultiWord: false,
+			"optional": &Option{
+				Key:      "optional",
+				HelpText: "this is an optional option",
+				Format:   anyString,
+				Required: false,
 			},
 		},
 		HandleFunc: ch,
@@ -51,44 +50,36 @@ func testHandler(context Context) (string, slack.PostMessageParameters) {
 }
 
 func TestCommand(t *testing.T) {
-	ctx := getTestContext("@rocket testcommand --myopt=`great` 2")
+	ctx := getTestContext("@rocket test required=`gre at` optional=`awes =ome`")
 	ch := func(c Context) (string, slack.PostMessageParameters) {
 		ctx = c
 		return "", slack.PostMessageParameters{}
 	}
 	cmd := getTestCommand(ch)
 	_, _, err := cmd.Execute(ctx)
-	assert.Equal(t, ctx.Args[0].Value, "2")
-	assert.Equal(t, ctx.Options["myopt"].Value, "great")
+	assert.Equal(t, ctx.Options["required"].Value, "gre at")
+	assert.Equal(t, ctx.Options["optional"].Value, "awes =ome")
 	assert.Nil(t, err)
 }
 
 func TestInvalidCommand(t *testing.T) {
-	ctx := getTestContext("@rocket ayyy --myopt=`great` 2")
+	ctx := getTestContext("@rocket ayyy required=`gre at`")
 	cmd := getTestCommand(testHandler)
 	_, _, err := cmd.Execute(ctx)
 	assert.NotNil(t, err)
 	assert.True(t, strings.Contains(err.Error(), "Invalid command"))
 }
 
-func TestCommandMissingArg(t *testing.T) {
-	ctx := getTestContext("@rocket testcommand --myopt=`true`")
+func TestCommandMissingRequiredOption(t *testing.T) {
+	ctx := getTestContext("@rocket test optional=`noooo`")
 	cmd := getTestCommand(testHandler)
 	_, _, err := cmd.Execute(ctx)
 	assert.NotNil(t, err)
-	assert.True(t, strings.Contains(err.Error(), "Expected"))
-}
-
-func TestCommandEmpty(t *testing.T) {
-	ctx := getTestContext("@rocket testcommand")
-	cmd := getTestCommand(testHandler)
-	_, _, err := cmd.Execute(ctx)
-	assert.NotNil(t, err)
-	assert.True(t, strings.Contains(err.Error(), "Expected 1 argument(s)"))
+	assert.True(t, strings.Contains(err.Error(), "Missing value for required option"))
 }
 
 func TestCommandDuplicateOption(t *testing.T) {
-	ctx := getTestContext("@rocket testcommand --myopt=`ayy` --myopt=`letsgo` 1")
+	ctx := getTestContext("@rocket test required=`ayy` required=`letsgo`")
 	cmd := getTestCommand(testHandler)
 	_, _, err := cmd.Execute(ctx)
 	assert.NotNil(t, err)
@@ -96,34 +87,17 @@ func TestCommandDuplicateOption(t *testing.T) {
 }
 
 func TestCommandUnrecognizedOption(t *testing.T) {
-	ctx := getTestContext("@rocket testcommand --plx=`plox` 1")
+	ctx := getTestContext("@rocket test plx=`plox`")
 	cmd := getTestCommand(testHandler)
 	_, _, err := cmd.Execute(ctx)
 	assert.NotNil(t, err)
 	assert.True(t, strings.Contains(err.Error(), "Unrecognized option"))
 }
 
-func TestCommandInvalidArgFormat(t *testing.T) {
-	ctx := getTestContext("@rocket testcommand test")
-	cmd := getTestCommand(testHandler)
-	cmd.Args[0].Format, _ = regexp.Compile("^[0-9]")
-	_, _, err := cmd.Execute(ctx)
-	assert.NotNil(t, err)
-	assert.True(t, strings.Contains(err.Error(), "Invalid format for argument"))
-}
-
-func TestCommandTooManyArgs(t *testing.T) {
-	ctx := getTestContext("@rocket testcommand test 1 2 3")
-	cmd := getTestCommand(testHandler)
-	_, _, err := cmd.Execute(ctx)
-	assert.NotNil(t, err)
-	assert.True(t, strings.Contains(err.Error(), "Too many arguments"))
-}
-
 func TestCommandInvalidOptFormat(t *testing.T) {
-	ctx := getTestContext("@rocket testcommand --myopt=`test` test")
+	ctx := getTestContext("@rocket test required=`test`")
 	cmd := getTestCommand(testHandler)
-	cmd.Options["myopt"].Format, _ = regexp.Compile("^[0-9]")
+	cmd.Options["required"].Format, _ = regexp.Compile("^[0-9]")
 	_, _, err := cmd.Execute(ctx)
 	assert.NotNil(t, err)
 	assert.True(t, strings.Contains(err.Error(), "Invalid format for option"))
@@ -133,19 +107,5 @@ func TestCommandHelp(t *testing.T) {
 	cmd := getTestCommand(testHandler)
 	res, _ := cmd.Help()
 	assert.Equal(t, res,
-		"Usage: @rocket testcommand OPTIONS ARGUMENTS\n\nlets go dude!")
-}
-
-func TestCommandMultiWordArg(t *testing.T) {
-	ctx := getTestContext("@rocket testcommand lets goo dude!")
-	ch := func(context Context) (string, slack.PostMessageParameters) {
-		ctx = context
-		return context.Message.Text, slack.PostMessageParameters{}
-	}
-	cmd := getTestCommand(ch)
-	cmd.Args[0].MultiWord = true
-	res, _, err := cmd.Execute(ctx)
-	assert.Nil(t, err)
-	assert.Equal(t, res, "@rocket testcommand lets goo dude!")
-	assert.Equal(t, ctx.Args[0].Value, "lets goo dude!")
+		"Usage: @rocket test OPTIONS\n\nfake command with two options")
 }
