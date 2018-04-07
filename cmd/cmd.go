@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -15,7 +14,6 @@ type Command struct {
 	Name       string
 	HelpText   string
 	Options    map[string]*Option
-	Args       []Argument
 	HandleFunc CommandHandler
 }
 
@@ -26,16 +24,12 @@ func (c *Command) Execute(ctx Context) (string, slack.PostMessageParameters, err
 	if err := c.parse(ctx.Message.Text); err != nil {
 		return "", slack.PostMessageParameters{}, err
 	}
-	// Copy options and args to context for use by command handler
+	// Copy options to context for use by command handler
 	ctx.Options = map[string]Option{}
 	for key, opt := range c.Options {
 		ctx.Options[key] = *opt
+		// Clear option value now that it's been copied
 		opt.Value = ""
-	}
-	ctx.Args = []Argument{}
-	for _, arg := range c.Args {
-		ctx.Args = append(ctx.Args, arg)
-		arg.Value = ""
 	}
 	// Pass context to command handler
 	res, params := c.HandleFunc(ctx)
@@ -46,29 +40,20 @@ func (c *Command) Execute(ctx Context) (string, slack.PostMessageParameters, err
 func (c *Command) Help() (string, slack.PostMessageParameters) {
 	usage := "Usage: @rocket " + c.Name
 	opts := ""
-	args := ""
 	attachments := []slack.Attachment{}
 	if len(c.Options) > 0 {
 		usage += " OPTIONS"
 		opts = ""
 		for _, o := range c.Options {
-			opts += fmt.Sprintf("--%s\t%s\n", o.Key, o.HelpText)
+			if o.Required {
+				opts += fmt.Sprintf("%s (required): %s\n", o.Key, o.HelpText)
+			} else {
+				opts += fmt.Sprintf("%s: %s\n", o.Key, o.HelpText)
+			}
 		}
 		attachments = append(attachments, slack.Attachment{
 			Title: "Options",
 			Text:  opts,
-			Color: "#e5e7ea",
-		})
-	}
-	if len(c.Args) > 0 {
-		usage += " ARGUMENTS"
-		args = ""
-		for _, a := range c.Args {
-			args += fmt.Sprintf("%s\t%s\n", a.Name, a.HelpText)
-		}
-		attachments = append(attachments, slack.Attachment{
-			Title: "Arguments",
-			Text:  args,
 			Color: "#e5e7ea",
 		})
 	}
@@ -87,45 +72,22 @@ func (c *Command) parse(cmd string) error {
 	} else if tokens[1] != c.Name {
 		return fmt.Errorf("Invalid command \"%s\"", tokens[1])
 	}
-	if len(tokens) == 2 {
-		// No options or args were given
-		if len(c.Args) == 0 {
-			return nil
-		}
-		return fmt.Errorf("Expected %d argument(s), but received 0", len(c.Args))
-	}
-
-	tokens = tokens[2:]
-	argsAndOpts := strings.Join(tokens, " ")
-
-	// Handle options
-	optionsOnly := regexp.MustCompile("--[a-zA-Z0-9-]+=`[^`]+`")
-	opts := optionsOnly.FindAllString(argsAndOpts, -1)
-	if err := c.parseOptions(opts); err != nil {
-		return err
-	}
-
-	// Remove options
-	for _, o := range opts {
-		argsAndOpts = strings.Replace(argsAndOpts, o, "", -1)
-	}
-
-	// Handle arguments
-	args := strings.Fields(argsAndOpts)
-	if err := c.parseArgs(args); err != nil {
-		return err
-	}
-	return nil
+	// Check options and store their values
+	optionsRegex := regexp.MustCompile("[a-zA-Z-]+={[^}]+}")
+	opts := optionsRegex.FindAllString(strings.Join(tokens[2:], " "), -1)
+	return c.parseOptions(opts)
 }
 
+// parseOptions checks that the value corresponding to each option matches
+// that option's required format, then stores that value. Returns an error
+// if an option is malformatted, or a required option is missing.
+// opts should be a slice of strings of the format "key=value".
 func (c *Command) parseOptions(opts []string) error {
 	for _, token := range opts {
-		token = token[2:]
-
-		// Extract option key and value
+		// Token has format my-key={my value}. Extract option key and value
 		parts := strings.SplitN(token, "=", 2)
 		key := parts[0][:len(parts[0])]
-		value := strings.TrimRight(strings.TrimLeft(parts[1], "`"), "`")
+		value := strings.TrimRight(strings.TrimLeft(parts[1], "{"), "}")
 
 		// Check that it is a valid option
 		option := c.Options[key]
@@ -144,49 +106,23 @@ func (c *Command) parseOptions(opts []string) error {
 		}
 		option.Value = value
 	}
-	return nil
-}
 
-func (c *Command) parseArgs(args []string) error {
-	argIndex := 0
-	for i, token := range args {
-		if argIndex >= len(c.Args) {
-			return errors.New("Too many arguments")
-		} else if argIndex == len(c.Args)-1 {
-			// This is the last arg
-			if c.Args[argIndex].MultiWord {
-				token = strings.Join(args[i:], " ")
-				// Check that this argument fits it's specified format
-				if err := c.Args[argIndex].validate(token); err != nil {
-					return err
-				}
-				c.Args[argIndex].Value = token
-				return nil
-			}
+	// Check that we aren't missing any required options
+	for _, option := range c.Options {
+		if option.Required && option.Value == "" {
+			return fmt.Errorf("Missing value for required option \"%s\"", option.Key)
 		}
-
-		// Check that this argument fits it's specified format
-		if err := c.Args[argIndex].validate(token); err != nil {
-			return err
-		}
-		c.Args[argIndex].Value = token
-		argIndex++
-	}
-
-	// Check that all args were provided
-	if argIndex != len(c.Args) {
-		return fmt.Errorf("Expected %d argument(s), but received %d",
-			len(c.Args), argIndex)
 	}
 	return nil
 }
 
-// Option represents an optional parameter that can be passed as part of a
+// Option represents a parameter that can be passed as part of a
 // Rocket command
 type Option struct {
 	Key      string
 	HelpText string
 	Format   *regexp.Regexp
+	Required bool
 	Value    string
 }
 
@@ -201,35 +137,11 @@ func (o *Option) validate(value string) error {
 	return nil
 }
 
-// Argument represents a required parameter that Rocket will check as part of a command.
-// Note that MultiWord==true will cause all trailing words to be assigned to
-// this argument. For this reason, there sould always be a maximum of one
-// multi-word argument in a command, and it should always be the last argument.
-type Argument struct {
-	Name      string
-	HelpText  string
-	Format    *regexp.Regexp
-	Value     string
-	MultiWord bool
-}
-
-// validate returns nil if the given value meets the format requirements for
-// this option, returns the validation error otherwise.
-func (a *Argument) validate(value string) error {
-	// Check that the value meets the required format
-	if !a.Format.MatchString(value) {
-		return fmt.Errorf("Invalid format for argument \"%s\". "+
-			"Format must match regular expression %s.", a.Name, a.Format.String())
-	}
-	return nil
-}
-
 // Context stores a Slack message and the user who sent it.
 type Context struct {
 	Message *slack.Msg
 	User    model.Member
 	Options map[string]Option
-	Args    []Argument
 }
 
 // CommandHandler is the interface all handlers of Rocket commands must implement.

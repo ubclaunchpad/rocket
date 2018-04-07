@@ -13,7 +13,6 @@ func NewTeamsCmd(ch cmd.CommandHandler) *cmd.Command {
 		Name:       "teams",
 		HelpText:   "List Launch Pad teams",
 		Options:    map[string]*cmd.Option{},
-		Args:       []cmd.Argument{},
 		HandleFunc: ch,
 	}
 }

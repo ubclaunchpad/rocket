@@ -13,13 +13,12 @@ func NewRemoveAdminCmd(ch cmd.CommandHandler) *cmd.Command {
 	return &cmd.Command{
 		Name:     "remove-admin",
 		HelpText: "Remove admin rights from a user (admins only)",
-		Options:  map[string]*cmd.Option{},
-		Args: []cmd.Argument{
-			cmd.Argument{
-				Name:      "username",
-				HelpText:  "the Slack handle of the user to remove admin rights from",
-				Format:    anyRegex,
-				MultiWord: false,
+		Options: map[string]*cmd.Option{
+			"user": &cmd.Option{
+				Key:      "user",
+				HelpText: "the Slack handle of the user to remove admin rights from",
+				Format:   anyRegex,
+				Required: true,
 			},
 		},
 		HandleFunc: ch,
@@ -33,7 +32,7 @@ func (b *Bot) removeAdmin(c cmd.Context) (string, slack.PostMessageParameters) {
 		return "You must be an admin to use this command", noParams
 	}
 	user := model.Member{
-		SlackID: parseMention(c.Args[0].Value),
+		SlackID: parseMention(c.Options["user"].Value),
 		IsAdmin: false,
 	}
 	if err := b.dal.SetMemberIsAdmin(&user); err != nil {

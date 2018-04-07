@@ -13,38 +13,41 @@ func NewEditUserCmd(ch cmd.CommandHandler) *cmd.Command {
 		Name:     "edit",
 		HelpText: "Set properties on another user's Launch Pad profile (admins only)",
 		Options: map[string]*cmd.Option{
+			"member": &cmd.Option{
+				Key:      "member",
+				HelpText: "the Slack handle of the user to edit",
+				Format:   anyRegex,
+				Required: false,
+			},
 			"name": &cmd.Option{
 				Key:      "name",
 				HelpText: "user's full name",
 				Format:   nameRegex,
+				Required: false,
 			},
 			"email": &cmd.Option{
 				Key:      "email",
 				HelpText: "user's email address",
 				Format:   emailRegex,
+				Required: false,
 			},
 			"position": &cmd.Option{
 				Key:      "position",
 				HelpText: "user's creative Launch Pad title",
 				Format:   anyRegex,
+				Required: false,
 			},
 			"github": &cmd.Option{
 				Key:      "github",
 				HelpText: "user's Github username",
 				Format:   anyRegex,
+				Required: false,
 			},
 			"major": &cmd.Option{
 				Key:      "major",
 				HelpText: "user's major at UBC",
 				Format:   anyRegex,
-			},
-		},
-		Args: []cmd.Argument{
-			cmd.Argument{
-				Name:      "member",
-				HelpText:  "the Slack handle of the user to edit",
-				Format:    anyRegex,
-				MultiWord: false,
+				Required: false,
 			},
 		},
 		HandleFunc: ch,
@@ -58,12 +61,13 @@ func (b *Bot) editUser(c cmd.Context) (string, slack.PostMessageParameters) {
 		return "You must be an admin to use this command", noParams
 	}
 
+	memberName := c.Options["member"].Value
 	c.User = model.Member{
-		SlackID: parseMention(c.Args[0].Value),
+		SlackID: parseMention(memberName),
 	}
 	if err := b.dal.GetMemberBySlackID(&c.User); err != nil {
-		return "Failed to find member " + c.Args[0].Value, noParams
+		return "Failed to find member " + memberName, noParams
 	}
 	_, params := b.set(c)
-	return c.Args[0].Value + "'s information has been updated", params
+	return memberName + "'s information has been updated", params
 }

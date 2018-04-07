@@ -12,13 +12,12 @@ func NewViewTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 	return &cmd.Command{
 		Name:     "view-team",
 		HelpText: "View information about a Launch Pad team",
-		Options:  map[string]*cmd.Option{},
-		Args: []cmd.Argument{
-			cmd.Argument{
-				Name:      "team-name",
-				HelpText:  "the name of the team to view",
-				Format:    anyRegex,
-				MultiWord: true,
+		Options: map[string]*cmd.Option{
+			"team": &cmd.Option{
+				Key:      "team",
+				HelpText: "the name of the team to view",
+				Format:   anyRegex,
+				Required: true,
 			},
 		},
 		HandleFunc: ch,
@@ -29,12 +28,12 @@ func NewViewTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 func (b *Bot) viewTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 	params := slack.PostMessageParameters{}
 	team := model.Team{
-		Name: c.Args[0].Value,
+		Name: c.Options["team"].Value,
 	}
 	if err := b.dal.GetTeamByName(&team); err != nil {
 		log.WithError(err).Error("Failed to get team " + team.Name)
 		return "Failed to get team " + team.Name, params
 	}
 	params.Attachments = team.SlackAttachments()
-	return "Team " + c.Args[0].Value, params
+	return "Team " + team.Name, params
 }

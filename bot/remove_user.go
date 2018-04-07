@@ -12,18 +12,17 @@ func NewRemoveUserCmd(ch cmd.CommandHandler) *cmd.Command {
 	return &cmd.Command{
 		Name:     "remove-user",
 		HelpText: "Remove a user from a team",
-		Options:  map[string]*cmd.Option{},
-		Args: []cmd.Argument{
-			cmd.Argument{
-				Name:     "username",
+		Options: map[string]*cmd.Option{
+			"user": &cmd.Option{
+				Key:      "user",
 				HelpText: "the Slack handle of the user to remove from a team",
 				Format:   anyRegex,
 			},
-			cmd.Argument{
-				Name:      "team",
-				HelpText:  "the team to remove the user from",
-				Format:    anyRegex,
-				MultiWord: true,
+			"team": &cmd.Option{
+				Key:      "team",
+				HelpText: "the team to remove the user from",
+				Format:   anyRegex,
+				Required: true,
 			},
 		},
 		HandleFunc: ch,
@@ -37,27 +36,29 @@ func (b *Bot) removeUser(c cmd.Context) (string, slack.PostMessageParameters) {
 		return "You must be an admin to use this command", noParams
 	}
 
+	teamName := c.Options["team"].Value
+	username := c.Options["user"].Value
 	team := model.Team{
-		Name: c.Args[1].Value,
+		Name: teamName,
 	}
 	if err := b.dal.GetTeamByName(&team); err != nil {
 		log.WithError(err).Error("Failed to get team " + team.Name)
 		return "Failed to get team " + team.Name, noParams
 	}
 
-	memberSlackID := parseMention(c.Args[0].Value)
+	memberSlackID := parseMention(username)
 	member := model.Member{
 		SlackID: memberSlackID,
 	}
 	if err := b.dal.GetMemberBySlackID(&member); err != nil {
-		log.WithError(err).Error("Failed to get member " + c.Args[0].Value)
-		return "Failed to get member " + c.Args[0].Value, noParams
+		log.WithError(err).Error("Failed to get member " + username)
+		return "Failed to get member " + username, noParams
 	}
 
 	// Remove user from GitHub team
 	if err := b.gh.RemoveUserFromTeam(member.GithubUsername, team.GithubTeamID); err != nil {
 		log.WithError(err).Errorf("Failed to remove member %s from GitHub team %s",
-			c.Args[0].Value, team.Name)
+			member.Name, team.Name)
 		return "Failed to remove member from GitHub team", noParams
 	}
 
@@ -68,7 +69,7 @@ func (b *Bot) removeUser(c cmd.Context) (string, slack.PostMessageParameters) {
 	// Remove user team relation from DB
 	if err := b.dal.DeleteTeamMember(&teamMember); err != nil {
 		log.WithError(err).Error("Failed to remove member " +
-			c.Args[0].Value + " from team " + c.Args[1].Value)
+			member.Name + " from team " + team.Name)
 		return "Failed to remove member from team", noParams
 	}
 	return toMention(member.SlackID) +

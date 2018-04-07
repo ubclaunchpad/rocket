@@ -14,7 +14,6 @@ func NewRefreshCmd(ch cmd.CommandHandler) *cmd.Command {
 		Name:     "refresh",
 		HelpText: "for debugging Rocket (admins only)",
 		Options:  map[string]*cmd.Option{},
-		Args:     []cmd.Argument{},
 	}
 }
 
