@@ -87,7 +87,7 @@ func (c *Command) parseOptions(opts []string) error {
 		// Token has format my-key={my value}. Extract option key and value
 		parts := strings.SplitN(token, "=", 2)
 		key := parts[0][:len(parts[0])]
-		value := strings.TrimRight(strings.TrimLeft(parts[1], "{"), "}")
+		value := strings.TrimSpace(strings.TrimRight(strings.TrimLeft(parts[1], "{"), "}"))
 
 		// Check that it is a valid option
 		option := c.Options[key]
