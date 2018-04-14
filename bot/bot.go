@@ -98,6 +98,7 @@ func (b *Bot) Start() {
 // Manages a Slack WebSocket connection and re-establishes the connection
 // when errors occur.
 func (b *Bot) manageConnection() {
+	consecutiveRetries := 0
 	for {
 		start := time.Now()
 		func() {
@@ -108,9 +109,15 @@ func (b *Bot) manageConnection() {
 			}()
 			b.rtm.ManageConnection()
 		}()
-		if time.Since(start) < time.Second*3 {
+		if consecutiveRetries >= 2 {
+			panic("Failed to maintain WebSocket connection after 3 attempts")
+		} else if time.Since(start) < time.Second*3 {
 			// The connection is failing quite quickly. Let's back off.
-			time.Sleep(10)
+			consecutiveRetries++
+			time.Sleep(time.Duration(10*consecutiveRetries) * time.Second)
+		} else {
+			// The connection failed but only after a while
+			consecutiveRetries = 0
 		}
 	}
 }
