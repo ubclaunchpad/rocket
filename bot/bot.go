@@ -2,6 +2,7 @@ package bot
 
 import (
 	"strings"
+	"time"
 
 	"github.com/nlopes/slack"
 	log "github.com/sirupsen/logrus"
@@ -78,7 +79,7 @@ func New(cfg *config.Config, dal *data.DAL, gh *github.API, log *log.Entry) *Bot
 // Start causes an already initialized bot instance to begin listening for
 // and responding to commands sent on its Slack channel.
 func (b *Bot) Start() {
-	go b.rtm.ManageConnection()
+	go b.manageConnection()
 
 	for evt := range b.rtm.IncomingEvents {
 		switch evt.Data.(type) {
@@ -90,6 +91,26 @@ func (b *Bot) Start() {
 			b.handleUserChange(evt.Data.(*slack.TeamJoinEvent).User)
 		case *slack.UserChangeEvent:
 			b.handleUserChange(evt.Data.(*slack.UserChangeEvent).User)
+		}
+	}
+}
+
+// Manages a Slack WebSocket connection and re-establishes the connection
+// when errors occur.
+func (b *Bot) manageConnection() {
+	for {
+		start := time.Now()
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					b.log.Info("Recovered from panic in manageConnection")
+				}
+			}()
+			b.rtm.ManageConnection()
+		}()
+		if time.Since(start) < time.Second*3 {
+			// The connection is failing quite quickly. Let's back off.
+			time.Sleep(10)
 		}
 	}
 }
