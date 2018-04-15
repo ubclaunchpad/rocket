@@ -4,3 +4,5 @@ rocket
 .env
 **/debug.test
 pgdata
+.app.env
+.db.env
