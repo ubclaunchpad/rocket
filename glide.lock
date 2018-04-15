@@ -1,5 +1,5 @@
-hash: c28e4307cd1fbc0f19108c7696706b0148d0d012a8cc8400d4b0ac4597194098
-updated: 2018-03-27T23:34:41.484046-07:00
+hash: a8d46952c05f56caefe13aeda3d2ecd60ea1f7d8acd359008883e75c839826ea
+updated: 2018-04-15T10:04:53.506844-07:00
 imports:
 - name: github.com/go-pg/pg
   version: 81c90201251e3435753431f688d6be110a0806ca
@@ -30,7 +30,7 @@ imports:
 - name: github.com/jinzhu/inflection
   version: 04140366298a54a039076d798123ffa108fff46c
 - name: github.com/nlopes/slack
-  version: 8ab4d0b364ef1e9af5d102531da20d5ec902b6c4
+  version: 3472fa2dd0347a0d966feaf49d3e197d50e9576e
 - name: github.com/sirupsen/logrus
   version: 90150a8ed11b6ce285e77e8af2b0109559ce4777
 - name: golang.org/x/crypto

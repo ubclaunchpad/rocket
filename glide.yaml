@@ -1,7 +1,7 @@
 package: github.com/ubclaunchpad/rocket
 import:
 - package: github.com/nlopes/slack
-  version: ^0.1.0
+  version: 3472fa2dd0347a0d966feaf49d3e197d50e9576e
 - package: github.com/go-pg/pg
   version: 6.4.0
 - package: github.com/sirupsen/logrus
