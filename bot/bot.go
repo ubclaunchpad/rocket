@@ -21,22 +21,26 @@ const (
 		"coded a bug... Sorry about that!"
 
 	// ID for the `all` team that everyone should be on
-	githubAllTeamID = 2467607
+	GithubAllTeamID = 2467607
 )
 
 var noParams = slack.PostMessageParameters{}
+
+// EventHandler is any function that handles a Slack event
+type EventHandler func(slack.RTMEvent)
 
 // Bot represents an instance of the Rocket Slack bot. Only one should be
 // created under normal circumstances.
 type Bot struct {
 	token    string
-	api      *slack.Client
+	API      *slack.Client
 	rtm      *slack.RTM
-	dal      *data.DAL
-	gh       *github.API
-	log      *log.Entry
-	commands map[string]*cmd.Command
-	users    map[string]slack.User
+	DAL      *data.DAL
+	GitHub   *github.API
+	Log      *log.Entry
+	Commands map[string]*cmd.Command
+	handlers map[string][]EventHandler
+	Users    map[string]slack.User
 }
 
 // New constructs and returns a new Slack bot instance. It creates a new RTM
@@ -47,32 +51,48 @@ func New(cfg *config.Config, dal *data.DAL, gh *github.API, log *log.Entry) *Bot
 
 	b := &Bot{
 		token:    cfg.SlackToken,
-		api:      api,
+		API:      api,
 		rtm:      api.NewRTM(),
-		dal:      dal,
-		gh:       gh,
-		log:      log,
-		commands: map[string]*cmd.Command{},
+		DAL:      dal,
+		GitHub:   gh,
+		Log:      log,
+		Commands: map[string]*cmd.Command{},
+		handlers: map[string][]EventHandler{},
 	}
 	b.PopulateUsers()
 
-	// Attach command handlers
-	b.commands = map[string]*cmd.Command{
-		"help":         NewHelpCmd(b.help),
-		"set":          NewSetCmd(b.set),
-		"edit":         NewEditUserCmd(b.editUser),
-		"view-user":    NewViewUserCmd(b.viewUser),
-		"view-team":    NewViewTeamCmd(b.viewTeam),
-		"add-user":     NewAddUserCmd(b.addUser),
-		"add-team":     NewAddTeamCmd(b.addTeam),
-		"add-admin":    NewAddAdminCmd(b.addAdmin),
-		"remove-admin": NewRemoveAdminCmd(b.removeAdmin),
-		"remove-user":  NewRemoveUserCmd(b.removeUser),
-		"remove-team":  NewRemoveTeamCmd(b.removeTeam),
-		"teams":        NewTeamsCmd(b.listTeams),
-		"refresh":      NewRefreshCmd(b.refresh),
-	}
+	// Register default Slack event handlers
+	b.RegisterEventHandlers(map[string]EventHandler{
+		"message":     b.handleMessageEvent,
+		"team_join":   b.handleUserChange,
+		"user_change": b.handleUserChange,
+	})
 	return b
+}
+
+// RegisterEventHandlers registers a handlers for different events. These
+// handlers will be called when an event of the corresponding type is received.
+func (b *Bot) RegisterEventHandlers(handlers map[string]EventHandler) {
+	for evt, handler := range handlers {
+		if b.handlers[evt] == nil {
+			b.handlers[evt] = []EventHandler{handler}
+		} else {
+			b.handlers[evt] = append(b.handlers[evt], handler)
+		}
+		b.Log.Infof("registered handler for %s Slack event", evt)
+	}
+}
+
+// RegisterCommands registers commands that the bot should handle.
+func (b *Bot) RegisterCommands(commands []*cmd.Command) {
+	for _, c := range commands {
+		if b.Commands[c.Name] != nil {
+			b.Log.Errorf("attempt to register duplicate commands: %s", c.Name)
+			continue
+		}
+		b.Commands[c.Name] = c
+		b.Log.Infof("registered command %s", c.Name)
+	}
 }
 
 // Start causes an already initialized bot instance to begin listening for
@@ -81,15 +101,12 @@ func (b *Bot) Start() {
 	go b.rtm.ManageConnection()
 
 	for evt := range b.rtm.IncomingEvents {
-		switch evt.Data.(type) {
-		// Check for and respond to commands
-		case *slack.MessageEvent:
-			b.handleMessageEvent(evt.Data.(*slack.MessageEvent).Msg)
-		// Update our user cache when new member joins or user data changes
-		case *slack.TeamJoinEvent:
-			b.handleUserChange(evt.Data.(*slack.TeamJoinEvent).User)
-		case *slack.UserChangeEvent:
-			b.handleUserChange(evt.Data.(*slack.UserChangeEvent).User)
+		// Call any registered event handlers that are expecting events of this
+		// type.
+		if handlers := b.handlers[evt.Type]; handlers != nil {
+			for _, handler := range handlers {
+				handler(evt)
+			}
 		}
 	}
 }
@@ -98,14 +115,14 @@ func (b *Bot) Start() {
 // instance's cache, and updates any member entries in the DB with any relevant
 // info from their Slack profiles.
 func (b *Bot) PopulateUsers() {
-	users, err := b.api.GetUsers()
+	users, err := b.API.GetUsers()
 	if err != nil {
-		b.log.WithError(err).Error("Failed to populate users")
+		b.Log.WithError(err).Error("Failed to populate users")
 	}
 
-	b.users = make(map[string]slack.User)
+	b.Users = make(map[string]slack.User)
 	for _, u := range users {
-		b.users[u.ID] = u
+		b.Users[u.ID] = u
 		member := &model.Member{
 			SlackID:  u.ID,
 			Name:     u.Profile.RealName,
@@ -113,10 +130,10 @@ func (b *Bot) PopulateUsers() {
 			Email:    u.Profile.Email,
 			Position: u.Profile.Title,
 		}
-		if err := b.dal.UpdateMember(member); err != nil {
-			b.log.WithError(err).Error("failed to update member " + member.SlackID)
+		if err := b.DAL.UpdateMember(member); err != nil {
+			b.Log.WithError(err).Error("failed to update member " + member.SlackID)
 		}
-		b.log.Debug("Successfully updated user ", member.SlackID)
+		b.Log.Debug("Successfully updated user ", member.SlackID)
 	}
 }
 
@@ -127,16 +144,17 @@ func (b *Bot) SendErrorMessage(channel string, err error, msg string) {
 	if len(msg) > 0 {
 		errorMsg = msg
 	}
-	b.api.PostMessage(channel, errorMsg, noParams)
-	b.log.WithError(err).Error(msg)
+	b.API.PostMessage(channel, errorMsg, noParams)
+	b.Log.WithError(err).Error(msg)
 }
 
 // handleMessageEvent is a generic handler for any new message we receive.
 // Determines whether the message is meant to be a command (if we need to
 // take action for it), populates the command context object for the message,
 // and calls the appropriate handler.
-func (b *Bot) handleMessageEvent(msg slack.Msg) {
-	b.log.WithFields(log.Fields{
+func (b *Bot) handleMessageEvent(evt slack.RTMEvent) {
+	msg := evt.Data.(*slack.MessageEvent).Msg
+	b.Log.WithFields(log.Fields{
 		"Text":    msg.Text,
 		"Channel": msg.Channel,
 		"User":    msg.User,
@@ -149,27 +167,27 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 
 	member := model.Member{
 		SlackID:  msg.User,
-		ImageURL: b.users[msg.User].Profile.Image192,
+		ImageURL: b.Users[msg.User].Profile.Image192,
 	}
 
 	// Create member if doesn't already exist (this acts like an upsert)
-	if err := b.dal.CreateMember(&member); err != nil {
-		b.log.WithError(err).Errorf("Error creating member with Slack ID %s", member.SlackID)
-		b.api.PostMessage(msg.Channel, errorMessage, noParams)
+	if err := b.DAL.CreateMember(&member); err != nil {
+		b.Log.WithError(err).Errorf("Error creating member with Slack ID %s", member.SlackID)
+		b.API.PostMessage(msg.Channel, errorMessage, noParams)
 		return
 	}
 
 	// Set member image to their slack profile image
-	if err := b.dal.SetMemberImageURL(&member); err != nil {
-		b.log.WithError(err).Errorf("Error setting member image URL")
-		b.api.PostMessage(msg.Channel, errorMessage, noParams)
+	if err := b.DAL.SetMemberImageURL(&member); err != nil {
+		b.Log.WithError(err).Errorf("Error setting member image URL")
+		b.API.PostMessage(msg.Channel, errorMessage, noParams)
 		return
 	}
 
 	// Retrieves the full member object from the database
-	if err := b.dal.GetMemberBySlackID(&member); err != nil {
-		b.log.WithError(err).Errorf("Error getting member by Slack ID %s", member.SlackID)
-		b.api.PostMessage(msg.Channel, errorMessage, noParams)
+	if err := b.DAL.GetMemberBySlackID(&member); err != nil {
+		b.Log.WithError(err).Errorf("Error getting member by Slack ID %s", member.SlackID)
+		b.API.PostMessage(msg.Channel, errorMessage, noParams)
 		return
 	}
 
@@ -180,7 +198,7 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 
 	// A command is defined by being prefixed by our username
 	// i.e. "@rocket <command> <arg1> ..."
-	if args[0] == toMention(username) {
+	if args[0] == cmd.ToMention(username) {
 		context := cmd.Context{
 			Message: &msg,
 			User:    member,
@@ -189,39 +207,48 @@ func (b *Bot) handleMessageEvent(msg slack.Msg) {
 		var cmd *cmd.Command
 		if len(args) > 1 {
 			command := args[1]
-			cmd = b.commands[command]
+			cmd = b.Commands[command]
 			if cmd == nil {
-				cmd = b.commands["help"]
+				cmd = b.Commands["help"]
 			}
 		} else {
-			cmd = b.commands["help"]
+			cmd = b.Commands["help"]
 		}
 		res, params, err := cmd.Execute(context)
 		if err != nil {
 			log.WithError(err).Error("Failed to execute command")
 			b.SendErrorMessage(context.Message.Channel, err, err.Error())
 		}
-		b.api.PostMessage(context.Message.Channel, res, params)
+		b.API.PostMessage(context.Message.Channel, res, params)
 	}
 }
 
 // Handler for when a user changes their profile, or a user is added/deleted.
 // Creates the member if they don't already exist and sets their profile image.
-func (b *Bot) handleUserChange(user slack.User) {
-	b.users[user.ID] = user
+func (b *Bot) handleUserChange(evt slack.RTMEvent) {
+	var user slack.User
 
+	// This function is only called for team join or user change events, so
+	// check which case we are in before proceeding.
+	if evt.Type == "team_join" {
+		user = evt.Data.(*slack.TeamJoinEvent).User
+	} else {
+		user = evt.Data.(*slack.UserChangeEvent).User
+	}
+
+	b.Users[user.ID] = user
 	member := model.Member{
 		SlackID:  user.ID,
 		ImageURL: user.Profile.Image192,
 	}
 
 	// Create user if doesn't exist
-	if err := b.dal.CreateMember(&member); err != nil {
-		b.log.WithError(err).Errorf("Error creating user with Slack ID %s", member.SlackID)
+	if err := b.DAL.CreateMember(&member); err != nil {
+		b.Log.WithError(err).Errorf("Error creating user with Slack ID %s", member.SlackID)
 	}
 
 	// Update image URL
-	if err := b.dal.SetMemberImageURL(&member); err != nil {
-		b.log.WithError(err).Errorf("Error setting image URL for Slack ID %s", member.SlackID)
+	if err := b.DAL.SetMemberImageURL(&member); err != nil {
+		b.Log.WithError(err).Errorf("Error setting image URL for Slack ID %s", member.SlackID)
 	}
 }

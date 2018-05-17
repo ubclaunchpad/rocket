@@ -5,6 +5,7 @@ import (
 	"github.com/ubclaunchpad/rocket/bot"
 	"github.com/ubclaunchpad/rocket/config"
 	"github.com/ubclaunchpad/rocket/github"
+	"github.com/ubclaunchpad/rocket/plugin"
 	"github.com/ubclaunchpad/rocket/server"
 
 	"github.com/ubclaunchpad/rocket/data"
@@ -23,14 +24,19 @@ func main() {
 	// Create a client to the GitHub API, using the token from the config.
 	gh := github.New(cfg)
 
-	// Setup and start a server, listening on the interface specified in the
+	// Set up a server listening on the interface specified in the
 	// config. This will panic if the server fails to bind to the interface
 	// or dies for any reason after beginning listening.
 	srv := server.New(cfg, dal, log.WithField("service", "server"))
-	go srv.Start()
 
-	// Setup and start the Slack bot. This will create an RTM that receives
+	// Set up the Slack bot. This will create an RTM that receives
 	// events from Slack and respond to them as needed.
-	slack := bot.New(cfg, dal, gh, log.WithField("service", "slack"))
-	slack.Start()
+	slackBot := bot.New(cfg, dal, gh, log.WithField("service", "slack"))
+
+	// Load plugins
+	plugin.RegisterPlugins(slackBot)
+
+	// Start Slack bot and HTTP server
+	go srv.Start()
+	slackBot.Start()
 }

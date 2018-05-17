@@ -1,4 +1,4 @@
-package bot
+package core
 
 import (
 	"fmt"
@@ -18,13 +18,13 @@ func NewAddUserCmd(ch cmd.CommandHandler) *cmd.Command {
 			"user": &cmd.Option{
 				Key:      "user",
 				HelpText: "the Slack handle of the user to add to a team",
-				Format:   anyRegex,
+				Format:   cmd.AnyRegex,
 				Required: true,
 			},
 			"team": &cmd.Option{
 				Key:      "team",
 				HelpText: "the team to add the user to",
-				Format:   anyRegex,
+				Format:   cmd.AnyRegex,
 				Required: true,
 			},
 		},
@@ -33,7 +33,7 @@ func NewAddUserCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // addUser adds an existing user to a team.
-func (b *Bot) addUser(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *CorePlugin) addUser(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	username := c.Options["user"].Value
 	teamName := c.Options["team"].Value
@@ -45,22 +45,22 @@ func (b *Bot) addUser(c cmd.Context) (string, slack.PostMessageParameters) {
 	team := model.Team{
 		Name: teamName,
 	}
-	if err := b.dal.GetTeamByName(&team); err != nil {
+	if err := core.Bot.DAL.GetTeamByName(&team); err != nil {
 		log.WithError(err).Error("Failed to find team " + team.Name)
 		return "Failed to find team " + team.Name, noParams
 	}
 
-	slackID := parseMention(username)
+	slackID := cmd.ParseMention(username)
 	member := model.Member{
 		SlackID: slackID,
 	}
-	if err := b.dal.GetMemberBySlackID(&member); err != nil {
+	if err := core.Bot.DAL.GetMemberBySlackID(&member); err != nil {
 		log.WithError(err).Errorf("Failed to find member %s", username)
 		return "Failed to find member " + username, noParams
 	}
 
 	// Add user to corresponding GitHub team
-	if err := b.gh.AddUserToTeam(member.GithubUsername, team.GithubTeamID); err != nil {
+	if err := core.Bot.GitHub.AddUserToTeam(member.GithubUsername, team.GithubTeamID); err != nil {
 		log.WithError(err).Errorf("Failed to add user %s to GitHub team %s",
 			member.Name, team.Name)
 		return fmt.Sprintf("Failed to add user %s to GitHub team %s",
@@ -72,12 +72,12 @@ func (b *Bot) addUser(c cmd.Context) (string, slack.PostMessageParameters) {
 		GithubTeamID:  team.GithubTeamID,
 	}
 	// Finally, add relation to DB
-	if err := b.dal.CreateTeamMember(&teamMember); err != nil {
+	if err := core.Bot.DAL.CreateTeamMember(&teamMember); err != nil {
 		log.WithError(err).Errorf("Failed to add member %s to team %s",
 			member.Name, team.Name)
 		return fmt.Sprintf("Failed to add member %s to team %s",
 			member.Name, team.Name), noParams
 	}
-	return toMention(member.SlackID) +
+	return cmd.ToMention(member.SlackID) +
 		" was added to `" + team.Name + "` team :tada:", noParams
 }

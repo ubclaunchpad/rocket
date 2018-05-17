@@ -39,6 +39,12 @@ The [Bot](bot/bot.go) holds references to structures that we use to communicate 
 
 [server.go](server/server.go) defines some handlers for HTTP requests. Our website will make requests to `/api/teams` and `/api/members` to display information about our teams and members. Note that content is served over HTTPS using `acme/autocert` to get TLS certificates from LetsEncrypt.
 
+#### Plugins
+
+A Rocket Plugin is simply any type that implements the [Plugin](plugin/plugin.go) interface. A plugin is intended to be a standalone component of Rocket. The prime example of a plugin is Rocket's [Core](core/core.go) plugin which provides basic Launch Pad administration commands for managing teams and users on both Slack and GitHub. You can use the `Start` method of your plugin start any background tasks you need to. Any `Commands` and `EventHandlers` you expose to Rocket in your implementation of the Plugin interface will be automatically registered with the `Bot`. See the Slack's [API Event Types](https://api.slack.com/events) for a list of events and their names if you implement your own `EventHandler`s for your plugin.
+
+When creating a new plugin, make a new package your plugin at the same level as the `core` package, create your type that implements the `Plugin` interface, and add register your plugin in [plugin.RegisterPlugins](plugin/plugin.go). It is recommended that you place any commands you write for your plugin in their own separate files under your plugin's package.
+
 #### Commands
 
 The command framework can be found in `cmd`. It defines a set of data structures and functions for parsing, validating, and automatically documenting Rocket commands. All commands are defined in the `bot` package.
