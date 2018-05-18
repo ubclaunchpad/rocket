@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/nlopes/slack"
@@ -83,16 +84,17 @@ func (b *Bot) RegisterEventHandlers(handlers map[string]EventHandler) {
 	}
 }
 
-// RegisterCommands registers commands that the bot should handle.
-func (b *Bot) RegisterCommands(commands []*cmd.Command) {
+// RegisterCommands registers commands that the bot should handle. Returns an
+// error if multiple commands were registered with the same name.
+func (b *Bot) RegisterCommands(commands []*cmd.Command) error {
 	for _, c := range commands {
 		if b.Commands[c.Name] != nil {
-			b.Log.Errorf("attempt to register duplicate commands: %s", c.Name)
-			continue
+			return fmt.Errorf("multiple commands registered with name %s", c.Name)
 		}
 		b.Commands[c.Name] = c
 		b.Log.Infof("registered command %s", c.Name)
 	}
+	return nil
 }
 
 // Start causes an already initialized bot instance to begin listening for

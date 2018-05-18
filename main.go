@@ -34,7 +34,9 @@ func main() {
 	slackBot := bot.New(cfg, dal, gh, log.WithField("service", "slack"))
 
 	// Load plugins
-	plugin.RegisterPlugins(slackBot)
+	if err := plugin.RegisterPlugins(slackBot); err != nil {
+		slackBot.Log.WithError(err).Fatal("Failed to load plugins")
+	}
 
 	// Start Slack bot and HTTP server
 	go srv.Start()

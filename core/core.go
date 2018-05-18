@@ -19,8 +19,9 @@ func New(b *bot.Bot) *CorePlugin {
 }
 
 // Start initializes the pluin with the values it needs to do its job.
-func (cp *CorePlugin) Start() {
+func (cp *CorePlugin) Start() error {
 	cp.Bot.Log.Info("Running CorePlugin")
+	return nil
 }
 
 // Commands returns a list of commands this plugin makes available to the Bot.
