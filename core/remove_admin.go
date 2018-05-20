@@ -1,4 +1,4 @@
-package bot
+package core
 
 import (
 	"github.com/nlopes/slack"
@@ -17,7 +17,7 @@ func NewRemoveAdminCmd(ch cmd.CommandHandler) *cmd.Command {
 			"user": &cmd.Option{
 				Key:      "user",
 				HelpText: "the Slack handle of the user to remove admin rights from",
-				Format:   anyRegex,
+				Format:   cmd.AnyRegex,
 				Required: true,
 			},
 		},
@@ -26,17 +26,17 @@ func NewRemoveAdminCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // removeAdmin removes admin priveledges from an existing user.
-func (b *Bot) removeAdmin(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *CorePlugin) removeAdmin(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	if !c.User.IsAdmin {
 		return "You must be an admin to use this command", noParams
 	}
 	user := model.Member{
-		SlackID: parseMention(c.Options["user"].Value),
+		SlackID: cmd.ParseMention(c.Options["user"].Value),
 		IsAdmin: false,
 	}
-	if err := b.dal.SetMemberIsAdmin(&user); err != nil {
+	if err := core.Bot.DAL.SetMemberIsAdmin(&user); err != nil {
 		return "Failed to remove user's admin priveleges", noParams
 	}
-	return toMention(user.SlackID) + " has been removed as admin :tada:", noParams
+	return cmd.ToMention(user.SlackID) + " has been removed as admin :tada:", noParams
 }

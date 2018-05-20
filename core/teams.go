@@ -1,4 +1,4 @@
-package bot
+package core
 
 import (
 	"github.com/nlopes/slack"
@@ -18,10 +18,10 @@ func NewTeamsCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // listTeams displays Launch Pad teams
-func (b *Bot) listTeams(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *CorePlugin) listTeams(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	teams := model.Teams{}
-	if err := b.dal.GetTeamNames(&teams); err != nil {
+	if err := core.Bot.DAL.GetTeamNames(&teams); err != nil {
 		log.WithError(err).Error("Failed to get team names")
 		return "Failed to get team names", noParams
 	}

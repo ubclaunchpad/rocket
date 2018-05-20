@@ -1,4 +1,4 @@
-package bot
+package core
 
 import (
 	"github.com/nlopes/slack"
@@ -16,7 +16,7 @@ func NewViewTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 			"team": &cmd.Option{
 				Key:      "team",
 				HelpText: "the name of the team to view",
-				Format:   anyRegex,
+				Format:   cmd.AnyRegex,
 				Required: true,
 			},
 		},
@@ -25,12 +25,12 @@ func NewViewTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // viewTeam displays a teams's information.
-func (b *Bot) viewTeam(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *CorePlugin) viewTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 	params := slack.PostMessageParameters{}
 	team := model.Team{
 		Name: c.Options["team"].Value,
 	}
-	if err := b.dal.GetTeamByName(&team); err != nil {
+	if err := core.Bot.DAL.GetTeamByName(&team); err != nil {
 		log.WithError(err).Error("Failed to get team " + team.Name)
 		return "Failed to get team " + team.Name, params
 	}

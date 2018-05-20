@@ -1,4 +1,4 @@
-package bot
+package core
 
 import (
 	"github.com/nlopes/slack"
@@ -17,7 +17,7 @@ func NewAddAdminCmd(ch cmd.CommandHandler) *cmd.Command {
 			"user": &cmd.Option{
 				Key:      "user",
 				HelpText: "the Slack handle of the user to make an admin",
-				Format:   anyRegex,
+				Format:   cmd.AnyRegex,
 				Required: true,
 			},
 		},
@@ -26,20 +26,19 @@ func NewAddAdminCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // addAdmin makes an existing user and admin
-func (b *Bot) addAdmin(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *CorePlugin) addAdmin(c cmd.Context) (string, slack.PostMessageParameters) {
+	noParams := slack.PostMessageParameters{}
 	if !c.User.IsAdmin {
 		return "You must be an admin to use this command", noParams
 	}
-
-	noParams := slack.PostMessageParameters{}
 	username := c.Options["user"].Value
 	member := model.Member{
-		SlackID: parseMention(username),
+		SlackID: cmd.ParseMention(username),
 		IsAdmin: true,
 	}
-	if err := b.dal.SetMemberIsAdmin(&member); err != nil {
+	if err := core.Bot.DAL.SetMemberIsAdmin(&member); err != nil {
 		log.WithError(err).Error("Failed to make user " + username + " admin")
 		return "Failed to make user admin", noParams
 	}
-	return toMention(member.SlackID) + " has been made an admin :tada:", noParams
+	return cmd.ToMention(member.SlackID) + " has been made an admin :tada:", noParams
 }

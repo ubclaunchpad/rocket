@@ -1,4 +1,4 @@
-package bot
+package core
 
 import (
 	"github.com/nlopes/slack"
@@ -16,7 +16,7 @@ func NewViewUserCmd(ch cmd.CommandHandler) *cmd.Command {
 			"user": &cmd.Option{
 				Key:      "user",
 				HelpText: "the slack handle of the user to view",
-				Format:   anyRegex,
+				Format:   cmd.AnyRegex,
 				Required: true,
 			},
 		},
@@ -25,13 +25,13 @@ func NewViewUserCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // viewUser displays a user's information.
-func (b *Bot) viewUser(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *CorePlugin) viewUser(c cmd.Context) (string, slack.PostMessageParameters) {
 	params := slack.PostMessageParameters{}
 	username := c.Options["user"].Value
 	user := model.Member{
-		SlackID: parseMention(username),
+		SlackID: cmd.ParseMention(username),
 	}
-	if err := b.dal.GetMemberBySlackID(&user); err != nil {
+	if err := core.Bot.DAL.GetMemberBySlackID(&user); err != nil {
 		log.WithError(err).Error("Failed to get member " + username)
 		return "Failed to get member " + username, params
 	}

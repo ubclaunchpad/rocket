@@ -1,6 +1,8 @@
-package bot
+package core
 
 import (
+	"fmt"
+
 	"github.com/nlopes/slack"
 	log "github.com/sirupsen/logrus"
 	"github.com/ubclaunchpad/rocket/cmd"
@@ -16,12 +18,12 @@ func NewRemoveUserCmd(ch cmd.CommandHandler) *cmd.Command {
 			"user": &cmd.Option{
 				Key:      "user",
 				HelpText: "the Slack handle of the user to remove from a team",
-				Format:   anyRegex,
+				Format:   cmd.AnyRegex,
 			},
 			"team": &cmd.Option{
 				Key:      "team",
 				HelpText: "the team to remove the user from",
-				Format:   anyRegex,
+				Format:   cmd.AnyRegex,
 				Required: true,
 			},
 		},
@@ -30,7 +32,7 @@ func NewRemoveUserCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // removeUser removes a user from a team.
-func (b *Bot) removeUser(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *CorePlugin) removeUser(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	if !c.User.IsAdmin {
 		return "You must be an admin to use this command", noParams
@@ -41,25 +43,28 @@ func (b *Bot) removeUser(c cmd.Context) (string, slack.PostMessageParameters) {
 	team := model.Team{
 		Name: teamName,
 	}
-	if err := b.dal.GetTeamByName(&team); err != nil {
+	if err := core.Bot.DAL.GetTeamByName(&team); err != nil {
 		log.WithError(err).Error("Failed to get team " + team.Name)
 		return "Failed to get team " + team.Name, noParams
 	}
 
-	memberSlackID := parseMention(username)
+	memberSlackID := cmd.ParseMention(username)
 	member := model.Member{
 		SlackID: memberSlackID,
 	}
-	if err := b.dal.GetMemberBySlackID(&member); err != nil {
+	if err := core.Bot.DAL.GetMemberBySlackID(&member); err != nil {
 		log.WithError(err).Error("Failed to get member " + username)
 		return "Failed to get member " + username, noParams
 	}
 
 	// Remove user from GitHub team
-	if err := b.gh.RemoveUserFromTeam(member.GithubUsername, team.GithubTeamID); err != nil {
+	if err := core.Bot.GitHub.RemoveUserFromTeam(member.GithubUsername, team.GithubTeamID); err != nil {
 		log.WithError(err).Errorf("Failed to remove member %s from GitHub team %s",
 			member.Name, team.Name)
-		return "Failed to remove member from GitHub team", noParams
+		msg := fmt.Sprintf("Failed to remove user %s from GitHub team %s. "+
+			"Make sure %s's GitHub ID (currently \"%s\") is correct.",
+			member.Name, team.Name, member.Name, member.GithubUsername)
+		return msg, noParams
 	}
 
 	teamMember := model.TeamMember{
@@ -67,11 +72,11 @@ func (b *Bot) removeUser(c cmd.Context) (string, slack.PostMessageParameters) {
 		GithubTeamID:  team.GithubTeamID,
 	}
 	// Remove user team relation from DB
-	if err := b.dal.DeleteTeamMember(&teamMember); err != nil {
+	if err := core.Bot.DAL.DeleteTeamMember(&teamMember); err != nil {
 		log.WithError(err).Error("Failed to remove member " +
 			member.Name + " from team " + team.Name)
 		return "Failed to remove member from team", noParams
 	}
-	return toMention(member.SlackID) +
+	return cmd.ToMention(member.SlackID) +
 		" was removed from `" + team.Name + "` :tada:", noParams
 }

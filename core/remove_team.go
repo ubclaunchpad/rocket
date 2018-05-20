@@ -1,4 +1,4 @@
-package bot
+package core
 
 import (
 	"github.com/nlopes/slack"
@@ -16,7 +16,7 @@ func NewRemoveTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 			"team": &cmd.Option{
 				Key:      "team",
 				HelpText: "the name of the team to remove",
-				Format:   anyRegex,
+				Format:   cmd.AnyRegex,
 				Required: true,
 			},
 		},
@@ -25,28 +25,28 @@ func NewRemoveTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // removeTeam removes a Launch Pad team.
-func (b *Bot) removeTeam(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *CorePlugin) removeTeam(c cmd.Context) (string, slack.PostMessageParameters) {
+	noParams := slack.PostMessageParameters{}
 	if !c.User.IsAdmin {
 		return "You must be an admin to use this command", noParams
 	}
 
-	noParams := slack.PostMessageParameters{}
 	team := model.Team{
 		Name: c.Options["team"].Value,
 	}
-	if err := b.dal.GetTeamByName(&team); err != nil {
+	if err := core.Bot.DAL.GetTeamByName(&team); err != nil {
 		log.WithError(err).Error("Failed to find team " + team.Name)
 		return "Failed to find team " + team.Name, noParams
 	}
 
 	// Remove team from GitHub
-	if err := b.gh.RemoveTeam(team.GithubTeamID); err != nil {
+	if err := core.Bot.GitHub.RemoveTeam(team.GithubTeamID); err != nil {
 		log.WithError(err).Error("Failed to remove GitHub team " + team.Name)
 		return "Failed to remove GitHub team " + team.Name, noParams
 	}
 
 	// Finally remove team from database
-	if err := b.dal.DeleteTeamByName(&team); err != nil {
+	if err := core.Bot.DAL.DeleteTeamByName(&team); err != nil {
 		log.WithError(err).Error("Failed to delete team " + team.Name)
 		return "Failed to delete team " + team.Name, noParams
 	}
