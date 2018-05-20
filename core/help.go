@@ -1,4 +1,4 @@
-package bot
+package core
 
 import (
 	"fmt"
@@ -17,25 +17,26 @@ func NewHelpCmd(ch cmd.CommandHandler) *cmd.Command {
 			"command": &cmd.Option{
 				Key:      "command",
 				HelpText: "get help using a particular Rocket command",
-				Format:   alphaRegex,
+				Format:   cmd.AlphaRegex,
+				Required: false,
 			},
 		},
-		Args:       []cmd.Argument{},
 		HandleFunc: ch,
 	}
 }
 
 // Send a help message
-func (b *Bot) help(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *CorePlugin) help(c cmd.Context) (string, slack.PostMessageParameters) {
 	params := slack.PostMessageParameters{}
 	res := ""
 	opt := c.Options["command"].Value
 	if opt == "" {
 		// General help
 		res = "Usage: @rocket COMMAND\n\nGet help using a specific " +
-			"command with \"@rocket help --command=`COMMAND`\""
+			"command with \"@rocket help command={COMMAND}\"\n" +
+			"Example: @rocket set name={A Guy} github={arealguy}"
 		cmds := ""
-		for _, cmd := range b.commands {
+		for _, cmd := range core.Bot.Commands {
 			cmds += fmt.Sprintf("%s\t\t%s\n", cmd.Name, cmd.HelpText)
 		}
 		commands := slack.Attachment{
@@ -47,12 +48,12 @@ func (b *Bot) help(c cmd.Context) (string, slack.PostMessageParameters) {
 		return res, params
 	}
 	// Command-specific help
-	for _, cmd := range b.commands {
+	for _, cmd := range core.Bot.Commands {
 		if opt == cmd.Name {
 			return cmd.Help()
 		}
 	}
 	res = fmt.Sprintf("\"%s\" is not a Rocket command.\n"+
 		"See \"@rocket help\"", opt)
-	return res, noParams
+	return res, slack.PostMessageParameters{}
 }

@@ -47,6 +47,13 @@ func (api *API) AddUserToTeam(username string, teamID int) error {
 	return err
 }
 
+func (api *API) RemoveUserFromOrg(username string) error {
+	_, err := api.Organizations.RemoveOrgMembership(
+		context.Background(), username, "ubclaunchpad",
+	)
+	return err
+}
+
 func (api *API) RemoveUserFromTeam(username string, teamID int) error {
 	_, err := api.Organizations.RemoveTeamMembership(
 		context.Background(), teamID, username,

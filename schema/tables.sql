@@ -16,6 +16,7 @@ DROP TABLE IF EXISTS teams;
 CREATE TABLE teams (
     name TEXT UNIQUE,
     github_team_id INTEGER PRIMARY KEY,
+    platform TEXT,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (now() at time zone 'utc')
 );
 

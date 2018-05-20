@@ -13,6 +13,7 @@ type Team struct {
 
 	Name         string    `json:"name"`
 	GithubTeamID int       `sql:",pk" json:"-" pg:"github_team_id"`
+	Platform     string    `json:"platform"`
 	CreatedAt    time.Time `json:"-"`
 
 	Members []*Member `sql:"-" json:"members" pg:",many2many:team_members,joinFK:Member"`
@@ -33,6 +34,10 @@ func (t *Team) SlackAttachments() []slack.Attachment {
 	attachments := []slack.Attachment{
 		slack.Attachment{
 			Text:  "Name: " + t.Name,
+			Color: "good",
+		},
+		slack.Attachment{
+			Text:  "Platform: " + t.Platform,
 			Color: "good",
 		},
 		slack.Attachment{

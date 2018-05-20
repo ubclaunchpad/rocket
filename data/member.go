@@ -55,6 +55,14 @@ func (dal *DAL) UpdateMember(member *model.Member) error {
 	return err
 }
 
+// DeleteMember deletes a member from the DB or returns an error.
+func (dal *DAL) DeleteMember(member *model.Member) error {
+	_, err := dal.db.Model(member).
+		Where("slack_id = ?slack_id").
+		Delete()
+	return err
+}
+
 // SetMemberName updates the name of the given member in the DB or returns
 // an error.
 func (dal *DAL) SetMemberName(member *model.Member) error {
