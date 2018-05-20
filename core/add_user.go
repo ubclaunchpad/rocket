@@ -63,8 +63,10 @@ func (core *CorePlugin) addUser(c cmd.Context) (string, slack.PostMessageParamet
 	if err := core.Bot.GitHub.AddUserToTeam(member.GithubUsername, team.GithubTeamID); err != nil {
 		log.WithError(err).Errorf("Failed to add user %s to GitHub team %s",
 			member.Name, team.Name)
-		return fmt.Sprintf("Failed to add user %s to GitHub team %s",
-			member.Name, team.Name), noParams
+		msg := fmt.Sprintf("Failed to add user %s to GitHub team %s. "+
+			"Make sure %s's GitHub ID (currently \"%s\") is correct.",
+			member.Name, team.Name, member.Name, member.GithubUsername)
+		return msg, noParams
 	}
 
 	teamMember := model.TeamMember{

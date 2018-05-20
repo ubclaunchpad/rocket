@@ -43,7 +43,26 @@ func (wp *WelcomePlugin) EventHandlers() map[string]bot.EventHandler {
 // them in the general channel.
 func (wp *WelcomePlugin) handleTeamJoin(evt slack.RTMEvent) {
 	user := evt.Data.(*slack.TeamJoinEvent).User
-	msg := fmt.Sprintf("Welcome to the team, %s! :rocket:", cmd.ToMention(user.ID))
+	userMention := cmd.ToMention(user.ID)
+
+	// Post a welcome message in #general
+	msg := fmt.Sprintf("Welcome to the team, %s! :rocket:", userMention)
 	noParams := slack.PostMessageParameters{}
 	wp.Bot.API.PostMessage("general", msg, noParams)
+
+	// Send the user a private message asking them to update their info
+	msg = fmt.Sprintf("Hi %s, please update your profile information with "+
+		"the `set` command:\n"+
+		"`@rocket set github={myGitHubUsername} position={a fun position} "+
+		"major={myUBCMajor}`\n"+
+		"If you need help using Rocket commands, try `@rocket help`", userMention)
+	_, _, channelID, err := wp.Bot.API.OpenIMChannel(user.ID)
+	if err != nil {
+		// If this fails it's not the end of the world - just log an error
+		wp.Bot.Log.WithError(err).Errorf(
+			"failed to send %s a private message", user.Name)
+		return
+	}
+	wp.Bot.API.PostMessage(channelID, msg, noParams)
+
 }

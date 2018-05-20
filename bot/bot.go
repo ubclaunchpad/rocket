@@ -60,7 +60,7 @@ func New(cfg *config.Config, dal *data.DAL, gh *github.API, log *log.Entry) *Bot
 		Commands: map[string]*cmd.Command{},
 		handlers: map[string][]EventHandler{},
 	}
-	b.PopulateUsers()
+	b.UpdateUsers()
 
 	// Register default Slack event handlers
 	b.RegisterEventHandlers(map[string]EventHandler{
@@ -113,10 +113,11 @@ func (b *Bot) Start() {
 	}
 }
 
-// PopulateUsers retrieves list of users from API, populates the bot
+// UpdateUsers retrieves list of users from API, populates the bot
 // instance's cache, and updates any member entries in the DB with any relevant
-// info from their Slack profiles.
-func (b *Bot) PopulateUsers() {
+// info from their Slack profiles. It will also remove any users whose accounts
+// have been deleted.
+func (b *Bot) UpdateUsers() {
 	users, err := b.API.GetUsers()
 	if err != nil {
 		b.Log.WithError(err).Error("Failed to populate users")
@@ -124,7 +125,6 @@ func (b *Bot) PopulateUsers() {
 
 	b.Users = make(map[string]slack.User)
 	for _, u := range users {
-		b.Users[u.ID] = u
 		member := &model.Member{
 			SlackID:  u.ID,
 			Name:     u.Profile.RealName,
@@ -132,10 +132,38 @@ func (b *Bot) PopulateUsers() {
 			Email:    u.Profile.Email,
 			Position: u.Profile.Title,
 		}
-		if err := b.DAL.UpdateMember(member); err != nil {
-			b.Log.WithError(err).Error("failed to update member " + member.SlackID)
+
+		// Delete the member from GitHub and the DB if they've been deleted from Slack
+		if u.Deleted {
+			// If the user has their GitHub username set, try remove them from
+			// the GitHub organization
+			m := &model.Member{
+				SlackID: u.ID,
+			}
+			b.DAL.GetMemberBySlackID(m)
+			if m.GithubUsername != "" {
+				if err := b.GitHub.RemoveUserFromOrg(m.GithubUsername); err != nil {
+					b.Log.WithError(err).Errorf(
+						"failed to remove %s from ubclaunchpad org on GitHub", m.GithubUsername)
+				} else {
+					b.Log.Debugf("removed %s from ubclaunchpad org on GitHub", m.GithubUsername)
+				}
+			}
+			// Delete the user from the DB
+			if err := b.DAL.DeleteMember(member); err != nil {
+				b.Log.WithError(err).Errorf("failed to delete member %s", member.Name)
+			} else {
+				b.Log.Debugf("deleted member %s", member.Name)
+			}
+			continue
 		}
-		b.Log.Debug("Successfully updated user ", member.SlackID)
+
+		// Update the member in the DB and add them to the cache
+		b.Users[u.ID] = u
+		if err := b.DAL.UpdateMember(member); err != nil {
+			b.Log.WithError(err).Error("failed to update member " + member.Name)
+		}
+		b.Log.Debugf("successfully updated user %s", member.Name)
 	}
 }
 

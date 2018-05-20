@@ -59,6 +59,7 @@ func NewSetCmd(ch cmd.CommandHandler) *cmd.Command {
 // Generic command for setting some information about the sender's profile.
 func (core *CorePlugin) set(c cmd.Context) (string, slack.PostMessageParameters) {
 	params := slack.PostMessageParameters{}
+	githubChanged := false
 
 	if c.Options["name"].Value != "" {
 		c.User.Name = c.Options["name"].Value
@@ -99,6 +100,7 @@ func (core *CorePlugin) set(c cmd.Context) (string, slack.PostMessageParameters)
 			log.WithError(err).Errorf("Failed to set GitHub username")
 			return "Failed to set GitHub username", params
 		}
+		githubChanged = true
 	}
 
 	if c.Options["major"].Value != "" {
@@ -130,5 +132,10 @@ func (core *CorePlugin) set(c cmd.Context) (string, slack.PostMessageParameters)
 	}
 
 	params.Attachments = c.User.SlackAttachments()
-	return "Your information has been updated :simple_smile:", params
+	msg := "Your information has been updated :simple_smile:"
+	if githubChanged {
+		msg += "\nYou've also been added to our organization on GitHub, " +
+			"so check your email for the invitation!"
+	}
+	return msg, params
 }

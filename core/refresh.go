@@ -27,7 +27,7 @@ func (core *CorePlugin) refresh(c cmd.Context) (string, slack.PostMessageParamet
 	}
 
 	// Pull in all users from Slack
-	core.Bot.PopulateUsers()
+	core.Bot.UpdateUsers()
 
 	var member model.Member
 	for _, user := range core.Bot.Users {

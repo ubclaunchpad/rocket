@@ -24,12 +24,15 @@ type Plugin interface {
 // RegisterPlugins registers commands and event handlers from Rocket plugins
 // and starts the plugins. Returns an error if a plugin could not be registered.
 func RegisterPlugins(b *bot.Bot) error {
-	// Add your new plugins here
-	if err := registerPlugin(core.New(b), b); err != nil {
-		return err
+	// Add your plugin to this list
+	plugins := []Plugin{
+		core.New(b),
+		welcome.New(b),
 	}
-	if err := registerPlugin(welcome.New(b), b); err != nil {
-		return err
+	for _, p := range plugins {
+		if err := registerPlugin(p, b); err != nil {
+			return err
+		}
 	}
 	return nil
 }

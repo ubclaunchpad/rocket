@@ -1,6 +1,8 @@
 package core
 
 import (
+	"fmt"
+
 	"github.com/nlopes/slack"
 	log "github.com/sirupsen/logrus"
 	"github.com/ubclaunchpad/rocket/cmd"
@@ -59,7 +61,10 @@ func (core *CorePlugin) removeUser(c cmd.Context) (string, slack.PostMessagePara
 	if err := core.Bot.GitHub.RemoveUserFromTeam(member.GithubUsername, team.GithubTeamID); err != nil {
 		log.WithError(err).Errorf("Failed to remove member %s from GitHub team %s",
 			member.Name, team.Name)
-		return "Failed to remove member from GitHub team", noParams
+		msg := fmt.Sprintf("Failed to remove user %s from GitHub team %s. "+
+			"Make sure %s's GitHub ID (currently \"%s\") is correct.",
+			member.Name, team.Name, member.Name, member.GithubUsername)
+		return msg, noParams
 	}
 
 	teamMember := model.TeamMember{
