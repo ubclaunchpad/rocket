@@ -1,21 +1,34 @@
-# Start from the base Go image
-FROM golang
+################
+# BINARY BUILD #
+################
 
-# Set /go/src/github.com/ubclaunchpad/rocket as the CWD
-WORKDIR /go/src/github.com/ubclaunchpad/rocket
+FROM golang:alpine AS build
+ENV BUILD_HOME=/go/src/github.com/ubclaunchpad/rocket
 
-# Copy package source files to container
-ADD . .
+# Mount source code.
+ADD . ${BUILD_HOME}
+WORKDIR ${BUILD_HOME}
 
-# Download and install dependency manager
-RUN go get github.com/Masterminds/glide
-RUN go install github.com/Masterminds/glide
+# Install dependencies if not already available.
+RUN if [ ! -d "vendor" ]; then \
+    apk add --update --no-cache git; \
+    go get -u github.com/golang/dep/cmd/dep; \
+    dep ensure; \
+    fi
 
-# Install dependencies
-RUN glide install
+# Build binary.
+RUN go build -o /bin/rocket .
 
-# Build Rocket
-RUN go install github.com/ubclaunchpad/rocket
+#################
+#  IMAGE BUILD  #
+#################
 
-# Start Rocket
+# Start from a fresh container
+FROM alpine
+LABEL maintainer "UBC Launchpad team@ubclaunchpad.com"
+
+# Copy just the Rocket binary
+COPY --from=build /bin/rocket /usr/local/bin
+
+# Start Rocket by default
 ENTRYPOINT [ "rocket" ]
