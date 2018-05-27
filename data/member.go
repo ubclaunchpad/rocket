@@ -18,6 +18,15 @@ func (dal *DAL) GetMembers(members *model.Members) error {
 		Select()
 }
 
+// GetAdmins populates the given members with information for all admin members
+// or returns an error.
+func (dal *DAL) GetAdmins(members *model.Members) error {
+	return dal.db.Model(members).
+		Where("is_admin = 't'").
+		Order("name ASC").
+		Select()
+}
+
 // CreateMember adds the given member to the DB or returns an error.
 func (dal *DAL) CreateMember(member *model.Member) error {
 	_, err := dal.db.Model(member).
