@@ -1,5 +1,6 @@
 # Rocket
 
+[![Build Status](https://travis-ci.org/ubclaunchpad/rocket.svg?branch=master)](https://travis-ci.org/ubclaunchpad/rocket)
 [![Coverage Status](https://coveralls.io/repos/github/ubclaunchpad/rocket/badge.svg?branch=master)](https://coveralls.io/github/ubclaunchpad/rocket?branch=master)
 
 Management and onboarding system for UBC Launch Pad. More information in the
