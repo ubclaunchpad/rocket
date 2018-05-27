@@ -13,7 +13,7 @@ type Team struct {
 
 	Name         string    `json:"name"`
 	GithubTeamID int       `sql:",pk" json:"-" pg:"github_team_id"`
-	Platform     string    `json:"platform"`
+	Platform     string    `json:"platform" pg:"platform"`
 	CreatedAt    time.Time `json:"-"`
 
 	Members []*Member `sql:"-" json:"members" pg:",many2many:team_members,joinFK:Member"`

@@ -42,6 +42,21 @@ func (dal *DAL) CreateTeam(team *model.Team) error {
 	return err
 }
 
+func (dal *DAL) UpdateTeam(currentTeam, newTeam *model.Team) error {
+	// Only update values if they were set
+	if newTeam.Name != "" {
+		currentTeam.Name = newTeam.Name
+	}
+	if newTeam.Platform != "" {
+		currentTeam.Platform = newTeam.Platform
+	}
+	_, err := dal.db.Model(currentTeam).
+		Update(
+			"name", currentTeam.Name,
+			"platform", currentTeam.Platform)
+	return err
+}
+
 func (dal *DAL) DeleteTeamByName(team *model.Team) error {
 	_, err := dal.db.Model(team).
 		Where("name = ?name").
