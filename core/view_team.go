@@ -1,6 +1,8 @@
 package core
 
 import (
+	"fmt"
+
 	"github.com/nlopes/slack"
 	log "github.com/sirupsen/logrus"
 	"github.com/ubclaunchpad/rocket/cmd"
@@ -30,10 +32,29 @@ func (core *CorePlugin) viewTeam(c cmd.Context) (string, slack.PostMessageParame
 	team := model.Team{
 		Name: c.Options["team"].Value,
 	}
+
+	// Fetch team from DB
 	if err := core.Bot.DAL.GetTeamByName(&team); err != nil {
 		log.WithError(err).Error("Failed to get team " + team.Name)
 		return "Failed to get team " + team.Name, params
 	}
+
 	params.Attachments = team.SlackAttachments()
+
+	// Fetch GitHub team name since we don't store it in the DB
+	if ghTeam, err := core.Bot.GitHub.GetTeam(team.GithubTeamID); err == nil {
+		ghNameAttachment := slack.Attachment{
+			Text:  "GitHub Team Name: " + *ghTeam.Name,
+			Color: "good",
+		}
+		params.Attachments = append(params.Attachments, ghNameAttachment)
+	} else {
+		msg := fmt.Sprintf("Failed to find GitHub team with ID %d", team.GithubTeamID)
+		core.Bot.Log.WithError(err).Error(msg)
+		return "Found team " + team.Name +
+			", but an error occurred while fetching its associated GitHub team: " +
+			msg, params
+	}
+
 	return "Team " + team.Name, params
 }

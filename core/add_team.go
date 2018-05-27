@@ -27,6 +27,12 @@ func NewAddTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 				Format:   cmd.AnyRegex,
 				Required: true,
 			},
+			"github": &cmd.Option{
+				Key:      "github",
+				HelpText: "the name of the team to create on GitHub",
+				Format:   cmd.NameRegex,
+				Required: false,
+			},
 		},
 		HandleFunc: ch,
 	}
@@ -42,8 +48,12 @@ func (core *CorePlugin) addTeam(c cmd.Context) (string, slack.PostMessageParamet
 
 	teamName := c.Options["name"].Value
 	platform := c.Options["platform"].Value
-	// teamName = "Great Team", ghTeamName = "great-team"
+
+	// Set custom GitHub team name if applicable
 	ghTeamName := strings.ToLower(strings.Replace(teamName, " ", "-", -1))
+	if c.Options["github"].Value != "" {
+		ghTeamName = c.Options["github"].Value
+	}
 
 	// Create the team on GitHub
 	ghTeam, err := core.Bot.GitHub.CreateTeam(ghTeamName)

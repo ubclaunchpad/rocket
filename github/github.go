@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/ubclaunchpad/rocket/config"
@@ -81,6 +82,19 @@ func (api *API) CreateTeam(name string) (*gh.Team, error) {
 	}
 	t, _, err := api.Organizations.CreateTeam(context.Background(), "ubclaunchpad", team)
 	return t, err
+}
+
+func (api *API) GetTeam(id int) (*gh.Team, error) {
+	teams, _, err := api.Organizations.ListTeams(context.Background(), "ubclaunchpad", nil)
+	if err != nil {
+		return nil, err
+	}
+	for _, team := range teams {
+		if *team.ID == id {
+			return team, nil
+		}
+	}
+	return nil, fmt.Errorf("GitHub team with ID %d not found", id)
 }
 
 func (api *API) RemoveTeam(id int) error {

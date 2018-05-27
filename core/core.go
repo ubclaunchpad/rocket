@@ -34,6 +34,7 @@ func (cp *CorePlugin) Commands() []*cmd.Command {
 		NewViewTeamCmd(cp.viewTeam),
 		NewAddUserCmd(cp.addUser),
 		NewAddTeamCmd(cp.addTeam),
+		NewEditTeamCmd(cp.editTeam),
 		NewAddAdminCmd(cp.addAdmin),
 		NewRemoveAdminCmd(cp.removeAdmin),
 		NewRemoveUserCmd(cp.removeUser),
