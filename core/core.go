@@ -40,6 +40,7 @@ func (cp *CorePlugin) Commands() []*cmd.Command {
 		NewRemoveUserCmd(cp.removeUser),
 		NewRemoveTeamCmd(cp.removeTeam),
 		NewTeamsCmd(cp.listTeams),
+		NewAdminsCmd(cp.listAdmins),
 		NewRefreshCmd(cp.refresh),
 	}
 }
