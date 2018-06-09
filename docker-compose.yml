@@ -27,3 +27,4 @@ services:
       - postgres
     env_file:
       - .app.env
+    restart: on-failure
