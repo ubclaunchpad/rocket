@@ -2,6 +2,7 @@ package data
 
 import "github.com/ubclaunchpad/rocket/model"
 
+// CreateTeamMember inserts a team member into the database
 func (dal *DAL) CreateTeamMember(member *model.TeamMember) error {
 	_, err := dal.db.Model(member).
 		OnConflict("DO NOTHING").
@@ -9,6 +10,7 @@ func (dal *DAL) CreateTeamMember(member *model.TeamMember) error {
 	return err
 }
 
+// DeleteTeamMember removes team member from database
 func (dal *DAL) DeleteTeamMember(member *model.TeamMember) error {
 	_, err := dal.db.Model(member).
 		Where("team_github_team_id = ?team_github_team_id").

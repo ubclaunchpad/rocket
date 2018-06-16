@@ -1,6 +1,6 @@
 package model
 
-// TeamMember represents the concrete relationship between teams and mbmers
+// TeamMember represents the concrete relationship between teams and members
 // in the database.
 type TeamMember struct {
 	GithubTeamID  int    `sql:"team_github_team_id,pk"`

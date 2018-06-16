@@ -5,6 +5,7 @@ import (
 	"github.com/ubclaunchpad/rocket/model"
 )
 
+// GetTeamByName provides team with corresponding name
 func (dal *DAL) GetTeamByName(team *model.Team) error {
 	return dal.db.Model(team).
 		Where("name = ?name").
@@ -12,6 +13,7 @@ func (dal *DAL) GetTeamByName(team *model.Team) error {
 		Select()
 }
 
+// GetTeamByGithubID provides team with corresponding GitHub ID
 func (dal *DAL) GetTeamByGithubID(team *model.Team) error {
 	return dal.db.Model(team).
 		Where("github_team_id = ?github_team_id").
@@ -19,6 +21,7 @@ func (dal *DAL) GetTeamByGithubID(team *model.Team) error {
 		Select()
 }
 
+// GetTeams gets all current teams
 func (dal *DAL) GetTeams(teams *model.Teams) error {
 	return dal.db.Model(teams).
 		Column("Members").
@@ -29,12 +32,14 @@ func (dal *DAL) GetTeams(teams *model.Teams) error {
 		Select()
 }
 
+// GetTeamNames gets all names of current teams
 func (dal *DAL) GetTeamNames(teams *model.Teams) error {
 	return dal.db.Model(teams).
 		Column("name").
 		Select()
 }
 
+// CreateTeam inserts given team into the database
 func (dal *DAL) CreateTeam(team *model.Team) error {
 	_, err := dal.db.Model(team).
 		OnConflict("DO NOTHING").
@@ -42,6 +47,7 @@ func (dal *DAL) CreateTeam(team *model.Team) error {
 	return err
 }
 
+// UpdateTeam updates given team with new team
 func (dal *DAL) UpdateTeam(currentTeam, newTeam *model.Team) error {
 	// Only update values if they were set
 	if newTeam.Name != "" {
@@ -57,6 +63,7 @@ func (dal *DAL) UpdateTeam(currentTeam, newTeam *model.Team) error {
 	return err
 }
 
+// DeleteTeamByName deletes team with given name from the database
 func (dal *DAL) DeleteTeamByName(team *model.Team) error {
 	_, err := dal.db.Model(team).
 		Where("name = ?name").
