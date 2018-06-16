@@ -39,7 +39,7 @@ func NewAddTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // addTeam creates a new Launch Pad team.
-func (core *RocketPlugin) addTeam(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *Plugin) addTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 
 	if !c.User.IsAdmin {

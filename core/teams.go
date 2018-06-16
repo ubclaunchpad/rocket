@@ -18,7 +18,7 @@ func NewTeamsCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // listTeams displays Launch Pad teams
-func (core *RocketPlugin) listTeams(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *Plugin) listTeams(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	teams := model.Teams{}
 	if err := core.Bot.DAL.GetTeamNames(&teams); err != nil {

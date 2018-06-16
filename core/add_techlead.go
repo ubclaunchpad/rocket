@@ -26,7 +26,7 @@ func NewAddTechLeadCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // addTechLead makes an existing user and turns them into a tech lead
-func (core *RocketPlugin) addTechLead(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *Plugin) addTechLead(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	if !c.User.IsAdmin {
 		return "You must be an admin to use this command", noParams

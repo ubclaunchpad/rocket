@@ -18,7 +18,7 @@ func NewAdminsCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // listAdmins displays Launch Pad admins
-func (core *RocketPlugin) listAdmins(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *Plugin) listAdmins(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	members := model.Members{}
 	if err := core.Bot.DAL.GetAdmins(&members); err != nil {
