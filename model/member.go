@@ -19,7 +19,7 @@ type Member struct {
 	Position       string    `json:"position"`
 	Biography      string    `json:"biography"`
 	ImageURL       string    `json:"imageUrl"`
-	IsTechLead     bool      `json:"techLead"`
+	IsTechLead     bool      `json:"isTechLead"`
 	IsAdmin        bool      `json:"-"`
 	CreatedAt      time.Time `json:"-"`
 }

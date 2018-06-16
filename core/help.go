@@ -36,24 +36,23 @@ func (core *Plugin) help(c cmd.Context) (string, slack.PostMessageParameters) {
 			"command with `@rocket help command={COMMAND}`\n" +
 			"Example: `@rocket set name={A Guy} github={arealguy}`"
 
-		// Get length of longest command to generate nicely spaced spaces
-		// between command name and the corresponding description
-		longest := 0
+		// Get length of longest command to to evenly space command names and
+		// their descriptions
+		longestCmdLength := 0
 		for _, cmd := range core.Bot.Commands {
-			if len(cmd.Name) > longest {
-				longest = len(cmd.Name)
+			if len(cmd.Name) > longestCmdLength {
+				longestCmdLength = len(cmd.Name)
 			}
 		}
-		maxDividerSpace := longest + 1
 
 		// Format help text
 		cmds := "```\n"
 		for _, cmd := range core.Bot.Commands {
 			dividerSpace := ""
-			for i := 0; i < maxDividerSpace-len(cmd.Name); i++ {
+			for i := 0; i < longestCmdLength-len(cmd.Name); i++ {
 				dividerSpace += " "
 			}
-			cmds += fmt.Sprintf("%s%s%s\n", cmd.Name, dividerSpace, cmd.HelpText)
+			cmds += fmt.Sprintf("%s%s %s\n", cmd.Name, dividerSpace, cmd.HelpText)
 		}
 		cmds += "\n```"
 		commands := slack.Attachment{

@@ -7,7 +7,7 @@ import (
 	"github.com/ubclaunchpad/rocket/model"
 )
 
-// NewAddTechLeadCmd returns an add tech leadcommand that makes an existing user
+// NewAddTechLeadCmd returns an add tech lead command that makes an existing user
 // a tech lead (this action can only be performed by admins)
 func NewAddTechLeadCmd(ch cmd.CommandHandler) *cmd.Command {
 	return &cmd.Command{
@@ -37,7 +37,7 @@ func (core *Plugin) addTechLead(c cmd.Context) (string, slack.PostMessageParamet
 		IsAdmin: true,
 	}
 	if err := core.Bot.DAL.SetMemberIsTechLead(&member); err != nil {
-		log.WithError(err).Error("Failed to make user " + username + " tech lead")
+		log.WithError(err).Errorf("Failed to make user %s tech lead", username)
 		return "Failed to make user tech lead", noParams
 	}
 	return cmd.ToMention(member.SlackID) + " has been made a tech lead :tada:", noParams
