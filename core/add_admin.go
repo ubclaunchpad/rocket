@@ -26,7 +26,7 @@ func NewAddAdminCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // addAdmin makes an existing user and admin
-func (core *CorePlugin) addAdmin(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *RocketPlugin) addAdmin(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	if !c.User.IsAdmin {
 		return "You must be an admin to use this command", noParams

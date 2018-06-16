@@ -37,7 +37,7 @@ func NewEditTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // editTeam edits an existing Launch Pad team.
-func (core *CorePlugin) editTeam(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *RocketPlugin) editTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	if !c.User.IsAdmin {
 		return "You must be an admin to use this command", noParams

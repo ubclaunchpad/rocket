@@ -27,7 +27,7 @@ func NewViewTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // viewTeam displays a teams's information.
-func (core *CorePlugin) viewTeam(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *RocketPlugin) viewTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 	params := slack.PostMessageParameters{}
 	team := model.Team{
 		Name: c.Options["team"].Value,

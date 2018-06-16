@@ -55,7 +55,7 @@ func NewEditUserCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // Generic command for setting some information about the sender's profile.
-func (core *CorePlugin) editUser(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *RocketPlugin) editUser(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	if !c.User.IsAdmin {
 		return "You must be an admin to use this command", noParams

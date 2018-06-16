@@ -25,7 +25,7 @@ func NewRemoveTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // removeTeam removes a Launch Pad team.
-func (core *CorePlugin) removeTeam(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *RocketPlugin) removeTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	if !c.User.IsAdmin {
 		return "You must be an admin to use this command", noParams

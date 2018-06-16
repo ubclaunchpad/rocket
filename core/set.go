@@ -57,7 +57,7 @@ func NewSetCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // Generic command for setting some information about the sender's profile.
-func (core *CorePlugin) set(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *RocketPlugin) set(c cmd.Context) (string, slack.PostMessageParameters) {
 	params := slack.PostMessageParameters{}
 	githubChanged := false
 

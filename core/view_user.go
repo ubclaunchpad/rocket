@@ -25,7 +25,7 @@ func NewViewUserCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // viewUser displays a user's information.
-func (core *CorePlugin) viewUser(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *RocketPlugin) viewUser(c cmd.Context) (string, slack.PostMessageParameters) {
 	params := slack.PostMessageParameters{}
 	username := c.Options["user"].Value
 	user := model.Member{

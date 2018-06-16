@@ -26,7 +26,7 @@ func NewHelpCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // Send a help message
-func (core *CorePlugin) help(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *RocketPlugin) help(c cmd.Context) (string, slack.PostMessageParameters) {
 	params := slack.PostMessageParameters{}
 	res := ""
 	opt := c.Options["command"].Value

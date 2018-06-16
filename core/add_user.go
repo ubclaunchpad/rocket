@@ -33,7 +33,7 @@ func NewAddUserCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // addUser adds an existing user to a team.
-func (core *CorePlugin) addUser(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *RocketPlugin) addUser(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	username := c.Options["user"].Value
 	teamName := c.Options["team"].Value
