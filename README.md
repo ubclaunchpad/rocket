@@ -30,7 +30,7 @@ type Plugin interface {
 }
 ```
 
-The prime example of a plugin is Rocket's [Core](core/core.go) plugin which provides basic Launch Pad administration commands for managing teams and users on both Slack and GitHub. An even simpler plugin example is the [WelcomePlugin](welcome/welcome.go) that welcomes users when they join our Slack workspace:
+The prime example of a plugin is Rocket's [Core](plugins/core/core.go) plugin which provides basic Launch Pad administration commands for managing teams and users on both Slack and GitHub. An even simpler plugin example is the [WelcomePlugin](plugins/welcome/welcome.go) that welcomes users when they join our Slack workspace:
 
 ```go
 // Start starts the welcome plugin.
@@ -47,7 +47,7 @@ func (wp *WelcomePlugin) EventHandlers() map[string]bot.EventHandler {
 
 You can use the `Start` method of your plugin to start any background tasks you need to. Any `Commands` and `EventHandlers` you expose to Rocket in your implementation of the Plugin interface will be automatically registered with the `Bot`. See the Slack's [API Event Types](https://api.slack.com/events) for a list of events and their names if you implement your own `EventHandler`s for your plugin.
 
-When creating a new plugin, make a new package for your plugin at the same level as the `core` package, create your type that implements the `Plugin` interface, and register your plugin in [plugin.RegisterPlugins](plugin/plugin.go). It is recommended that you place any commands you write for your plugin in their own separate files under your plugin's package.
+When creating a new plugin, make a new package for your plugin at the same level as the `core` package (within the `plugins` directory), create your type that implements the `Plugin` interface, and register your plugin in [plugin.RegisterPlugins](plugin/plugin.go). It is recommended that you place any commands you write for your plugin in their own separate files under your plugin's package.
 
 #### Commands
 

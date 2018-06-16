@@ -3,8 +3,10 @@ package plugin
 import (
 	"github.com/ubclaunchpad/rocket/bot"
 	"github.com/ubclaunchpad/rocket/cmd"
-	"github.com/ubclaunchpad/rocket/core"
-	"github.com/ubclaunchpad/rocket/welcome"
+
+	// Place registered plugin imports here
+	"github.com/ubclaunchpad/rocket/plugins/core"
+	"github.com/ubclaunchpad/rocket/plugins/welcome"
 )
 
 // Plugin is any type that exposes Slack commands and event handlers, and can
