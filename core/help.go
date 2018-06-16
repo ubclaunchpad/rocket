@@ -32,13 +32,30 @@ func (core *CorePlugin) help(c cmd.Context) (string, slack.PostMessageParameters
 	opt := c.Options["command"].Value
 	if opt == "" {
 		// General help
-		res = "Usage: @rocket COMMAND\n\nGet help using a specific " +
-			"command with \"@rocket help command={COMMAND}\"\n" +
-			"Example: @rocket set name={A Guy} github={arealguy}"
-		cmds := ""
+		res = "Usage: `@rocket COMMAND`\n\nGet help using a specific " +
+			"command with `@rocket help command={COMMAND}`\n" +
+			"Example: `@rocket set name={A Guy} github={arealguy}`"
+
+		// Get length of longest command to generate nicely spaced spaces
+		// between command name and the corresponding description
+		longest := 0
 		for _, cmd := range core.Bot.Commands {
-			cmds += fmt.Sprintf("%s\t\t%s\n", cmd.Name, cmd.HelpText)
+			if len(cmd.Name) > longest {
+				longest = len(cmd.Name)
+			}
 		}
+		maxDividerSpace := longest + 1
+
+		// Format help text
+		cmds := "```\n"
+		for _, cmd := range core.Bot.Commands {
+			dividerSpace := ""
+			for i := 0; i < maxDividerSpace-len(cmd.Name); i++ {
+				dividerSpace += " "
+			}
+			cmds += fmt.Sprintf("%s%s%s\n", cmd.Name, dividerSpace, cmd.HelpText)
+		}
+		cmds += "\n```"
 		commands := slack.Attachment{
 			Title: "Commands",
 			Text:  cmds,
@@ -53,7 +70,7 @@ func (core *CorePlugin) help(c cmd.Context) (string, slack.PostMessageParameters
 			return cmd.Help()
 		}
 	}
-	res = fmt.Sprintf("\"%s\" is not a Rocket command.\n"+
-		"See \"@rocket help\"", opt)
+	res = fmt.Sprintf("`%s` is not a Rocket command.\n"+
+		"See `@rocket help`", opt)
 	return res, slack.PostMessageParameters{}
 }
