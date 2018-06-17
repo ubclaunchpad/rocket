@@ -71,6 +71,15 @@ func New(cfg *config.Config, dal *data.DAL, gh *github.API, log *log.Entry) *Bot
 	return b
 }
 
+// NewEmptyBot returns a bare-bones, empty bot used for testing
+func NewEmptyBot() *Bot {
+	return &Bot{
+		Commands: map[string]*cmd.Command{},
+		handlers: map[string][]EventHandler{},
+		Log:      log.WithField("test", "test"),
+	}
+}
+
 // RegisterEventHandlers registers a handlers for different events. These
 // handlers will be called when an event of the corresponding type is received.
 func (b *Bot) RegisterEventHandlers(handlers map[string]EventHandler) {
