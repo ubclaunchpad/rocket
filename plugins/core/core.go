@@ -35,15 +35,14 @@ func (cp *Plugin) Commands() []*cmd.Command {
 		NewAddUserCmd(cp.addUser),
 		NewAddTeamCmd(cp.addTeam),
 		NewEditTeamCmd(cp.editTeam),
-		NewAddAdminCmd(cp.addAdmin),
-		NewRemoveAdminCmd(cp.removeAdmin),
+		NewSetAdminCmd(cp.setAdmin),
 		NewRemoveUserCmd(cp.removeUser),
 		NewRemoveTeamCmd(cp.removeTeam),
 		NewTeamsCmd(cp.listTeams),
 		NewAdminsCmd(cp.listAdmins),
 		NewRefreshCmd(cp.refresh),
 		NewTechLeadsCmd(cp.listTechLeads),
-		NewAddTechLeadCmd(cp.addTechLead),
+		NewSetTechLeadCmd(cp.setTechLead),
 	}
 }
 

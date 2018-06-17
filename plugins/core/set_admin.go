@@ -7,16 +7,16 @@ import (
 	"github.com/ubclaunchpad/rocket/model"
 )
 
-// NewAddAdminCmd returns an add admin command that makes an existing user an
+// NewSetAdminCmd returns an add admin command that makes an existing user an
 // admin (this action can only be performed by admins)
-func NewAddAdminCmd(ch cmd.CommandHandler) *cmd.Command {
+func NewSetAdminCmd(ch cmd.CommandHandler) *cmd.Command {
 	return &cmd.Command{
-		Name:     "add-admin",
-		HelpText: "Make an existing user an admin (admins only)",
+		Name:     "set-admin",
+		HelpText: "Toggle an existing user's admin status (admins only)",
 		Options: map[string]*cmd.Option{
 			"user": &cmd.Option{
 				Key:      "user",
-				HelpText: "the Slack handle of the user to make an admin",
+				HelpText: "the Slack handle of the user to update",
 				Format:   cmd.AnyRegex,
 				Required: true,
 			},
@@ -25,8 +25,8 @@ func NewAddAdminCmd(ch cmd.CommandHandler) *cmd.Command {
 	}
 }
 
-// addAdmin makes an existing user and admin
-func (core *Plugin) addAdmin(c cmd.Context) (string, slack.PostMessageParameters) {
+// setAdmin toggles an existing user's admin status
+func (core *Plugin) setAdmin(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	if !c.User.IsAdmin {
 		return "You must be an admin to use this command", noParams
@@ -37,8 +37,8 @@ func (core *Plugin) addAdmin(c cmd.Context) (string, slack.PostMessageParameters
 		IsAdmin: true,
 	}
 	if err := core.Bot.DAL.SetMemberIsAdmin(&member); err != nil {
-		log.WithError(err).Error("Failed to make user " + username + " admin")
-		return "Failed to make user admin", noParams
+		log.WithError(err).Error("Failed to update %s's admin status", username)
+		return "Failed to update admin status", noParams
 	}
-	return cmd.ToMention(member.SlackID) + " has been made an admin :tada:", noParams
+	return cmd.ToMention(member.SlackID) + "'s admin status has been updated :tada:", noParams
 }
