@@ -13,7 +13,7 @@ import (
 // user's tech lead status (this action can only be performed by admins)
 func NewToggleTechLeadCmd(ch cmd.CommandHandler) *cmd.Command {
 	return &cmd.Command{
-		Name:     "toggle-techlead",
+		Name:     "toggle-tech-lead",
 		HelpText: "Toggle an existing user's tech lead status (admins only)",
 		Options: map[string]*cmd.Option{
 			"user": &cmd.Option{

@@ -10,7 +10,7 @@ import (
 // NewTechLeadsCmd returns a teams command that displays a list of Launch Pad teams
 func NewTechLeadsCmd(ch cmd.CommandHandler) *cmd.Command {
 	return &cmd.Command{
-		Name:       "techleads",
+		Name:       "tech-leads",
 		HelpText:   "List Launch Pad tech leads",
 		Options:    map[string]*cmd.Option{},
 		HandleFunc: ch,
