@@ -8,6 +8,9 @@ import (
 )
 
 func TestMemberCreateGetUpdateRemove(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
 	dal := newTestDBConnection()
 	defer dal.Close()
 

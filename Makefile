@@ -1,21 +1,25 @@
-all: rocket
+all: deps
 
-.PHONY: rocket
 rocket:
 	go install
 
 .PHONY: deps
 deps:
-	glide install
+	dep ensure
 
 .PHONY: clean
 clean:
-	rm rocket
+	rm -f rocket
 	pg_ctl -D /usr/local/var/postgres stop -s -m fast
 
 .PHONY: test
 test:
+	go test ./... -short -cover
+
+.PHONY: test-integration
+test-integration: mock-db
 	go test ./... -cover
+	make clean
 
 # Sets up a local database for testing
 .PHONY: mock-db
