@@ -8,7 +8,7 @@ CREATE TABLE members (
     position TEXT,
     biography TEXT,
     image_url TEXT,
-    is_techlead BOOLEAN DEFAULT false,
+    is_tech_lead BOOLEAN DEFAULT false,
     is_admin BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (now() at time zone 'utc')
 );
