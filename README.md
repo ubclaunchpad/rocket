@@ -30,17 +30,17 @@ type Plugin interface {
 }
 ```
 
-The prime example of a plugin is Rocket's [Core](plugins/core/core.go) plugin which provides basic Launch Pad administration commands for managing teams and users on both Slack and GitHub. An even simpler plugin example is the [WelcomePlugin](plugins/welcome/welcome.go) that welcomes users when they join our Slack workspace:
+The prime example of a plugin is Rocket's [Core](plugins/core/core.go) plugin which provides basic Launch Pad administration commands for managing teams and users on both Slack and GitHub. An even simpler plugin example is the [welcome plugin](plugins/welcome/welcome.go) that welcomes users when they join our Slack workspace:
 
 ```go
 // Start starts the welcome plugin.
-func (wp *WelcomePlugin) Start() error { return nil }
+func (wp *Plugin) Start() error { return nil }
 
 // Commands returns an empty list of commands, because this plugin has no commands.
-func (wp *WelcomePlugin) Commands() []*cmd.Command { return []*cmd.Command{} }
+func (wp *Plugin) Commands() []*cmd.Command { return []*cmd.Command{} }
 
 // EventHandlers returns a map from event type to event handler.
-func (wp *WelcomePlugin) EventHandlers() map[string]bot.EventHandler {
+func (wp *Plugin) EventHandlers() map[string]bot.EventHandler {
 	return map[string]bot.EventHandler{"team_join": wp.handleTeamJoin}
 }
 ```

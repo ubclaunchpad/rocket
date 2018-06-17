@@ -21,7 +21,7 @@ const (
 	errorMessage = "Oops, an error occurred :robot_face:. Bruno must have " +
 		"coded a bug... Sorry about that!"
 
-	// ID for the `all` team that everyone should be on
+	// GithubAllTeamID for the `all` team that everyone should be on
 	GithubAllTeamID = 2467607
 )
 
