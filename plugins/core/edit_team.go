@@ -11,7 +11,7 @@ import (
 func NewEditTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 	return &cmd.Command{
 		Name:     "edit-team",
-		HelpText: "Update an existing Launch Pad team",
+		HelpText: "Update an existing Launch Pad team (admins and tech leads only)",
 		Options: map[string]*cmd.Option{
 			"team": &cmd.Option{
 				Key:      "team",
@@ -39,8 +39,8 @@ func NewEditTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 // editTeam edits an existing Launch Pad team.
 func (core *Plugin) editTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
-	if !c.User.IsAdmin {
-		return "You must be an admin to use this command", noParams
+	if !c.User.IsAdmin && !c.User.IsTechLead {
+		return "You must be an admin or tech lead to use this command", noParams
 	}
 
 	currentName := c.Options["team"].Value
