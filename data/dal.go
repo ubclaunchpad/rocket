@@ -1,9 +1,11 @@
 package data
 
 import (
+	"errors"
 	"time"
 
 	"github.com/go-pg/pg"
+	"github.com/go-pg/pg/orm"
 	log "github.com/sirupsen/logrus"
 	"github.com/ubclaunchpad/rocket/config"
 )
@@ -11,7 +13,7 @@ import (
 // DAL represents the data abstraction layer and provides an interface to the
 // database. This is just a wrapper around the PG database object.
 type DAL struct {
-	db *pg.DB
+	db orm.DB
 }
 
 // New returns a new DAL instance based on a configuration object.
@@ -46,5 +48,9 @@ func (dal *DAL) Ping() error {
 
 // Close closes the connection to the database.
 func (dal *DAL) Close() error {
-	return dal.db.Close()
+	database, ok := dal.db.(*pg.DB)
+	if !ok {
+		return errors.New("dal.db not of type *pg.DB")
+	}
+	return database.Close()
 }

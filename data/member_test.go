@@ -11,15 +11,16 @@ func TestMemberCreateGetUpdateRemove(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	dal := newTestDBConnection()
-	defer dal.Close()
+	dal, cleanupFunc, err := newTestDBConnection()
+	assert.Nil(t, err)
+	defer cleanupFunc()
 
 	// Create a new member
 	member := &model.Member{
 		SlackID: "1234",
 		Name:    "Big Bruno",
 	}
-	err := dal.CreateMember(member)
+	err = dal.CreateMember(member)
 	assert.Nil(t, err)
 
 	// Get existing member
@@ -46,4 +47,32 @@ func TestMemberCreateGetUpdateRemove(t *testing.T) {
 	assert.Nil(t, err)
 	err = dal.GetMemberBySlackID(&model.Member{SlackID: "1234"})
 	assert.NotNil(t, err)
+}
+
+func TestSetMemberIsAdmin(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+	dal, cleanupFunc, err := newTestDBConnection()
+	assert.Nil(t, err)
+	defer cleanupFunc()
+
+	// Create a new member
+	member := &model.Member{
+		SlackID: "1234",
+		Name:    "Big Bruno",
+		IsAdmin: true,
+	}
+	err = dal.CreateMember(member)
+	assert.Nil(t, err)
+
+	// Set member admin status
+	err = dal.SetMemberIsAdmin(&model.Member{SlackID: "1234"})
+	assert.Nil(t, err)
+
+	// Get member
+	memberGet := &model.Member{SlackID: "1234"}
+	err = dal.GetMemberBySlackID(memberGet)
+	assert.Nil(t, err)
+	assert.False(t, memberGet.IsAdmin)
 }
