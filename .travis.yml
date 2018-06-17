@@ -14,8 +14,8 @@ before_install:
 install:
   - dep ensure
 
-services:
-  - postgresql
+addons:
+  postgresql: "9.6"
 
 before_script:
   - psql -c 'create database rocket_test_db;' -U postgres
