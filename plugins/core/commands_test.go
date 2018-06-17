@@ -36,12 +36,12 @@ func getTestBot() *bot.Bot {
 		"viewteam":    NewViewTeamCmd(cp.viewTeam),
 		"adduser":     NewAddUserCmd(cp.addUser),
 		"addteam":     NewAddTeamCmd(cp.addTeam),
-		"setadmin":    NewSetAdminCmd(cp.setAdmin),
+		"setadmin":    NewToggleAdminCmd(cp.toggleAdmin),
 		"removeuser":  NewRemoveUserCmd(cp.removeUser),
 		"removeteam":  NewRemoveTeamCmd(cp.removeTeam),
 		"teams":       NewTeamsCmd(cp.listTeams),
 		"refresh":     NewRefreshCmd(cp.refresh),
-		"settechlead": NewSetTechLeadCmd(cp.setTechLead),
+		"settechlead": NewToggleTechLeadCmd(cp.toggleTechLead),
 		"techleads":   NewTechLeadsCmd(cp.listTechLeads),
 	}
 	return b

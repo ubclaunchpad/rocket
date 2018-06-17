@@ -150,7 +150,7 @@ func (dal *DAL) SetMemberImageURL(member *model.Member) error {
 	return err
 }
 
-// SetMemberIsAdmin updates the whether the given member is an admin in the DB
+// SetMemberIsAdmin updates whether the given member is an admin in the DB
 // or returns an error.
 func (dal *DAL) SetMemberIsAdmin(member *model.Member) error {
 	_, err := dal.db.Model(member).
@@ -160,7 +160,7 @@ func (dal *DAL) SetMemberIsAdmin(member *model.Member) error {
 	return err
 }
 
-// SetMemberIsTechLead updates the whether the given member is a tech lead in
+// SetMemberIsTechLead updates whether the given member is a tech lead in
 // the DB or returns an error.
 func (dal *DAL) SetMemberIsTechLead(member *model.Member) error {
 	_, err := dal.db.Model(member).

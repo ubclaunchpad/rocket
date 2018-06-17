@@ -1,17 +1,19 @@
 package core
 
 import (
+	"fmt"
+
 	"github.com/nlopes/slack"
 	log "github.com/sirupsen/logrus"
 	"github.com/ubclaunchpad/rocket/cmd"
 	"github.com/ubclaunchpad/rocket/model"
 )
 
-// NewSetAdminCmd returns an add admin command that makes an existing user an
+// NewToggleAdminCmd returns an add admin command that makes an existing user an
 // admin (this action can only be performed by admins)
-func NewSetAdminCmd(ch cmd.CommandHandler) *cmd.Command {
+func NewToggleAdminCmd(ch cmd.CommandHandler) *cmd.Command {
 	return &cmd.Command{
-		Name:     "set-admin",
+		Name:     "toggle-admin",
 		HelpText: "Toggle an existing user's admin status (admins only)",
 		Options: map[string]*cmd.Option{
 			"user": &cmd.Option{
@@ -25,20 +27,28 @@ func NewSetAdminCmd(ch cmd.CommandHandler) *cmd.Command {
 	}
 }
 
-// setAdmin toggles an existing user's admin status
-func (core *Plugin) setAdmin(c cmd.Context) (string, slack.PostMessageParameters) {
+// toggleAdmin toggles an existing user's admin status
+func (core *Plugin) toggleAdmin(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	if !c.User.IsAdmin {
 		return "You must be an admin to use this command", noParams
 	}
 	username := c.Options["user"].Value
-	member := model.Member{
-		SlackID: cmd.ParseMention(username),
-		IsAdmin: true,
+	member := &model.Member{SlackID: cmd.ParseMention(username)}
+	err := core.Bot.DAL.GetMemberBySlackID(member)
+	if err != nil {
+		log.WithError(err).Error("Failed to get %s", username)
+		return "Failed to find user", noParams
 	}
-	if err := core.Bot.DAL.SetMemberIsAdmin(&member); err != nil {
+
+	// Update member admin status
+	member.IsAdmin = !member.IsAdmin
+	if err := core.Bot.DAL.SetMemberIsAdmin(member); err != nil {
 		log.WithError(err).Error("Failed to update %s's admin status", username)
 		return "Failed to update admin status", noParams
 	}
-	return cmd.ToMention(member.SlackID) + "'s admin status has been updated :tada:", noParams
+	return fmt.Sprintf(
+		"Set %s's admin status has been set to %t :tada:",
+		cmd.ToMention(member.SlackID), member.IsAdmin,
+	), noParams
 }
