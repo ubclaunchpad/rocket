@@ -107,5 +107,5 @@ func TestCommandHelp(t *testing.T) {
 	cmd := getTestCommand(testHandler)
 	res, _ := cmd.Help()
 	assert.Equal(t, res,
-		"Usage: @rocket test OPTIONS\n\nfake command with two options")
+		"Usage: `@rocket test OPTIONS`\n\nfake command with two options")
 }

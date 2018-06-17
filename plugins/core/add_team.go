@@ -13,7 +13,7 @@ import (
 func NewAddTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 	return &cmd.Command{
 		Name:     "add-team",
-		HelpText: "Create a new Launch Pad team",
+		HelpText: "Create a new Launch Pad team (admins and tech leads only)",
 		Options: map[string]*cmd.Option{
 			"name": &cmd.Option{
 				Key:      "name",
@@ -39,11 +39,11 @@ func NewAddTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // addTeam creates a new Launch Pad team.
-func (core *CorePlugin) addTeam(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *Plugin) addTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 
-	if !c.User.IsAdmin {
-		return "You must be an admin to use this command", noParams
+	if !c.User.IsAdmin && !c.User.IsTechLead {
+		return "You must be an admin or tech lead to use this command", noParams
 	}
 
 	teamName := c.Options["name"].Value

@@ -18,6 +18,14 @@ func (dal *DAL) GetMembers(members *model.Members) error {
 		Select()
 }
 
+// GetTechLeads populates given members with all current tech leads
+func (dal *DAL) GetTechLeads(members *model.Members) error {
+	return dal.db.Model(members).
+		Where("is_techlead = 't'").
+		Order("name ASC").
+		Select()
+}
+
 // GetAdmins populates the given members with information for all admin members
 // or returns an error.
 func (dal *DAL) GetAdmins(members *model.Members) error {
@@ -142,11 +150,21 @@ func (dal *DAL) SetMemberImageURL(member *model.Member) error {
 	return err
 }
 
-// SetMemberIsAdmin updates the whether the given member is an admin in the DB
+// SetMemberIsAdmin updates whether the given member is an admin in the DB
 // or returns an error.
 func (dal *DAL) SetMemberIsAdmin(member *model.Member) error {
 	_, err := dal.db.Model(member).
 		Set("is_admin = ?is_admin").
+		Update()
+
+	return err
+}
+
+// SetMemberIsTechLead updates whether the given member is a tech lead in
+// the DB or returns an error.
+func (dal *DAL) SetMemberIsTechLead(member *model.Member) error {
+	_, err := dal.db.Model(member).
+		Set("is_techlead = ?is_techlead").
 		Update()
 
 	return err

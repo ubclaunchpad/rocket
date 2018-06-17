@@ -19,10 +19,12 @@ type Member struct {
 	Position       string    `json:"position"`
 	Biography      string    `json:"biography"`
 	ImageURL       string    `json:"imageUrl"`
+	IsTechLead     bool      `json:"isTechLead"`
 	IsAdmin        bool      `json:"-"`
 	CreatedAt      time.Time `json:"-"`
 }
 
+// Members is a list of members
 type Members []*Member
 
 // SlackAttachments creates and returns a set of Slack attachments (strictly
@@ -61,6 +63,13 @@ func (m *Member) SlackAttachments() []slack.Attachment {
 		if len(attachment.Text) == 0 {
 			attachment.Color = "danger"
 		}
+	}
+
+	if m.IsTechLead {
+		attachments = append(attachments, slack.Attachment{
+			Text:  "Tech Lead",
+			Color: "good",
+		})
 	}
 
 	return attachments

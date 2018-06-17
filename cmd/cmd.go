@@ -38,15 +38,15 @@ func (c *Command) Execute(ctx Context) (string, slack.PostMessageParameters, err
 
 // Help returns full help text for the given command
 func (c *Command) Help() (string, slack.PostMessageParameters) {
-	usage := "Usage: @rocket " + c.Name
+	usage := "Usage: `@rocket " + c.Name + ""
 	opts := ""
 	attachments := []slack.Attachment{}
 	if len(c.Options) > 0 {
-		usage += " OPTIONS"
+		usage += " OPTIONS`"
 		opts = ""
 		for _, o := range c.Options {
 			if o.Required {
-				opts += fmt.Sprintf("%s (required): %s\n", o.Key, o.HelpText)
+				opts += fmt.Sprintf("`%s` (required): %s\n", o.Key, o.HelpText)
 			} else {
 				opts += fmt.Sprintf("%s: %s\n", o.Key, o.HelpText)
 			}
@@ -56,6 +56,8 @@ func (c *Command) Help() (string, slack.PostMessageParameters) {
 			Text:  opts,
 			Color: "#e5e7ea",
 		})
+	} else {
+		usage += "`"
 	}
 	params := slack.PostMessageParameters{Attachments: attachments}
 	return fmt.Sprintf("%s\n\n%s", usage, c.HelpText), params

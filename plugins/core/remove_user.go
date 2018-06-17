@@ -32,7 +32,7 @@ func NewRemoveUserCmd(ch cmd.CommandHandler) *cmd.Command {
 }
 
 // removeUser removes a user from a team.
-func (core *CorePlugin) removeUser(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *Plugin) removeUser(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	if !c.User.IsAdmin {
 		return "You must be an admin to use this command", noParams

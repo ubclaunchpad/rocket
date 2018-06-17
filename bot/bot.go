@@ -21,7 +21,7 @@ const (
 	errorMessage = "Oops, an error occurred :robot_face:. Bruno must have " +
 		"coded a bug... Sorry about that!"
 
-	// ID for the `all` team that everyone should be on
+	// GithubAllTeamID for the `all` team that everyone should be on
 	GithubAllTeamID = 2467607
 )
 
@@ -69,6 +69,15 @@ func New(cfg *config.Config, dal *data.DAL, gh *github.API, log *log.Entry) *Bot
 		"user_change": b.handleUserChange,
 	})
 	return b
+}
+
+// NewEmptyBot returns a bare-bones, empty bot used for testing
+func NewEmptyBot() *Bot {
+	return &Bot{
+		Commands: map[string]*cmd.Command{},
+		handlers: map[string][]EventHandler{},
+		Log:      log.WithField("test", "test"),
+	}
 }
 
 // RegisterEventHandlers registers a handlers for different events. These

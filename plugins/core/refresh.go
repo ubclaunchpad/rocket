@@ -20,7 +20,7 @@ func NewRefreshCmd(ch cmd.CommandHandler) *cmd.Command {
 // refresh is a command for debugging strange behaviour without restarting the
 // whole app. It refreshes the user cache and creates any users that don't
 // already exist.
-func (core *CorePlugin) refresh(c cmd.Context) (string, slack.PostMessageParameters) {
+func (core *Plugin) refresh(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
 	if !c.User.IsAdmin {
 		return "You must be an admin to use this command", noParams

@@ -19,6 +19,7 @@ type Team struct {
 	Members []*Member `sql:"-" json:"members" pg:",many2many:team_members,joinFK:Member"`
 }
 
+// Teams is a list of teams
 type Teams []*Team
 
 // SlackAttachments creates and returns a set of Slack attachments (strictly
@@ -26,10 +27,16 @@ type Teams []*Team
 // and list of members.
 func (t *Team) SlackAttachments() []slack.Attachment {
 	members := []string{}
+	leads := []string{}
 	for _, member := range t.Members {
-		members = append(members, member.Name)
+		if !member.IsTechLead {
+			members = append(members, member.Name)
+		} else {
+			leads = append(leads, member.Name)
+		}
 	}
 	membersString := strings.Join(members, ", ")
+	leadsString := strings.Join(leads, ", ")
 
 	attachments := []slack.Attachment{
 		slack.Attachment{
@@ -38,6 +45,10 @@ func (t *Team) SlackAttachments() []slack.Attachment {
 		},
 		slack.Attachment{
 			Text:  "Platform: " + t.Platform,
+			Color: "good",
+		},
+		slack.Attachment{
+			Text:  "Leads: " + leadsString,
 			Color: "good",
 		},
 		slack.Attachment{
