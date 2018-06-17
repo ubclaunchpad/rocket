@@ -42,6 +42,8 @@ func (cp *Plugin) Commands() []*cmd.Command {
 		NewTeamsCmd(cp.listTeams),
 		NewAdminsCmd(cp.listAdmins),
 		NewRefreshCmd(cp.refresh),
+		NewTechLeadsCmd(cp.listTechLeads),
+		NewAddTechLeadCmd(cp.addTechLead),
 	}
 }
 
