@@ -10,7 +10,7 @@ deps:
 .PHONY: clean
 clean:
 	rm -f rocket
-	pg_ctl -D /usr/local/var/postgres stop -s -m fast
+	docker-compose -f docker-compose.test.yml down
 
 .PHONY: test
 test:
@@ -24,7 +24,7 @@ test-integration: mock-db
 # Sets up a local database for testing
 .PHONY: mock-db
 mock-db:
-	sh mock_db.sh
+	docker-compose -f docker-compose.test.yml up -d
 
 .PHONY: docker
 docker:

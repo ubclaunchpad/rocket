@@ -14,12 +14,11 @@ before_install:
 install:
   - dep ensure
 
-addons:
-  postgresql: "9.6"
+services:
+  - docker
 
 before_script:
-  - psql -c 'create database rocket_test_db;' -U postgres
-  - psql -d rocket_test_db -a -f ./schema/tables.sql
+  - make mock-db
 
 script:
   - go test -race -coverprofile=coverage.out ./...

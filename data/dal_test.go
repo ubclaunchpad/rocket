@@ -2,7 +2,6 @@ package data
 
 import (
 	"errors"
-	"os"
 	"testing"
 
 	"github.com/go-pg/pg"
@@ -12,17 +11,13 @@ import (
 
 func newTestDBConnection() (*DAL, func(), error) {
 	// Connect to database
-	cfg := &config.Config{
+	dal := New(&config.Config{
 		PostgresHost:     "localhost",
-		PostgresPort:     "5432",
+		PostgresPort:     "5433",
 		PostgresDatabase: "rocket_test_db",
-	}
-	if os.Getenv("TRAVIS") == "true" {
-		cfg.PostgresUser = "postgres"
-	} else {
-		cfg.PostgresUser = "rocket_test"
-	}
-	dal := New(cfg)
+		PostgresUser:     "rocket_test",
+		PostgresPass:     "rickroll",
+	})
 
 	// Begin transaction
 	database, ok := dal.db.(*pg.DB)
