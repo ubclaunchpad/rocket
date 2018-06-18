@@ -21,7 +21,7 @@ func (dal *DAL) GetMembers(members *model.Members) error {
 // GetTechLeads populates given members with all current tech leads
 func (dal *DAL) GetTechLeads(members *model.Members) error {
 	return dal.db.Model(members).
-		Where("is_techlead = 't'").
+		Where("is_tech_lead = 't'").
 		Order("name ASC").
 		Select()
 }
@@ -164,7 +164,7 @@ func (dal *DAL) SetMemberIsAdmin(member *model.Member) error {
 // the DB or returns an error.
 func (dal *DAL) SetMemberIsTechLead(member *model.Member) error {
 	_, err := dal.db.Model(member).
-		Set("is_techlead = ?is_techlead").
+		Set("is_tech_lead = ?is_tech_lead").
 		Update()
 
 	return err
