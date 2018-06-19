@@ -20,6 +20,11 @@ func main() {
 	// URL, database, and password specified in the config. This will panic
 	// if we fail to connect to the database.
 	dal := data.New(cfg)
+	defer func() {
+		if err := dal.Close(); err != nil {
+			log.WithError(err)
+		}
+	}()
 
 	// Create a client to the GitHub API, using the token from the config.
 	gh := github.New(cfg)
