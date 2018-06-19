@@ -57,6 +57,7 @@ func (dal *DAL) UpdateTeam(currentTeam, newTeam *model.Team) error {
 		currentTeam.Platform = newTeam.Platform
 	}
 	_, err := dal.db.Model(currentTeam).
+		WherePK().
 		Update(
 			"name", currentTeam.Name,
 			"platform", currentTeam.Platform)

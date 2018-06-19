@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./schema/tables.sql:/docker-entrypoint-initdb.d/tables.sql
+    env_file:
+      - .db.env.test

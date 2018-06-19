@@ -65,6 +65,7 @@ func (dal *DAL) UpdateMember(member *model.Member) error {
 		existing.Position = member.Position
 	}
 	_, err := dal.db.Model(existing).
+		WherePK().
 		Update(
 			"name", existing.Name,
 			"email", existing.Email,
@@ -84,6 +85,7 @@ func (dal *DAL) DeleteMember(member *model.Member) error {
 // an error.
 func (dal *DAL) SetMemberName(member *model.Member) error {
 	_, err := dal.db.Model(member).
+		WherePK().
 		Set("name = ?name").
 		Update()
 
@@ -94,6 +96,7 @@ func (dal *DAL) SetMemberName(member *model.Member) error {
 // an error.
 func (dal *DAL) SetMemberEmail(member *model.Member) error {
 	_, err := dal.db.Model(member).
+		WherePK().
 		Set("email = ?email").
 		Update()
 
@@ -104,6 +107,7 @@ func (dal *DAL) SetMemberEmail(member *model.Member) error {
 // the DB or returns an error.
 func (dal *DAL) SetMemberGitHubUsername(member *model.Member) error {
 	_, err := dal.db.Model(member).
+		WherePK().
 		Set("github_username = ?github_username").
 		Update()
 
@@ -114,6 +118,7 @@ func (dal *DAL) SetMemberGitHubUsername(member *model.Member) error {
 // an error.
 func (dal *DAL) SetMemberMajor(member *model.Member) error {
 	_, err := dal.db.Model(member).
+		WherePK().
 		Set("program = ?program").
 		Update()
 
@@ -124,6 +129,7 @@ func (dal *DAL) SetMemberMajor(member *model.Member) error {
 // an error.
 func (dal *DAL) SetMemberPosition(member *model.Member) error {
 	_, err := dal.db.Model(member).
+		WherePK().
 		Set("position = ?position").
 		Update()
 
@@ -134,6 +140,7 @@ func (dal *DAL) SetMemberPosition(member *model.Member) error {
 // an error.
 func (dal *DAL) SetMemberBiography(member *model.Member) error {
 	_, err := dal.db.Model(member).
+		WherePK().
 		Set("biography = ?biography").
 		Update()
 
@@ -144,6 +151,7 @@ func (dal *DAL) SetMemberBiography(member *model.Member) error {
 // an error.
 func (dal *DAL) SetMemberImageURL(member *model.Member) error {
 	_, err := dal.db.Model(member).
+		WherePK().
 		Set("image_url = ?image_url").
 		Update()
 
@@ -154,6 +162,7 @@ func (dal *DAL) SetMemberImageURL(member *model.Member) error {
 // or returns an error.
 func (dal *DAL) SetMemberIsAdmin(member *model.Member) error {
 	_, err := dal.db.Model(member).
+		WherePK().
 		Set("is_admin = ?is_admin").
 		Update()
 
@@ -164,6 +173,7 @@ func (dal *DAL) SetMemberIsAdmin(member *model.Member) error {
 // the DB or returns an error.
 func (dal *DAL) SetMemberIsTechLead(member *model.Member) error {
 	_, err := dal.db.Model(member).
+		WherePK().
 		Set("is_tech_lead = ?is_tech_lead").
 		Update()
 

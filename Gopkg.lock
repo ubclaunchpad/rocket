@@ -17,8 +17,8 @@
     "orm",
     "types"
   ]
-  revision = "81c90201251e3435753431f688d6be110a0806ca"
-  version = "v6.4.0"
+  revision = "8c7fa0eed0d9e9d07fca2cc9e08e3171da0521d5"
+  version = "v6.13.5"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -134,6 +134,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "20e37c9a5ce27ec4d047ab31aa3c91c04c4fb24c3f140a74c67faab910d7d384"
+  inputs-digest = "7d0e2b7c8f74165b24057bf099f0f8455b689d0ed4fc0be47332f4202e67f6a8"
   solver-name = "gps-cdcl"
   solver-version = 1

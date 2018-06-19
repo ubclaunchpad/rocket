@@ -8,9 +8,17 @@ env:
     secure: mFPx3xxBJEl6JLz+135oTxmjd/iBnf+GbrvrvzYmIav/2SgS6mlUchSNgU/ru4v/PFZNi5UcZ2iuZoJ/S4cautuaQUfxUcb6c8kSTmmnGOxNusvPmmgr/FsIFJ+QKabA4jsO3PdSgm0ZiHCfFop2dohofdJEGZRFrCvMJmvPzwTWPVlDSuyBlFsS19pEbzPZJsx9EtA9G4dh60LASCQDcO+GgafOBn9gTYjHuNxWqbQEeT02HpgRCxSMAOK5aEuQIl3E5MtatFH/LszH9543VEj7zyo+sqqd5kPECLq78gpebl57kcnqlVnJglZd7/aM0NSDWto1eIR6k0IV/KKcBYhXeITcXjmpoBAz3JU217O8ouPCwvLcvZ1AwZytn+odinrcsRpwpNu9osuWoCYeJ/1QQg5IHp4l1VK4FdJ8P79wBV2r16ueCtj0oF+OhcxXT5WsCAfzpZCOwKdlYA97oNy563cbQ98I7e03GV2F/1Oq25Vvqa74yFCG93vEdjgHOsVD/eoAiUppLT7GnITt1Esa3+WuwQiiN0X2BKjU/1NVrLo/mmW05D5Onzgajst2GFcebCLzpy13zzZrdPnnbMI/bOpJ3PfYe0UZ4S7l1EmIUApeGljF4+78zegs1WYbuNvLSdojYLSUbhIDgdBS1MNmDs9KCjTFGzRsr3LEE4g=
 
 before_install:
-  - go get -u github.com/mattn/goveralls
-  - go get -u github.com/golang/dep/cmd/dep
+  - go get github.com/mattn/goveralls
+  - go get github.com/golang/dep/cmd/dep
+
+install:
   - dep ensure
+
+services:
+  - docker
+
+before_script:
+  - make mock-db
 
 script:
   - go test -race -coverprofile=coverage.out ./...

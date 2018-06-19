@@ -1,6 +1,34 @@
 # Rocket 🚀 [![GoDoc](https://godoc.org/github.com/ubclaunchpad/rocket?status.svg)](https://godoc.org/github.com/ubclaunchpad/rocket) [![Build Status](https://travis-ci.org/ubclaunchpad/rocket.svg?branch=master)](https://travis-ci.org/ubclaunchpad/rocket) [![Coverage Status](https://coveralls.io/repos/github/ubclaunchpad/rocket/badge.svg?branch=master)](https://coveralls.io/github/ubclaunchpad/rocket?branch=master)
 
-Rocket is the management and onboarding system for UBC Launch Pad. More information can be found in the [Wiki](https://github.com/ubclaunchpad/rocket/wiki).
+Rocket is the management and onboarding system for UBC Launch Pad. More information can be found in the [Wiki](https://github.com/ubclaunchpad/rocket/wiki). Rocket is a Slack bot you can talk to at ubclaunchpad.slack.com by messaging `@rocket`. It features GitHub integration, a robust command framework, and a simple interface through which plugins can easily be added.
+
+## Development
+
+To get started, make sure you have [Golang](https://golang.org/doc/install#install) installed and download the Rocket codebase:
+
+```bash
+$ go get github.com/ubclaunchpad/rocket
+$ cd $GOPATH/src/github.com/ubclaunchpad/rocket
+$ make                  # install dependencies
+$ make test             # run unit tests
+```
+
+Additional integration tests can be run if you have `postgres` installed (for Mac users, an easy way is to `brew install postgresql`):
+
+```bash
+$ make test-integration  # runs integration tests
+```
+
+Make sure you mark integration tests as `-short`-skippable:
+
+```go
+func TestMyIntegratedFunction(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+	// ...
+}
+```
 
 ## Architecture
 
@@ -73,29 +101,7 @@ When specifying an option for a command you'll need to fill in the following fie
 
 We use the [go-pg](https://github.com/go-pg/pg) for querying our Postgres database from Rocket. The `dal` package provides an interface to querying our database. The `model` package holds all our data structures that are used by the `dal` package in our queries.
 
-### Postgres
-
-#### Schema
-
-Our schema is defined in [tables.go](schema/tables.sql). If you're starting the database for the first time you'll need to execute that script:
-
-```bash
-# Copy tables.sql into the /tmp folder in the Postgres container
-$ docker cp schema/tables.sql <Postgres container ID>:/tmp/
-# Run a shell in the Postgres container
-$ docker-compose exec postgres bash
-# Execute the SQL script against the database
-$ psql -U <ROCKET_POSTGRESUSER> -d <ROCKET_POSTGRESDATABASE> < /tmp/tables.sql
-# Exit the container
-$ exit
-```
-
- Note that all the data stored in the DB is mounted into the Postgres container from a directory called `pgdata` in the root folder of this project. This means you can kill the Postgres container and bring it up again and none of your data will be lost.
-
-#### Migrations
-
-If you're updating the DB schema because you want to store a new resource or update an existing one:
- you'll need to create a migration script under [schema/migrations](schema/migrations) and run it against the DB the same way you would run `schema.sql`. Don't forget to update `schema.sql` to include any changes you apply in your migrations.
+The database schema is defined in [tables.go](schema/tables.sql).
 
 ## Docker Setup
 
@@ -124,3 +130,24 @@ Before deploying you will have to create two config files using the templates pr
 * `POSTGRES_DB`: the name of the DB to create, but `rocket` is the most sensical choice - make sure this matches `ROCKET_POSTGRESDATABASE`
 
 These variables are propagated to their respective Docker containers when you do `docker-compose up` via the `env_file` property, so make sure `env_file` for the `rocket` service points to your app environment variables file, and `env_file` for the `postgres` service points to your DB environment variables file. Our `docker-compose.yml` points to `.app.env.example` and `.db.env.example` by default. Note that data is mounted into the Postgres container from a directory called `pgdata` in the `rocket` directory. The first time you do `docker-compose up` this directory will be created for you, the rest of the time it will be re-used. This was if the DB container goes down your data is still on the host machine in the `pgdata` directory.
+
+#### Database Setup
+
+If you're starting the database for the first time you'll need to execute the script defining Rocket's schemas in `schema/tables.sql`:
+
+```bash
+# Copy tables.sql into the /tmp folder in the Postgres container
+$ docker cp schema/tables.sql <Postgres container ID>:/tmp/
+# Run a shell in the Postgres container
+$ docker-compose exec postgres bash
+# Execute the SQL script against the database
+$ psql -U <ROCKET_POSTGRESUSER> -d <ROCKET_POSTGRESDATABASE> < /tmp/tables.sql
+# Exit the container
+$ exit
+```
+
+Note that all the data stored in the DB is mounted into the Postgres container from a directory called `pgdata` in the root folder of this project. This means you can kill the Postgres container and bring it up again and none of your data will be lost.
+
+#### Migrations
+
+If you're updating the DB schema because you want to store a new resource or update an existing one: you'll need to create a migration script under [schema/migrations](schema/migrations) and run it against the DB the same way you would run `schema.sql`. Don't forget to update `schema.sql` to include any changes you apply in your migrations.
