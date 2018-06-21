@@ -13,12 +13,14 @@ import (
 
 // API provides a client to the GitHub API.
 type API struct {
-	httpClient *http.Client
+	organization string
+	httpClient   *http.Client
 	*gh.Client
 }
 
-// New creates and returns an API object based on a configuration object.
-func New(c *config.Config) *API {
+// New creates and returns a GitHub API object based on a configuration object,
+// configured for use with the given organization
+func New(organization string, c *config.Config) *API {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: c.GithubToken},
@@ -28,11 +30,13 @@ func New(c *config.Config) *API {
 	client := gh.NewClient(tc)
 
 	return &API{
+		organization,
 		tc,
 		client,
 	}
 }
 
+// UserExists checks if a given user exists in Github
 func (api *API) UserExists(username string) (bool, error) {
 	_, _, err := api.Users.Get(context.Background(), username)
 	if err != nil {
@@ -41,6 +45,7 @@ func (api *API) UserExists(username string) (bool, error) {
 	return true, nil
 }
 
+// AddUserToTeam adds given user to given team
 func (api *API) AddUserToTeam(username string, teamID int) error {
 	_, _, err := api.Organizations.AddTeamMembership(
 		context.Background(), teamID, username, nil,
@@ -48,13 +53,15 @@ func (api *API) AddUserToTeam(username string, teamID int) error {
 	return err
 }
 
+// RemoveUserFromOrg removes given user from configured organization
 func (api *API) RemoveUserFromOrg(username string) error {
 	_, err := api.Organizations.RemoveOrgMembership(
-		context.Background(), username, "ubclaunchpad",
+		context.Background(), username, api.organization,
 	)
 	return err
 }
 
+// RemoveUserFromTeam removes given user from configured organization
 func (api *API) RemoveUserFromTeam(username string, teamID int) error {
 	_, err := api.Organizations.RemoveTeamMembership(
 		context.Background(), teamID, username,
@@ -62,8 +69,9 @@ func (api *API) RemoveUserFromTeam(username string, teamID int) error {
 	return err
 }
 
+// CreateTeam creates a team in the configured organization
 func (api *API) CreateTeam(name string) (*gh.Team, error) {
-	teams, _, err := api.Organizations.ListTeams(context.Background(), "ubclaunchpad", nil)
+	teams, _, err := api.Organizations.ListTeams(context.Background(), api.organization, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -80,12 +88,13 @@ func (api *API) CreateTeam(name string) (*gh.Team, error) {
 		Name:    name,
 		Privacy: gh.String("closed"),
 	}
-	t, _, err := api.Organizations.CreateTeam(context.Background(), "ubclaunchpad", team)
+	t, _, err := api.Organizations.CreateTeam(context.Background(), api.organization, team)
 	return t, err
 }
 
+// GetTeam retrieves team with given team ID from configured organization
 func (api *API) GetTeam(id int) (*gh.Team, error) {
-	teams, _, err := api.Organizations.ListTeams(context.Background(), "ubclaunchpad", nil)
+	teams, _, err := api.Organizations.ListTeams(context.Background(), api.organization, nil)
 	if err != nil {
 		return nil, err
 	}
