@@ -77,7 +77,7 @@ func (wp *Plugin) EventHandlers() map[string]bot.EventHandler {
 
 You can use the `Start` method of your plugin to start any background tasks you need to. Any `Commands` and `EventHandlers` you expose to Rocket in your implementation of the Plugin interface will be automatically registered with the `Bot`. See the Slack's [API Event Types](https://api.slack.com/events) for a list of events and their names if you implement your own `EventHandler`s for your plugin.
 
-To add your plugin to Rocket, just make a new package for your plugin at the same level as the `core` package (within the `plugins` directory), create your type that implements the `Plugin` interface, and register your plugin in [plugin.RegisterPlugins](plugin/plugin.go). Once you are done, open up a Pull Request! :tada:
+To add your plugin to Rocket, just make a new package for your plugin at the same level as the `core` package (within the `plugins` directory), create your type that implements the `Plugin` interface, and register your plugin in [plugin.RegisterPlugins](plugin/plugin.go). Once you are done, open up a pull request! :tada:
 
 ## Architecture
 
