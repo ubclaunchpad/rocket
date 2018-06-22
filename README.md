@@ -2,6 +2,16 @@
 
 Rocket is the management and onboarding system for UBC Launch Pad. More information can be found in the [Wiki](https://github.com/ubclaunchpad/rocket/wiki). Rocket is a Slack bot you can talk to at ubclaunchpad.slack.com by messaging `@rocket`. It features GitHub integration, a robust command framework, and a simple interface through which plugins can easily be added.
 
+- [Development](#development)
+	- [Creating Your Own Rocket Plugin](#creating-your-own-rocket-plugin)
+- [Architecture](#architecture)
+	- [Slack Bot](#slack-bot)
+	- [Server](#server)
+	- [Database](#database)
+- [Deployment](#deployment)
+
+<br>
+
 ## Development
 
 To get started, make sure you have [Golang](https://golang.org/doc/install#install) installed and download the Rocket codebase:
@@ -30,17 +40,9 @@ func TestMyIntegratedFunction(t *testing.T) {
 }
 ```
 
-## Architecture
+### Creating Your Own Rocket Plugin
 
-### Rocket
-
-The [Bot](bot/bot.go) holds references to structures that we use to communicate with our external dependencies (Slack, GitHub, and Postgres). It also contains logic for handling Slack messages. The `commands` property maps from command name to command handler.
-
-[server.go](server/server.go) defines some handlers for HTTP requests. Our website will make requests to `/api/teams` and `/api/members` to display information about our teams and members. Note that content is served over HTTPS using `acme/autocert` to get TLS certificates from LetsEncrypt.
-
-#### Plugins
-
-A plugin is intended to be a standalone component of Rocket. A Rocket Plugin is simply any type that implements the [Plugin](plugin/plugin.go) interface:
+Features can easily be added to Rocket through Rocket's plugin framework. A Rocket Plugin is simply any type that implements the [Plugin](plugin/plugin.go) interface:
 
 ```go
 // Plugin is any type that exposes Slack commands and event handlers, and can
@@ -75,43 +77,39 @@ func (wp *Plugin) EventHandlers() map[string]bot.EventHandler {
 
 You can use the `Start` method of your plugin to start any background tasks you need to. Any `Commands` and `EventHandlers` you expose to Rocket in your implementation of the Plugin interface will be automatically registered with the `Bot`. See the Slack's [API Event Types](https://api.slack.com/events) for a list of events and their names if you implement your own `EventHandler`s for your plugin.
 
-When creating a new plugin, make a new package for your plugin at the same level as the `core` package (within the `plugins` directory), create your type that implements the `Plugin` interface, and register your plugin in [plugin.RegisterPlugins](plugin/plugin.go). It is recommended that you place any commands you write for your plugin in their own separate files under your plugin's package.
+To add your plugin to Rocket, just make a new package for your plugin at the same level as the `core` package (within the `plugins` directory), create your type that implements the `Plugin` interface, and register your plugin in [plugin.RegisterPlugins](plugin/plugin.go). Once you are done, open up a pull request! :tada:
+
+## Architecture
+
+### Slack Bot
+
+The [Bot](bot/bot.go) holds references to structures that we use to communicate with our external dependencies (Slack, GitHub, and Postgres). It also contains logic for handling Slack messages. The `commands` property maps from command name to command handler.
 
 #### Commands
 
 The command framework can be found in `cmd`. It defines a set of data structures and functions for parsing, validating, and automatically documenting Rocket commands. All commands are defined in the `bot` package.
 
-New commands should go in their own files in the `bot` package. When creating a new command you must define the following properties:
+#### Plugins
 
-* `Name`: The command name. Rocket will use this to assign a Slack message to a specific command handler in [bot/bot.go:handleMessageEvent](bot/bot.go).
-* `HelpText`: A description of what the command does. You don't need to describe the options here as you'll do that in the `HelpText` field of the `Option` struct.
-* `Options`: A mapping of option key to option. The key for a given option in the `Options` map should always match the `key` field in that option.
-* `HandleFunc`: The `CommandHandler` that executes the command. It should take `cmd.Context` as it's only argument and return a `string` response message with `slack.PostMessageParameters`.
+A Rocket plugin is intended to be a standalone component of Rocket. Rocket's core Slack functionality is implemented as a plugin in [package core](plugins/core).
 
-#### Options
+### Server
 
-When specifying an option for a command you'll need to fill in the following fields:
+[server.go](server/server.go) defines some handlers for HTTP requests. Our website will make requests to `/api/teams` and `/api/members` to display information about our teams and members. Note that content is served over HTTPS using `acme/autocert` to get TLS certificates from LetsEncrypt.
 
-* `Key`: The key that identifies this option. Of course, keys for different options under the same command should always be unique. For exmaple, one might create a command with one option who's key is `name`. In this case the user would assign a value to this key in their Slack command with `name={myvalue}`.
-* `HelpText`: A description of what the option is used for.
-* `Format`: A `regexp.Regexp` object that specifies the required format of a value for an option. The `cmd` framework will enforce that this format is met when a user enters a value for a given option, and will return an appropriate error response if this is not the case. Commonly used format `Regex`s can be found in [bot/util.go](bot/util.go).
-* `Required`: Whether or not a value for this option is required when a user uses this command. The `cmd` framework will enforce that a value is set for each required option when a user enters a command, and will return an appropriate error if this is not the case.
-
-#### Querying the DB
+### Database
 
 We use the [go-pg](https://github.com/go-pg/pg) for querying our Postgres database from Rocket. The `dal` package provides an interface to querying our database. The `model` package holds all our data structures that are used by the `dal` package in our queries.
 
 The database schema is defined in [tables.go](schema/tables.sql).
 
-## Docker Setup
+## Deployment
 
 _This section is for reference or for when moving Rocket to a new server. On the current Google Cloud server, Docker is already setup._
 
 We use [Docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/) to run Rocket and the Postgres database that it relies on. In order for Rocket to access the database the rocket container (called "rocket" in `docker-compose.yml`) needs to be running on the same Docker network as the Postgres container (called "postgres" in `docker-compose.yml`). Starting both containers with `docker-compose up` will create a Docker container network called `rocket_default`. Once this is done Rocket will be able to access the DB with the host name `postgres`.
 
-### Deployment
-
-Before deploying you will have to create two config files using the templates provided in `.app.env.example` and `.db.env.exmaple`. Copy these files and add the relevant values to them. Here are the recommended settings with passwords an security tokens omitted:
+Before deploying, you will have to create two config files using the templates provided in `.app.env.example` and `.db.env.exmaple`. Copy these files and add the relevant values to them. Here are the recommended settings with passwords an security tokens omitted:
 
 #### App Environment Variables
 

@@ -6,14 +6,27 @@ import (
 	"strings"
 
 	"github.com/nlopes/slack"
-	"github.com/ubclaunchpad/rocket/model"
 )
 
 // Command represents a command that Rocket will recognise and respond to.
 type Command struct {
-	Name       string
-	HelpText   string
-	Options    map[string]*Option
+	// Name identifies this Command. Rocket will use this to assign a Slack
+	// message to a specific command handler in [bot/bot.go:handleMessageEvent](bot/bot.go)
+	Name string
+
+	// HelpText is a description of what the command does. You don't need to
+	// describe the options here as you'll do that in the `HelpText` field of
+	// the `Option` struct.
+	HelpText string
+
+	// Options is a mapping of option keys to their corresponding option struct.
+	// The key for a given option in the `Options` map should always match
+	// the `key` field in that option.
+	Options map[string]*Option
+
+	// HandleFunc is the `CommandHandler` that executes the command. It should
+	// take `cmd.Context` as its only argument and return a `string` response
+	// message with `slack.PostMessageParameters`.
 	HandleFunc CommandHandler
 }
 
@@ -117,34 +130,3 @@ func (c *Command) parseOptions(opts []string) error {
 	}
 	return nil
 }
-
-// Option represents a parameter that can be passed as part of a
-// Rocket command
-type Option struct {
-	Key      string
-	HelpText string
-	Format   *regexp.Regexp
-	Required bool
-	Value    string
-}
-
-// validate returns nil if the given value meets the format requirements for
-// this option, returns the validation error otherwise.
-func (o *Option) validate(value string) error {
-	// Check that the value meets the required format
-	if !o.Format.MatchString(value) {
-		return fmt.Errorf("Invalid format for option \"%s\". "+
-			"Format must match regular expression %s.", o.Key, o.Format.String())
-	}
-	return nil
-}
-
-// Context stores a Slack message and the user who sent it.
-type Context struct {
-	Message *slack.Msg
-	User    model.Member
-	Options map[string]Option
-}
-
-// CommandHandler is the interface all handlers of Rocket commands must implement.
-type CommandHandler func(Context) (string, slack.PostMessageParameters)

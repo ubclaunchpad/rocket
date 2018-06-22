@@ -27,7 +27,7 @@ func main() {
 	}()
 
 	// Create a client to the GitHub API, using the token from the config.
-	gh := github.New(cfg)
+	gh := github.New("ubclaunchpad", cfg)
 
 	// Set up a server listening on the interface specified in the
 	// config. This will panic if the server fails to bind to the interface
