@@ -1,5 +1,9 @@
 # Use Postgres as base image
 FROM postgres
 
-# Copy the SQL script for initializing the DB to the Postgres container
-ADD ./schema/tables.sql /tables.sql
+# Copy the SQL scripts for initializing the DB to the Postgres container
+ADD schema /etc/rocket
+
+# Add the schema to Postgres' initdb.d so the DB is set up automatically when
+# the container starts
+ADD schema/tables.sql /docker-entrypoint-initdb.d/init.sql

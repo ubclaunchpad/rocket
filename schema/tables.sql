@@ -8,7 +8,6 @@ CREATE TABLE members (
     position TEXT,
     biography TEXT,
     image_url TEXT,
-    is_tech_lead BOOLEAN DEFAULT false,
     is_admin BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (now() at time zone 'utc')
 );
@@ -25,5 +24,6 @@ DROP TABLE IF EXISTS team_members CASCADE;
 CREATE TABLE team_members (
     team_github_team_id INTEGER REFERENCES teams(github_team_id) ON DELETE CASCADE,
     member_slack_id TEXT REFERENCES members(slack_id) ON DELETE CASCADE,
+    is_tech_lead BOOLEAN DEFAULT false,
     PRIMARY KEY (team_github_team_id, member_slack_id)
 );

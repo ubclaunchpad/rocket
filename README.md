@@ -148,4 +148,10 @@ Note that all the data stored in the DB is mounted into the Postgres container f
 
 #### Migrations
 
-If you're updating the DB schema because you want to store a new resource or update an existing one: you'll need to create a migration script under [schema/migrations](schema/migrations) and run it against the DB the same way you would run `schema.sql`. Don't forget to update `schema.sql` to include any changes you apply in your migrations.
+If you're updating the DB schema because you want to store a new resource or update an existing one you'll need to create a migration script under [schema/migrations](schema/migrations) and run it against the DB:
+
+```bash
+make migrate MIGRATION=7_move_is_tech_lead_to_team_members
+```
+
+Don't forget to update `tables.sql` to include any changes you apply in your migrations.

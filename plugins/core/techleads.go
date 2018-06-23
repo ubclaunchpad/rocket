@@ -4,7 +4,6 @@ import (
 	"github.com/nlopes/slack"
 	log "github.com/sirupsen/logrus"
 	"github.com/ubclaunchpad/rocket/cmd"
-	"github.com/ubclaunchpad/rocket/model"
 )
 
 // NewTechLeadsCmd returns a teams command that displays a list of Launch Pad teams
@@ -17,17 +16,20 @@ func NewTechLeadsCmd(ch cmd.CommandHandler) *cmd.Command {
 	}
 }
 
-// listAdmins displays Launch Pad admins
+// listTechLeads displays Launch Pad tech leads
 func (core *Plugin) listTechLeads(c cmd.Context) (string, slack.PostMessageParameters) {
 	noParams := slack.PostMessageParameters{}
-	members := model.Members{}
-	if err := core.Bot.DAL.GetTechLeads(&members); err != nil {
+	members, err := core.Bot.DAL.GetTechLeads()
+	if err != nil {
 		log.WithError(err).Error("failed to get tech leads")
 		return "Failed to get tech leads", noParams
 	}
-	names := ""
-	for _, member := range members {
-		names += member.Name + "\n"
+	msg := ""
+	for _, member := range *members {
+		msg += member.Name + "\n"
 	}
-	return names, noParams
+	if len(msg) == 0 {
+		msg = "There are currently no tech leads :feelsbadman:"
+	}
+	return msg, noParams
 }
