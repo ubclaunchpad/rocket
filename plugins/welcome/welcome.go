@@ -51,11 +51,15 @@ func (wp *Plugin) handleTeamJoin(evt slack.RTMEvent) {
 	wp.Bot.API.PostMessage("general", msg, noParams)
 
 	// Send the user a private message asking them to update their info
-	msg = fmt.Sprintf("Hi %s, please update your profile information with "+
-		"the `set` command:\n"+
+	msg = fmt.Sprintf("Hi %s, I'm Rocket. I am a bot created by Launch Pad "+
+		"members to help with administration. Please update "+
+		"your profile information with the `set` command:\n"+
 		"`@rocket set github={myGitHubUsername} position={a fun position} "+
 		"major={myUBCMajor}`\n"+
-		"If you need help using Rocket commands, try `@rocket help`", userMention)
+		"Once you've added your GitHub username your tech lead can add you "+
+		"to their team and your profile will show up on our website, "+
+		"www.ubclaunchpad.com! If you need help using Rocket commands, "+
+		"try `@rocket help`", userMention)
 	_, _, channelID, err := wp.Bot.API.OpenIMChannel(user.ID)
 	if err != nil {
 		// If this fails it's not the end of the world - just log an error
