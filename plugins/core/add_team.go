@@ -30,7 +30,7 @@ func NewAddTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 			"github": &cmd.Option{
 				Key:      "github",
 				HelpText: "the name of the team to create on GitHub",
-				Format:   cmd.NameRegex,
+				Format:   cmd.AnyRegex,
 				Required: false,
 			},
 		},
