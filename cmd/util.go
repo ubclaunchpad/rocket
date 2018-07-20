@@ -7,8 +7,6 @@ var (
 	AnyRegex = regexp.MustCompile(".+")
 	// AlphaRegex matches words containing only letters
 	AlphaRegex = regexp.MustCompile("[a-zA-Z]")
-	// NameRegex matches people's names
-	NameRegex = regexp.MustCompile("^[a-zA-Z'-]+$")
 	// EmailRegex matches email addresses
 	EmailRegex = regexp.MustCompile("[a-zA-Z0-9._+]+@[a-zA-Z0-9._]+")
 )

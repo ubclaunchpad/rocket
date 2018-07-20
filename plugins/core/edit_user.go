@@ -22,7 +22,7 @@ func NewEditUserCmd(ch cmd.CommandHandler) *cmd.Command {
 			"name": &cmd.Option{
 				Key:      "name",
 				HelpText: "user's full name",
-				Format:   cmd.NameRegex,
+				Format:   cmd.AnyRegex,
 				Required: false,
 			},
 			"email": &cmd.Option{
