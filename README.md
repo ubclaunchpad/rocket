@@ -49,7 +49,7 @@ Features can easily be added to Rocket through Rocket's plugin framework. A Rock
 // be started.
 type Plugin interface {
 	// Starts the plugin or returns an error if one occurred.
-	// Use this as an opportnity to start background goroutines or do any other
+	// Use this as an opportunity to start background goroutines or do any other
 	// additional setup for your plugin.
 	Start() error
 	// Returns a slice of commands that the plugin handles.
@@ -99,7 +99,7 @@ A Rocket plugin is intended to be a standalone component of Rocket. Rocket's cor
 
 ### Database
 
-We use the [go-pg](https://github.com/go-pg/pg) for querying our Postgres database from Rocket. The `dal` package provides an interface to querying our database. The `model` package holds all our data structures that are used by the `dal` package in our queries.
+We use the [go-pg](https://github.com/go-pg/pg) for querying our Postgres database from Rocket. The `dal` package provides an interface to query our database. The `model` package holds all our data structures that are used by the `dal` package in our queries.
 
 The database schema is defined in [tables.go](schema/tables.sql).
 
@@ -107,7 +107,7 @@ The database schema is defined in [tables.go](schema/tables.sql).
 
 _This section is for reference or for when moving Rocket to a new server. On the current Google Cloud server, Docker is already setup._
 
-We use [Docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/) to run Rocket and the Postgres database that it relies on. In order for Rocket to access the database the rocket container (called "rocket" in `docker-compose.yml`) needs to be running on the same Docker network as the Postgres container (called "postgres" in `docker-compose.yml`). Starting both containers with `docker-compose up` will create a Docker container network called `rocket_default`. Once this is done Rocket will be able to access the DB with the host name `postgres`.
+We use [Docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/) to run Rocket and the Postgres database that it relies on. In order for Rocket to access the database the rocket container (called "rocket" in `docker-compose.yml`) needs to be running on the same Docker network as the Postgres container (called "postgres" in `docker-compose.yml`). Starting both containers with `docker-compose up` will create a Docker container network called `rocket_default`. Once this is done Rocket will be able to access the DB with the hostname `postgres`.
 
 Before deploying, you will have to create two config files using the templates provided in `.app.env.example` and `.db.env.exmaple`. Copy these files and add the relevant values to them. Here are the recommended settings with passwords an security tokens omitted:
 
