@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/ubclaunchpad/rocket/config"
 	"github.com/ubclaunchpad/rocket/data"
+	"github.com/ubclaunchpad/rocket/github"
 	"github.com/ubclaunchpad/rocket/model"
 )
 
@@ -32,12 +33,13 @@ type Server struct {
 	server  *http.Server
 	addr    string
 	dal     *data.DAL
+	api     *github.API
 	log     *log.Entry
 	manager *autocert.Manager
 }
 
 // New returns a new instance of the HTTP server based on a config.
-func New(c *config.Config, dal *data.DAL, entry *log.Entry) *Server {
+func New(c *config.Config, dal *data.DAL, gh *github.API, entry *log.Entry) *Server {
 	router := mux.NewRouter()
 	addr := ":https"
 	m := &autocert.Manager{
@@ -59,6 +61,7 @@ func New(c *config.Config, dal *data.DAL, entry *log.Entry) *Server {
 		server:  server,
 		addr:    addr,
 		dal:     dal,
+		api:     gh,
 		log:     entry,
 		manager: m,
 	}
@@ -68,6 +71,7 @@ func New(c *config.Config, dal *data.DAL, entry *log.Entry) *Server {
 	api := router.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/members", s.MemberHandler).Methods("GET")
 	api.HandleFunc("/teams", s.TeamHandler).Methods("GET")
+	api.HandleFunc("/stats", s.StatsHandler).Methods("GET")
 
 	return s
 }
@@ -140,6 +144,29 @@ func (s *Server) TeamHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	if err := json.NewEncoder(res).Encode(&teams); err != nil {
+		s.log.WithError(err).Error("Failed to encode JSON")
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	res.WriteHeader(http.StatusOK)
+}
+
+func (s *Server) StatsHandler(res http.ResponseWriter, req *http.Request) {
+	s.log.WithFields(log.Fields{
+		"method": req.Method,
+		"route":  "/api/stats",
+	}).Info("Received request")
+
+	res.Header().Set("Content-Type", "application/json")
+	res.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
+	stats, err := s.api.GetOrgStats()
+	if err != nil {
+		s.log.WithError(err).Error("Failed to get stats")
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if err := json.NewEncoder(res).Encode(&stats); err != nil {
 		s.log.WithError(err).Error("Failed to encode JSON")
 		res.WriteHeader(http.StatusInternalServerError)
 		return

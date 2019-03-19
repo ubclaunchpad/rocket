@@ -32,7 +32,7 @@ func main() {
 	// Set up a server listening on the interface specified in the
 	// config. This will panic if the server fails to bind to the interface
 	// or dies for any reason after beginning listening.
-	srv := server.New(cfg, dal, log.WithField("service", "server"))
+	srv := server.New(cfg, dal, gh, log.WithField("service", "server"))
 
 	// Set up the Slack bot. This will create an RTM that receives
 	// events from Slack and respond to them as needed.
