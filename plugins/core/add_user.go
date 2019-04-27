@@ -13,7 +13,7 @@ import (
 func NewAddUserCmd(ch cmd.CommandHandler) *cmd.Command {
 	return &cmd.Command{
 		Name:     "add-user",
-		HelpText: "Add a user to a team (admins and tech leads only)",
+		HelpText: "Add a user to a team (admins only)",
 		Options: map[string]*cmd.Option{
 			"user": &cmd.Option{
 				Key:      "user",
@@ -38,8 +38,8 @@ func (core *Plugin) addUser(c cmd.Context) (string, slack.PostMessageParameters)
 	username := c.Options["user"].Value
 	teamName := c.Options["team"].Value
 
-	if !c.User.IsAdmin && !c.User.IsTechLead {
-		return "You must be an admin or tech lead to use this command", noParams
+	if !c.User.IsAdmin {
+		return "You must be an admin to use this command", noParams
 	}
 
 	team := model.Team{

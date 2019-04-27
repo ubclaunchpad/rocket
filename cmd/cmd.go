@@ -61,7 +61,7 @@ func (c *Command) Help() (string, slack.PostMessageParameters) {
 			if o.Required {
 				opts += fmt.Sprintf("`%s` (required): %s\n", o.Key, o.HelpText)
 			} else {
-				opts += fmt.Sprintf("%s: %s\n", o.Key, o.HelpText)
+				opts += fmt.Sprintf("`%s`: %s\n", o.Key, o.HelpText)
 			}
 		}
 		attachments = append(attachments, slack.Attachment{

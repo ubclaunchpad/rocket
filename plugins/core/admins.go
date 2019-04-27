@@ -25,9 +25,12 @@ func (core *Plugin) listAdmins(c cmd.Context) (string, slack.PostMessageParamete
 		log.WithError(err).Error("failed to get admins")
 		return "Failed to get admins", noParams
 	}
-	names := ""
+	msg := ""
 	for _, member := range members {
-		names += member.Name + "\n"
+		msg += member.Name + "\n"
 	}
-	return names, noParams
+	if len(msg) == 0 {
+		msg = "There are currently no admins :feelsbadman:"
+	}
+	return msg, noParams
 }

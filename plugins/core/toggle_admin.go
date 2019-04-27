@@ -37,18 +37,18 @@ func (core *Plugin) toggleAdmin(c cmd.Context) (string, slack.PostMessageParamet
 	member := &model.Member{SlackID: cmd.ParseMention(username)}
 	err := core.Bot.DAL.GetMemberBySlackID(member)
 	if err != nil {
-		log.WithError(err).Error("Failed to get %s", username)
+		log.WithError(err).Errorf("Failed to get %s", username)
 		return "Failed to find user", noParams
 	}
 
 	// Update member admin status
 	member.IsAdmin = !member.IsAdmin
 	if err := core.Bot.DAL.SetMemberIsAdmin(member); err != nil {
-		log.WithError(err).Error("Failed to update %s's admin status", username)
+		log.WithError(err).Errorf("Failed to update %s's admin status", username)
 		return "Failed to update admin status", noParams
 	}
 	return fmt.Sprintf(
-		"Set %s's admin status has been set to %t :tada:",
+		"%s's admin status has been set to %t :tada:",
 		cmd.ToMention(member.SlackID), member.IsAdmin,
 	), noParams
 }

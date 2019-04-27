@@ -25,15 +25,14 @@ type Teams []*Team
 // SlackAttachments creates and returns a set of Slack attachments (strictly
 // for use in messages sent to Slack clients) that describe the team's name
 // and list of members.
-func (t *Team) SlackAttachments() []slack.Attachment {
+func (t *Team) SlackAttachments(techLeads Members) []slack.Attachment {
 	members := []string{}
 	leads := []string{}
 	for _, member := range t.Members {
-		if !member.IsTechLead {
-			members = append(members, member.Name)
-		} else {
-			leads = append(leads, member.Name)
-		}
+		members = append(members, member.Name)
+	}
+	for _, lead := range techLeads {
+		leads = append(leads, lead.Name)
 	}
 	membersString := strings.Join(members, ", ")
 	leadsString := strings.Join(leads, ", ")

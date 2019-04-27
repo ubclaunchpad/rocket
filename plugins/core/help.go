@@ -54,7 +54,7 @@ func (core *Plugin) help(c cmd.Context) (string, slack.PostMessageParameters) {
 			}
 			cmds += fmt.Sprintf("%s%s %s\n", cmd.Name, dividerSpace, cmd.HelpText)
 		}
-		cmds += "\n```"
+		cmds += "```"
 		commands := slack.Attachment{
 			Title: "Commands",
 			Text:  cmds,

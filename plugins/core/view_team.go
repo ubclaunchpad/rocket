@@ -29,17 +29,24 @@ func NewViewTeamCmd(ch cmd.CommandHandler) *cmd.Command {
 // viewTeam displays a teams's information.
 func (core *Plugin) viewTeam(c cmd.Context) (string, slack.PostMessageParameters) {
 	params := slack.PostMessageParameters{}
-	team := model.Team{
+	team := &model.Team{
 		Name: c.Options["team"].Value,
 	}
 
 	// Fetch team from DB
-	if err := core.Bot.DAL.GetTeamByName(&team); err != nil {
-		log.WithError(err).Error("Failed to get team " + team.Name)
+	if err := core.Bot.DAL.GetTeamByName(team); err != nil {
+		log.WithError(err).Errorf("Failed to get team %s", team.Name)
 		return "Failed to get team " + team.Name, params
 	}
 
-	params.Attachments = team.SlackAttachments()
+	// Fetch team tech leads
+	techLeads, err := core.Bot.DAL.GetTechLeadsByTeam(team)
+	if err != nil {
+		log.WithError(err).Errorf("Failed to get tech leads for team %s", team.Name)
+		return "Failed to get tech leads for team " + team.Name, params
+	}
+
+	params.Attachments = team.SlackAttachments(*techLeads)
 
 	// Fetch GitHub team name since we don't store it in the DB
 	if ghTeam, err := core.Bot.GitHub.GetTeam(team.GithubTeamID); err == nil {

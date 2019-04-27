@@ -131,21 +131,14 @@ These variables are propagated to their respective Docker containers when you do
 
 #### Database Setup
 
-If you're starting the database for the first time you'll need to execute the script defining Rocket's schemas in `schema/tables.sql`:
-
-```bash
-# Copy tables.sql into the /tmp folder in the Postgres container
-$ docker cp schema/tables.sql <Postgres container ID>:/tmp/
-# Run a shell in the Postgres container
-$ docker-compose exec postgres bash
-# Execute the SQL script against the database
-$ psql -U <ROCKET_POSTGRESUSER> -d <ROCKET_POSTGRESDATABASE> < /tmp/tables.sql
-# Exit the container
-$ exit
-```
-
-Note that all the data stored in the DB is mounted into the Postgres container from a directory called `pgdata` in the root folder of this project. This means you can kill the Postgres container and bring it up again and none of your data will be lost.
+All the data stored in the DB is mounted into the Postgres container from a directory called `pgdata` in the root folder of this project. This means you can kill the Postgres container and bring it up again and none of your data will be lost. The DB is also automatically created from `tables.sql` on startup.
 
 #### Migrations
 
-If you're updating the DB schema because you want to store a new resource or update an existing one: you'll need to create a migration script under [schema/migrations](schema/migrations) and run it against the DB the same way you would run `schema.sql`. Don't forget to update `schema.sql` to include any changes you apply in your migrations.
+If you're updating the DB schema because you want to store a new resource or update an existing one you'll need to create a migration script under [schema/migrations](schema/migrations) and run it against the DB:
+
+```bash
+make migrate MIGRATION=7_move_is_tech_lead_to_team_members
+```
+
+Don't forget to update `tables.sql` to include any changes you apply in your migrations.

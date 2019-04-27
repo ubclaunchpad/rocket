@@ -1,6 +1,10 @@
 package data
 
-import "github.com/ubclaunchpad/rocket/model"
+import (
+	"fmt"
+
+	"github.com/ubclaunchpad/rocket/model"
+)
 
 // GetMemberBySlackID populates the given member with information from the DB
 // or returns an error.
@@ -14,14 +18,6 @@ func (dal *DAL) GetMemberBySlackID(member *model.Member) error {
 // the DB or returns an error.
 func (dal *DAL) GetMembers(members *model.Members) error {
 	return dal.db.Model(members).
-		Order("name ASC").
-		Select()
-}
-
-// GetTechLeads populates given members with all current tech leads
-func (dal *DAL) GetTechLeads(members *model.Members) error {
-	return dal.db.Model(members).
-		Where("is_tech_lead = 't'").
 		Order("name ASC").
 		Select()
 }
@@ -84,98 +80,103 @@ func (dal *DAL) DeleteMember(member *model.Member) error {
 // SetMemberName updates the name of the given member in the DB or returns
 // an error.
 func (dal *DAL) SetMemberName(member *model.Member) error {
-	_, err := dal.db.Model(member).
+	res, err := dal.db.Model(member).
 		WherePK().
 		Set("name = ?name").
 		Update()
-
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("No such member %s", member.SlackID)
+	}
 	return err
 }
 
 // SetMemberEmail updates the name of the given member in the DB or returns
 // an error.
 func (dal *DAL) SetMemberEmail(member *model.Member) error {
-	_, err := dal.db.Model(member).
+	res, err := dal.db.Model(member).
 		WherePK().
 		Set("email = ?email").
 		Update()
-
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("No such member %s", member.SlackID)
+	}
 	return err
 }
 
 // SetMemberGitHubUsername updates the GitHub username of the given member in
 // the DB or returns an error.
 func (dal *DAL) SetMemberGitHubUsername(member *model.Member) error {
-	_, err := dal.db.Model(member).
+	res, err := dal.db.Model(member).
 		WherePK().
 		Set("github_username = ?github_username").
 		Update()
-
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("No such member %s", member.SlackID)
+	}
 	return err
 }
 
 // SetMemberMajor updates the major of the given member in the DB or returns
 // an error.
 func (dal *DAL) SetMemberMajor(member *model.Member) error {
-	_, err := dal.db.Model(member).
+	res, err := dal.db.Model(member).
 		WherePK().
 		Set("program = ?program").
 		Update()
-
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("No such member %s", member.SlackID)
+	}
 	return err
 }
 
 // SetMemberPosition updates the position of the given member in the DB or returns
 // an error.
 func (dal *DAL) SetMemberPosition(member *model.Member) error {
-	_, err := dal.db.Model(member).
+	res, err := dal.db.Model(member).
 		WherePK().
 		Set("position = ?position").
 		Update()
-
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("No such member %s", member.SlackID)
+	}
 	return err
 }
 
 // SetMemberBiography updates the bio of the given member in the DB or returns
 // an error.
 func (dal *DAL) SetMemberBiography(member *model.Member) error {
-	_, err := dal.db.Model(member).
+	res, err := dal.db.Model(member).
 		WherePK().
 		Set("biography = ?biography").
 		Update()
-
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("No such member %s", member.SlackID)
+	}
 	return err
 }
 
 // SetMemberImageURL updates the image URL of the given member in the DB or returns
 // an error.
 func (dal *DAL) SetMemberImageURL(member *model.Member) error {
-	_, err := dal.db.Model(member).
+	res, err := dal.db.Model(member).
 		WherePK().
 		Set("image_url = ?image_url").
 		Update()
-
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("No such member %s", member.SlackID)
+	}
 	return err
 }
 
 // SetMemberIsAdmin updates whether the given member is an admin in the DB
 // or returns an error.
 func (dal *DAL) SetMemberIsAdmin(member *model.Member) error {
-	_, err := dal.db.Model(member).
+	res, err := dal.db.Model(member).
 		WherePK().
 		Set("is_admin = ?is_admin").
 		Update()
-
-	return err
-}
-
-// SetMemberIsTechLead updates whether the given member is a tech lead in
-// the DB or returns an error.
-func (dal *DAL) SetMemberIsTechLead(member *model.Member) error {
-	_, err := dal.db.Model(member).
-		WherePK().
-		Set("is_tech_lead = ?is_tech_lead").
-		Update()
-
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("No such member %s", member.SlackID)
+	}
 	return err
 }

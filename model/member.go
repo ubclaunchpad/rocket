@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/nlopes/slack"
@@ -19,7 +20,6 @@ type Member struct {
 	Position       string    `json:"position"`
 	Biography      string    `json:"biography"`
 	ImageURL       string    `json:"imageUrl"`
-	IsTechLead     bool      `json:"isTechLead"`
 	IsAdmin        bool      `json:"-"`
 	CreatedAt      time.Time `json:"-"`
 }
@@ -42,6 +42,10 @@ func (m *Member) SlackAttachments() []slack.Attachment {
 			Color: "good",
 		},
 		slack.Attachment{
+			Text:  fmt.Sprintf("Admin: %t", m.IsAdmin),
+			Color: "good",
+		},
+		slack.Attachment{
 			Text:  "Position: " + m.Position,
 			Color: "good",
 		},
@@ -57,19 +61,6 @@ func (m *Member) SlackAttachments() []slack.Attachment {
 			Text:  "Biography: " + m.Biography,
 			Color: "good",
 		},
-	}
-
-	for _, attachment := range attachments {
-		if len(attachment.Text) == 0 {
-			attachment.Color = "danger"
-		}
-	}
-
-	if m.IsTechLead {
-		attachments = append(attachments, slack.Attachment{
-			Text:  "Tech Lead",
-			Color: "good",
-		})
 	}
 
 	return attachments
